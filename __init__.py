@@ -20,7 +20,7 @@ from calibre.library.comments import sanitize_comments_html
 from dateutil import parser
 
 __license__ = 'GPL v3'
-__copyright__ = '2020, Michael Detambel <info@michael-detambel.de>'
+__copyright__ = '2020 - 2021, Michael Detambel <info@michael-detambel.de>'
 __docformat__ = 'restructuredtext en'
 
 _ = gettext.gettext
@@ -60,6 +60,20 @@ def get_key(d, val, exact=False):
                 return key
     return None
 
+def remove_duplicate_substring(str, delim):
+    l = [x.strip() for x in str.split(delim)]  # Split string into list items
+    # Convert list to dictionary to remove duplicates
+    d = {}  # initialize dictionary
+    # iterating through the elements of the list and build dictionary
+    for i in l:
+        d[i] = None
+    # Build string from dictionary
+    str = ''
+    for key in d:
+        str += key + ' | '
+    str = str[:-3]
+    return str
+
 # def camel_case_split_title(str):
 #     titles = []
 #     i = 1
@@ -90,8 +104,14 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 1, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    minimum_calibre_version = (0, 8, 5)
+    version = (1, 2, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    # 1.2.0 "Leihbuch"-Series
+    # 1.2.0 Perry - Unser Mann im All: New Regex
+    # ToDo: Warum wird Serientitel geändert in "Unser Mann im All"? - ppid:6 !!! PP = "Perry - Unser Mann im All"
+    # 1.2.0 Handlungsebene eingefügt
+    # 1.2.0 Ermittlung Serien-Code verbessert (Atlas Traversan, Obsidian)
+    # 1.2.0 Remove duplicate substrings from publisher
+    minimum_calibre_version = (5, 1, 0)
 
     has_html_comments = True
     can_get_multiple_covers = True
@@ -101,11 +121,17 @@ class Perrypedia(Source):
     touched_fields = frozenset(['title', 'authors', 'series', 'series_index', 'tags', 'publisher', 'pubdate',
                                 'languages', 'comments', 'identifier:ppid', 'identifier:isbn'], )
 
+    # Set config values
+    import calibre_plugins.perrypedia.config as cfg
     # There are six log levels in Python; each level is associated with an integer that indicates the log severity.
     # Calibre's log object uses the two methods 'info' and 'error'
     loglevels = {'NOTSET': 0, 'DEBUG': 10, 'INFO': 20, 'WARN': 30, 'ERROR': 40, 'CRITICAL': 50}
-    loglevel = loglevels['INFO']  # ToDo: customize
-    exact_match = True  #  # ToDo: customize
+    # loglevel = loglevels['DEBUG']
+    loglevel = loglevels['DEBUG']  # loglevels[cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_LOGLEVEL]]
+    exact_match = True  # cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_EXACT_MATCH_SEARCH]
+    exact_match = True  # Fuzzy search not implemented yet
+    append_edition_to_title = False  # cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_APPEND_EDITION_TO_TITLE]
+    formatting_comment = 'HTML'  # cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_FORMATTING_COMMENT]
 
     # Quotes from Kovid Goyal:
     # The metadata download plugins also get passed the identifiers, so create an identifier to store just a url
@@ -136,13 +162,14 @@ class Perrypedia(Source):
         'AHCT': r'(traversan.{0,5}.{1,3}hardcover)[^0-9]{0,5}(\d{1,3})'
                 r'|(traversan.{0,5}.{1,3}hc)[^0-9]{0,5}(\d{1,3})',
         # 'AM': r'((?:obsidian|lordrichter|dunkelstern|intrawelt|flammenstaub))[^0-9]{1,5}(\d{1,2})',
-        # see subseries_offsets
+        # Deleted -  see subseries_offsets
         'AO': r'(atlan.{1,5}centauri)[^0-9]{0,5}(\d{1,2})|(centauri)[^0-9]{0,5}(\d{1,2})',
         'AT': r'(atlan.{1,5}traversan)[^0-9]{0,5}(\d{1,2})',
         'ATB': r'(atlan.{1,3}taschenbuch)[^0-9]{0,7}(\d{1,3})|(atlan.{1,4}tb)[^0-9]{0,7}(\d{1,4})'
                r'|(atb)[^0-9]{0,7}(\d{1,4})',
         'ATH': r'(atlan.{1,5}das absolute abenteuer)[^0-9]{0,5}(\d{1,3})|(ath)[^0-9]{0,5}(\d{1,3})'
                r'|(das absolute abenteuer)[^0-9]{0,5}(\d{1,4})',
+        'LB': r'(Leihbuch.{1,5})[^0-9]{0,5}(\d{1,3})|(SF-Leihbuch-Datenbank)',
         # 'PR': search pattern "perry rhodan" or "pr" must be at end of the search loop,
         # otherwise things like "perry rhodan tb" are unwanted matched
         'PR-Die_Chronik_': r'(perry.{0,3}rhodan.{0,3}die.{0,3}chronik)[^0-9]{0,5}(\d{1,2})'
@@ -189,11 +216,16 @@ class Perrypedia(Source):
                   r'|(das rote imperium)[^0-9]{1,5}(\d{1,2})',  # Taschenbücher Das Rote Imperium
         'PRTBT': r'(perry.{1,3}rhodan.{1,5}die tefroder)[^0-9]{1,5}(\d{1,2})'
                  r'|(die tefroder)[^0-9]{1,5}(\d{1,2})',  # Taschenbücher Die Tefroder
-        'PRTER': r'(perry.{0,3}rhodan.{0,3}terminus)[^0-9]{1,5}(\d{1,2})',
-        'PUMIA': r'(perry.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})',
+        'PRTER': r'(perry.{0,3}rhodan.{0,3}terminus)[^0-9]{1,5}(\d{1,2})|(prte )(\d{1,2})',
+        'PUMIA': r'(perry.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})'
+                 r'|(perry rhodan.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})',
         'SE': r'\b(hörbuch|silber\-edition|silberedition)\b[^0-9]{1,5}(\d{1,3})',
         # ToDo: Concept for non-standard book pages:
-        # 'RISSZEICHNUNGSBÄNDE': r'(risszeichnung[^0-9]{1,5}band)[^0-9]{0,5}(\d{1,})',
+        # Perry Rhodan - 50 Risszeichnungen
+        # 50 Risszeichnungen – Sammelband 2
+        # 50 Risszeichnungen – Band 3
+        'RISSZEICHNUNGSBÄNDE': r'(50 risszeichnungen[^0-9]{1,9}band)[^0-9]{0,5}(\d{1,})'
+                               r'|(50 risszeichnungen)',
         'PR': r'(perry-rhodan-heft)[^0-9]{0,5}(\d{1,})|(perry%20rhodan)[^0-9]{0,5}(\d{1,})'
               r'|(\d{1,4})[^0-9]{0,3}(perry.{0,3}rhodan)|(\d{1,4})[^0-9]{0,3}(pr)'
               r'|(perry.{0,3}rhodan)[^0-9]{0,5}(\d{1,})|(perry rhodan)[^0-9]{0,5}(\d{1,})'
@@ -255,6 +287,7 @@ class Perrypedia(Source):
         ['Olymp', 'PROL', 1, r'(olymp) (\d{1,})'],
         ['Mission SOL', 'PRMS', 1, r'(mission sol) (\d{1,})'],
         ['Mission SOL 2', 'PRMS_', 1, r'(mission sol 2) (\d{1,})'],
+        ['Wega', 'PRW', 1, r'(wega) (\d{1,})'],
         # Atlan-Heftserie
         ['Im Auftrag der Menschheit', 'A', 1, r'(im auftrag der menschheit) (\d{1,})'],
         ['Der Held von Arkon', 'A', 88, r'(der held von arkon) (\d{1,})'],
@@ -284,8 +317,8 @@ class Perrypedia(Source):
         # https://www.perrypedia.de/wiki/Atlan-Miniserien
         'AM': 'Atlan-Miniserien',  # Caveat! Search with value will fail! Add "Zyklus": Obsidian, Die Lordrichter,
         # Der Dunkelstern, Intrawelt, Flammenstaub
-        'AO': 'Atlan-Miniserien',  # Caveat! Search with value will fail! Add "Zyklus": Centauri
-        'AT': 'Atlan-Miniserien',  # Caveat! Search with value will fail! Add "Zyklus": Traversan
+        'AO': 'Atlan-Miniserien - Centauri',  # Caveat! Search with value will fail! Add "Zyklus": Centauri
+        'AT': 'Atlan-Miniserien - Traversan',  # Caveat! Search with value will fail! Add "Zyklus": Traversan
         'ATB': 'Atlan-Taschenbuchserien',
         'ATH': 'Atlan - Das absolute Abenteuer',  # https://www.perrypedia.de/wiki/Atlan_-_Das_absolute_Abenteuer
         'AE': 'Atlan-Extra',
@@ -300,6 +333,7 @@ class Perrypedia(Source):
         'HSO': 'Hörspiele Sternenozean-Zyklus',
         'HSR': 'Hörspiele "Solare Residenz"-Zyklus (Universal-Hörspiele)',
         'HSP': 'Hörspiele Plejaden',
+        'LB': 'Leihbücher',
         'MF': 'Moewig Fantastic',
         'PERRYHC': 'Perry Comics Hardcover (Alligator-Farm)',
         'PR': 'Perry Rhodan-Heftserie',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Heftserie
@@ -362,8 +396,7 @@ class Perrypedia(Source):
         'PRWA': 'Weltraumatlas',
         'PRWSB': 'Werkstattband',
         'PUMIA': 'Perry - Unser Mann im All',  # https://www.perrypedia.de/wiki/Perry_-_Unser_Mann_im_All
-        # https://www.perrypedia.de/wiki/Risszeichnungsb%C3%A4nde
-        'RISSZEICHNUNGSBÄNDE': 'Risszeichnungsbände',
+        'RISSZEICHNUNGSBÄNDE': 'Risszeichnungsbände',  # https://www.perrypedia.de/wiki/Risszeichnungsb%C3%A4nde
         'SE': 'Silber Edition',  # https://www.perrypedia.de/wiki/Silber_Edition
         'SOL': 'SOL-Magazin',
     }
@@ -389,13 +422,14 @@ class Perrypedia(Source):
         'A': '/wiki/Quelle:',
         'AHC': '/wiki/Quelle:',
         'PR-Die_Chronik_': '/wiki/',
+        'PRWA': '/wiki/Weltraumatlas',
         'RISSZEICHNUNGSBÄNDE': '/wiki/Risszeichnungsb%C3%A4nde',
     }
 
     # Strings we found in page titles (in parentheses). Void = Other book source (in most cases PR series),
     # if '(Roman)' not present.
     book_variants = ['Blauband', 'Buch', 'Comic', 'Heftroman', 'Hörbuch', 'Leihbuch', 'Planetenroman', 'PR Neo', 'Roman',
-                     'Taschenheft', 'Silberband']
+                     'Silberband', 'Taschenheft']
     # (Begriffsklärung)
 
     def is_customizable(self):
@@ -548,6 +582,8 @@ class Perrypedia(Source):
         # search appropriate page titles, build book page urls from them and scrape.
         # Caveat: There are possible disambiguous titles, so we can have more than one result.
         if not pp_id:
+            series_code = None
+            issuenumber = None
             # possible ambiguous title - more than one metadata soup possible
             result = self.get_raw_metadata_from_title(title, authors_str, self.exact_match, self.browser, 20, log)
             soups = result[0]
@@ -557,7 +593,7 @@ class Perrypedia(Source):
                     log.info(''.join([char*20 for char in '-']))
                     log.info(_('Next soup, Page title:'), soup.title.string)
                     log.info(_('Next soup, url:'), url)
-                raw_metadata = self.parse_pp_book_page(soup, self.browser, timeout, url, log)
+                raw_metadata = self.parse_pp_book_page(soup, series_code, issuenumber, self.browser, timeout, url, log)
                 if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Result found with title search.'))
                 mi = self.parse_raw_metadata(raw_metadata, self.series_names, log)
@@ -572,7 +608,9 @@ class Perrypedia(Source):
                     overview = dict(raw_metadata[0])
                     if self.loglevel == self.loglevels['DEBUG']:
                         log.info("overview=", overview)
-                    series_code = get_key(self.series_names, overview['Serie:'], exact=False)
+
+                    series_code = self.get_series_code_from_series_and_subseries(overview, log)
+                    # series_code = get_key(self.series_names, overview['Serie:'], exact=False)
                     issuenumber = int(str(re.search(r'\d+', overview['Serie:']).group()).strip())
                     if self.loglevel == self.loglevels['DEBUG']:
                         log.info("series_code=", series_code)
@@ -736,6 +774,32 @@ class Perrypedia(Source):
 
     # Perrypedia specific identification methods
 
+    def get_series_code_from_series_and_subseries(self, overview, log):
+        if self.loglevel in [self.loglevels['DEBUG']]:
+            log.info('Enter parse_title_authors_for_series_code_and_issuenumber()')
+        series_code = ''
+        try:
+            if self.loglevel in [self.loglevels['DEBUG']]:
+                log.info('overview["Serie:"], overview["Zyklus:"]=', overview['Serie:'] + ', ' + overview['Zyklus:'])
+            series_code = get_key(self.series_names, overview['Serie:'], exact=False)
+            # Caveat: Atlan Miniserien
+            # ['Obsidian', 'AM', 1, r'(obsidian)[^0-9]{0,8}(\d{1,})'],
+            # ['Die Lordrichter', 'AM', 13, r'(die lordrichter)[^0-9]{0,8}(\d{1,})|(lordrichter)[^0-9]{0,3}(\d{1,})'],
+            # ['Der Dunkelstern', 'AM', 25, r'(der dunkelstern)[^0-9]{0,8}(\d{1,})|(dunkelstern)[^0-9]{0,3}(\d{1,})'],
+            # ['Intrawelt', 'AM', 37, r'(intrawelt)[^0-9]{0,8}(\d{1,})'],
+            # ['Flammenstaub', 'AM', 49, r'(flammenstaub)[^0-9]{0,8}(\d{1,})'],
+            # ['Centauri', 'AO', 1, r'(centauri)[^0-9]{0,8}(\d{1,})'],  # Atlan - Centauri-Zyklus 07 - Frank Borsch
+            # ['Traversan', 'AT', 1, r'(traversan)[^0-9]{0,8}(\d{1,})'],
+            if overview['Zyklus:'] == 'Centauri':
+                series_code = 'AO'
+            if overview['Zyklus:'] == 'Traversan':
+                series_code = 'AT'
+        except KeyError:
+            pass
+        if self.loglevel in [self.loglevels['DEBUG']]:
+            log.info('series_code=', series_code)
+        return series_code
+
     def parse_title_authors_for_series_code_and_issuenumber(self, title, authors_str, log):
         # Combine def parse_title_author_for_series_code() and parse_title_author_for_issuenumber()
         if self.loglevel in [self.loglevels['DEBUG']]:
@@ -871,7 +935,10 @@ class Perrypedia(Source):
 
         # Get the metadata page for the book
         if series_code in self.series_metadata_path:
-            url = self.base_url + self.series_metadata_path[series_code] + series_code + str(issuenumber).strip()
+            if series_code == 'RISSZEICHNUNGSBÄNDE':
+                url = self.base_url + self.series_metadata_path[series_code]
+            else:
+                url = self.base_url + self.series_metadata_path[series_code] + series_code + str(issuenumber).strip()
         else:
             url = self.base_url + self.series_metadata_path['DEFAULT'] + series_code + str(issuenumber).strip()
         if series_code == 'PR':
@@ -881,7 +948,7 @@ class Perrypedia(Source):
         page = browser.open_novisit(url, timeout=timeout).read().strip()
         soup = BeautifulSoup(page, 'html.parser')
 
-        return self.parse_pp_book_page(soup, browser, timeout, url, log)
+        return self.parse_pp_book_page(soup, series_code, issuenumber, browser, timeout, url, log)
 
     def get_raw_metadata_from_title(self, title, authors_str, exact_match, browser, timeout, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
@@ -1038,6 +1105,23 @@ class Perrypedia(Source):
                         is_book_page = True
                         soups.append(soup)
                         urls.append(book_info[1])
+                    else:
+                        # ToDo: Handle books without overview, e.g.
+                        # ToDo: put in seperate function get_raw_metadata_for_non_std_books
+                        non_std_book_list = ['Werkstattband', 'Zeitsplitter', 'Weltraumatlas', 'Risszeichnungsbände']
+                        # https://www.perrypedia.de/wiki/Die_ersten_25_Jahre_-_Der_gro%C3%9Fe_Werkstattband
+                        # https://www.perrypedia.de/wiki/Zeitsplitter
+                        # https://www.perrypedia.de/wiki/Weltraumatlas
+                        # https://www.perrypedia.de/wiki/Risszeichnungsb%C3%A4nde
+                        if any(x in non_std_book_list for x in soup.title.string):
+                            generic_selector = '#mw-content-text > div.mw-parser-output'
+                            generic_body = soup.select_one(generic_selector)
+                            if generic_body:
+                                is_book_page = True
+                                soups.append(generic_body)
+                                # urls.append(book_info[1])
+
+
             else:
                 if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('No possible book source found with'), search_text)
@@ -1051,15 +1135,192 @@ class Perrypedia(Source):
             log.exception(_('Failed to download book metadata with title search. Giving up.'))
             return [], []
 
-    def parse_pp_book_page(self, soup, browser, timeout, source_url, log):
+    def parse_pp_book_page(self, soup, series_code, issuenumber, browser, timeout, source_url, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_pp_book_page()')
 
+        # Find 'Handlungsebene' in navigation
+        actionlevel_selector = '#mw-content-text > div.mw-parser-output > div.perrypedia_navigation > ' \
+                               'div:nth-child(15) > div:nth-child(1) > a'  # Handlungsebene
+        actionlevel_soup = soup.select_one(actionlevel_selector)
+        actionlevel = ''
+        actionlevel_list = []
+        if actionlevel_soup:
+            actionlevel = actionlevel_soup.get_text()
+            actionlevel_list = actionlevel.split(':')
+            actionlevel_list[0] = actionlevel_list[0].strip() + ':'
+            actionlevel_list[1] = actionlevel_list[1].strip()
+
+        if self.loglevel in [self.loglevels['DEBUG']]:
+            log.info('soup.title.string=', soup.title.string)
+
+        # Handle books without overview, e.g.
+
+        # https://www.perrypedia.de/wiki/Risszeichnungsb%C3%A4nde
+        if 'Risszeichnungsbände' in soup.title.string:
+            overview = {}
+            plot = cover_urls = ''
+            rz_selector = '#mw-content-text > div.mw-parser-output > table:nth-child(13)'
+            table_body = soup.select_one(rz_selector)
+            if table_body:
+                rz_books = table_body.find_all('td', {"width" : "50%"})
+                if rz_books:
+                    line = 0
+                    # caveat: There is more than one book description in page!
+                    for rz_book in rz_books:
+                        log.info('rz_book=', rz_book.get_text())
+                        overview['Titel:'] = rz_book.find('h2').get_text()
+                        log.info('overview["Titel:"] =', overview['Titel:'])
+                        # 50 Risszeichnungen, 50 Risszeichnungen – Sammelband 2, 50 Risszeichnungen – Band 3,
+                        # 50 Risszeichnungen – Band 4
+                        try:
+                            pos = overview['Titel:'].lower().index('band')
+                            log.info('pos=', pos)
+                            subpage_issuenumber = float(overview['Titel:'][pos + 5:])
+                        except ValueError:
+                            subpage_issuenumber = 1.0
+                        log.info('subpage_issuenumber=', subpage_issuenumber)
+                        log.info('issuenumber=', issuenumber)
+                        if subpage_issuenumber == issuenumber:
+                            # Find the children, loop trough line per line and save
+                            subpage_children = rz_book.findChildren()
+                            for subpage_child in subpage_children:
+                                # ToDo: print(subpage_child)
+                                log.info('subpage_child=', subpage_child)
+
+                            # ToDo
+
+
+                            # find next <ul> and extract "Herausgeber:"
+                            ul_list = rz_book.find('ul')
+                            log.info('ul_list=', ul_list)
+                            if len(ul_list) > 0:
+                                # copy html list items to a python list
+                                ul_list_items = [ul_list_item.text for ul_list_item in ul_list.select('li')]
+                                for ul_list_item in ul_list_items:
+                                    log.info('ul_list_item=', ul_list_item)
+                                    line = line + 1
+                                    overview[line] = ul_list_item  # put line in "overview" dict
+                                    if 'Herausgeber:' in ul_list_item:
+                                        pos = ul_list_item.index('Herausgeber:')
+                                        log.info('pos=', pos)
+                                        overview['Autor:'] = ul_list_item[pos + 12:].strip()
+                                        log.info('overview["Autor:"]=', overview['Autor:'])
+                                    if 'Erscheinungsjahr:' in ul_list_item:
+                                        pos = ul_list_item.index('Erscheinungsjahr:')
+                                        log.info('pos=', pos)
+                                        overview['Erstmals erschienen:'] = ul_list_item[pos + 18:].strip()
+                                        log.info('overview["Erstmals erschienen:"]=', overview['Erstmals erschienen:'])
+                            # find all <h3> sections for this book
+                            hn_sections = rz_book.find_all(['h3', 'h4'])
+                            if hn_sections:
+                                log.info('hn_sections found.')
+                                for hn_section in hn_sections:
+                                    # find all <ul> sections
+                                    ul_sections = hn_section.find_all('ul')
+                                    if ul_sections:
+                                        log.info('ul_sections found.')
+                                        for ul_section in ul_sections:
+                                            # find all <li> sections
+                                            li_sections = ul_section.find_all('li')
+                                            if li_sections:
+                                                log.info('li_sections found.')
+                                                for li_section in li_sections:
+                                                    log.info('li_section=', li_section)
+
+                            # Find ul und dann alle li durchlaufen
+                            # Check for html lists and convert them to comma-seperated strings
+                            # html_lists = col.find_all('ul', 'ol')
+                            # if len(html_lists) > 0:
+                            #     seperator = ', '
+                            #     for html_list in html_lists:
+                            #         # copy html list items to a python list
+                            #         html_list_items = [html_list_item.text for html_list_item in html_list.select('li')]
+                            #         col.ul.replace_with(
+                            #             seperator.join(html_list_items))  # replace ul with a comma-seperated string
+                            #         col.ol.replace_with(
+                            #             seperator.join(html_list_items))  # replace ol with a comma-seperated string
+                            #     col_text = col.get_text()
+                            # else:
+                            #     col_text = col.get_text()  # ToDo: Get html formatted text (config). See plugin 'Comments Cleaner'
+
+                            if 'Weltraumatlas' in soup.title.string:
+                                # 'PRWA': '/wiki/Weltraumatlas',
+                                overview = {}
+                                plot = ''
+                                cover_urls = []
+                                prwa_selector = '#mw-content-text > div.mw-parser-output'
+                                prwa_body = soup.select_one(prwa_selector)
+                                if prwa_body:
+                                    # overwiev['Überblick'] = prwa_body.get_text()
+                                    line = 0
+                                    for tag in prwa_body.div.find_next_siblings(name=['p', 'dl', 'ul']):
+                                        line = line + 1
+                                        overview.update(
+                                            {line: tag.text + '<br />'})  # ToDo: config user choice text or html
+                                    # #firstHeading -> Überschrift h1
+                                    # Aufteilen in Überblick und Inhalt (plot)
+                                    # Zusammenstellung und Text: Peter Griese
+
+                                    plot = ''  # Inhalt
+                                    # <h2>id="Inhalt"<p>
+                                    plot_header = prwa_body.find('span', {'id': 'Inhalt'})
+                                    for tag in prwa_body.h2.find_next_siblings(name=['p', 'dl', 'ul']):
+                                        plot = plot + tag.text + '<br />'  # ToDo: config user choice text or html
+                                        # plot = plot + str(tag.decode(formatter="html5"))  # ToDo: config user choice text or html
+                                        # Note: The HTML formatter produces '<pre>' for '<dl>'
+
+                                    # Bild: #mw-content-text > div.mw-parser-output > div > div > a > img
+                                    url_body = prwa_body.find('a', class_="image")
+                                    cover_urls.append(self.base_url + url_body['href'])
+
+                                return overview, plot, cover_urls, source_url
+
+                            if 'Risszeichnungsbände' in soup.title.string:
+                                overview = {}
+                                plot = cover_urls = ''
+                                rz_selector = '#mw-content-text > div.mw-parser-output > table:nth-child(13)'
+                                table_body = soup.select_one(rz_selector)
+                                if table_body:
+                                    rz_books = table_body.find_all('td', {"width": "50%"})
+                                    if rz_books:
+                                        line = 0
+                                        # caveat: There is more than one book description in page!
+                                        for rz_book in rz_books:
+                                            log.info('rz_book=', rz_book.get_text())
+                                            overview['Titel:'] = rz_book.find('h2').get_text()
+                                            log.info('overview["Titel:"] =', overview['Titel:'])
+                                            # ToDo: Avoid duplicate code?
+
+                            log.info('overview[line]=', overview[line])
+                            overview['Serie:'] = 'RISSZEICHNUNGSBÄNDE' #  ToDo: series index
+                            break
+            return overview, plot, cover_urls, source_url
+
+        # https://www.perrypedia.de/wiki/Die_ersten_25_Jahre_-_Der_gro%C3%9Fe_Werkstattband
+        if 'Werkstattband' in soup.title.string:
+            # ToDo: parse data and fill return values
+            return {}, '', '', source_url
+            return overview, plot, cover_urls, source_url
+
+        # https://www.perrypedia.de/wiki/Zeitsplitter
+        if 'Zeitsplitter' in soup.title.string:
+            # ToDo: parse data and fill return values
+            return {}, '', '', source_url
+            return overview, plot, cover_urls, source_url
+
+        # Weltraumatlas
+        # #mw-content-text > div.mw-parser-output
+
+
+
+        # Books with overview (default case)
         overview_selector = 'html body #content #bodyContent #mw-content-text .mw-parser-output ' \
-                            '.perrypedia_std_rframe.overview table tbody'
+                            '.perrypedia_std_rframe.overview table tbody'  # Überblick
         table_body = soup.select_one(overview_selector)
         rows = table_body.find_all('tr')
         overview_data = []
+
         for row in rows:
             cols = row.find_all(['td', 'th'])
             # Warum auch nach <th> suchen:
@@ -1099,6 +1360,9 @@ class Perrypedia(Source):
                 col_text = col_text.replace(u'\xa0', u' ')  # convert non-breakable space to simple space
                 overview_entry.append(col_text)
             overview_data.append(overview_entry)
+            if 'Zyklus:' in overview_entry[0]:
+                if actionlevel_list:
+                    overview_data.append(actionlevel_list)
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('overview_data=', overview_data)
         overview_data = list(filter(None, overview_data))  # get rid of empty list elements
@@ -1195,6 +1459,7 @@ class Perrypedia(Source):
             log.info('cover_urls=', cover_urls)
 
         # ToDo: Perhaps try also plot_summary and other sections (not present in all book pages)
+
         return overview, plot, cover_urls, source_url
 
     def parse_raw_metadata(self, raw_metadata, series_names, log):
@@ -1212,6 +1477,9 @@ class Perrypedia(Source):
             log.info('cover_urls=', cover_urls)
             log.info('url=', url)
 
+        # ToDo: Handling for book pages without standard overview, plot, cover
+        # (e. g. Risszeichnungsbände, Werkstattband, ...)
+
         # ['Serie:', 'Perry Rhodan-Heftserie (Band 1433)', '© Pabel-Moewig Verlag KG']
         # ['Serie:': 'Perry Rhodan Neo (Band 240)']
         series_code = None
@@ -1219,13 +1487,14 @@ class Perrypedia(Source):
         if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
             log.info(_('Trying to get series code and issuenumber from result.'))
         try:
-            series_code = get_key(series_names, overview['Serie:'], exact=False)
+            series_code = self.get_series_code_from_series_and_subseries(overview, log)
+            # series_code = get_key(series_names, overview['Serie:'], exact=False)
             issuenumber = int(str(re.search(r'\d+', overview['Serie:']).group()).strip())
             if self.loglevel in [self.loglevels['DEBUG']]:
                 log.info("series_code=", series_code)
                 log.info("issuenumber=", issuenumber)
         except:
-            # Book without serieS
+            # Book without series
             if self.loglevel in [self.loglevels['DEBUG']]:
                 log.info("Found a book without series.")
 
@@ -1391,6 +1660,13 @@ class Perrypedia(Source):
 
         try:
             if self.loglevel in [self.loglevels['DEBUG']]:
+                log.info('#actionlevel=', str(overview['Handlungsebene:']))
+            actionlevel = str(overview['Handlungsebene:'])
+        except KeyError:
+            actionlevel = ''
+
+        try:
+            if self.loglevel in [self.loglevels['DEBUG']]:
                 log.info('#period=', str(overview['Handlungszeitraum:']))
             period = str(overview['Handlungszeitraum:'])
         except KeyError:
@@ -1411,6 +1687,8 @@ class Perrypedia(Source):
             verlag = str(overview['Verlag:'])
             if self.loglevel in [self.loglevels['DEBUG']]:
                 log.info('Verlag=', str(overview['Verlag:']))
+            verlag = remove_duplicate_substring(verlag, '|')  # Remove duplicates
+            overview.pop('Verlag:', None)  # Zeile mit Verlag aus Übersicht herausnehmen
         except KeyError:
             pass
         if verlag == '':
@@ -1479,8 +1757,7 @@ class Perrypedia(Source):
         if glossary:
             mi.tags = mi.tags + glossary
         try:
-            # remove spaces
-            mi.tags = [x.strip(' ') for x in mi.tags]
+            mi.tags = [x.strip(' ') for x in mi.tags]  # remove spaces
         except:
             pass
         # remove duplicates
@@ -1504,8 +1781,9 @@ class Perrypedia(Source):
         else:
             path = self.series_metadata_path['DEFAULT']
         mi.comments = mi.comments + '</p>'
-        mi.comments = mi.comments + '<p>Handlung:<br />' + plot + '</p>'
-        mi.comments = mi.comments + '<p>&nbsp;</p>'  # ToDo: Delete extra line?
+        if plot:
+            mi.comments = mi.comments + '<p>Handlung:<br />' + plot + '</p>'
+            mi.comments = mi.comments + '<p>&nbsp;</p>'  # ToDo: Delete extra line?
         mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
         #mi.comments = self.sanitize_comments_html(mi.comments)
 
