@@ -57,15 +57,11 @@ Erstveröffentlichung.
 Installation:
 -------------
 Laden Sie die angehängte Zip-Datei herunter und installieren Sie das Plugin wie im sticky thread "Introduction to plugins" beschrieben.
+Weitere Informationen unter https://www.mobileread.com/forums/forumdisplay.php?f=166.
 
 So melden Sie Fehler und Vorschläge:
 -----------------------------------
 Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem Thread.
-
-Paypal-Spenden:
------------------
-Wenn Sie dieses Plugin nützlich finden, können Sie gerne Ihre Wertschätzung zeigen.
-PayPal
 
 ---
 
@@ -125,12 +121,8 @@ Initial release.
 Installation:
 -------------
 Download the attached zip file and install the plugin as described in the Introduction to plugins thread.
+Read more: https://www.mobileread.com/forums/forumdisplay.php?f=166.
 
 How to report Bugs and suggestions:
 -----------------------------------
 If you find any issues or have suggestions please report them in this thread.
-
-Paypal Donations:
------------------
-If you find this plugin useful please feel free to show your appreciation.
-PayPal
