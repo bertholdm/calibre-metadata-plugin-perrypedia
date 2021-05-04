@@ -112,3 +112,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# PyrCharm
+.idea/
+
+# Calibre plugin installer
+plugin_install.bat
