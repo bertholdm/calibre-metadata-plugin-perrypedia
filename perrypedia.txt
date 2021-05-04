@@ -37,6 +37,11 @@ Einschränkungen:
 
 Versionsgeschichte:
 ----------------
+v.1.2.0 xx-xx-2021
+- Verbesserte Behandlung von mehrdeutigen Titeln
+- Unterstützung weiterer der unter https://www.perrypedia.de/wiki/Produkte aufgeführten Produkte
+- Aktualisierte Übersetzungen 
+
 v.1.1.0 01-19-2021
 - Titelsuche (mit Behandlung von mehrdeutigen Titeln)
 - Nutzung der Wikimedia API
