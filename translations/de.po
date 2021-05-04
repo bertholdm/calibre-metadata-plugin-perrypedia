@@ -1,0 +1,268 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Perrypedia\n"
+"POT-Creation-Date: 2021-01-19 10:49+0100\n"
+"PO-Revision-Date: 2021-01-19 10:57+0100\n"
+"Last-Translator: Michael Detambel <info@michael-detambel.de>\n"
+"Language-Team: Michael Detambel, <info@michael-detambel.de>\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.2\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: __init__ - v10.py:77 __init__.py:754
+msgid "Searching in title and authors field:"
+msgstr "Suche in Titel- und Autoren-Feldern:"
+
+#: __init__ - v10.py:85 __init__.py:763
+msgid "Match found for series code:"
+msgstr "Treffer gefunden für Wörterbuch-Schlüssel:"
+
+#: __init__ - v10.py:115 __init__.py:793
+msgid "Series and/or issuenumber not found. Searching for subseries..."
+msgstr "Fehler: Index zur Serie nicht gefunden. Starte Suche nach Titel..."
+
+#: __init__ - v10.py:125 __init__.py:803
+msgid "Searching subseries in title and authors:"
+msgstr "Suche Zyklus ind den Titel- und Autoren-Feldern:"
+
+#: __init__ - v10.py:133 __init__.py:811
+msgid "Match found for "
+msgstr "Treffer gefunden für Wörterbuch-Schlüssel "
+
+#: __init__ - v10.py:156 __init__.py:834
+msgid "Subseries and/or subseries issuenumber not found."
+msgstr "Zyklus und/oder Nummer im Zyklus nicht gefunden."
+
+#: __init__ - v10.py:278 __init__.py:1161
+msgid "Found a relative cover page URL:"
+msgstr "Relative URL einer Seite mit den Umschlagbildern:"
+
+#: __init__ - v10.py:307 __init__.py:1190
+msgid "Relative cover url:"
+msgstr "Relative URL des Umschlagbilds:"
+
+#: __init__ - v10.py:389 v10.py:419 v10.py:496
+msgid "Redirected to"
+msgstr "Umgeleitet nach"
+
+#: __init__ - v10.py:390 v10.py:420 v10.py:497 v10.py:634 __init__.py:1035
+msgid "Page title:"
+msgstr "Seiten-Titel:"
+
+#: __init__ - v10.py:460 v10.py:588
+msgid "Found a disambiguation page:"
+msgstr "Verweisseite (\"Begriffsklärung\") gefunden:"
+
+#: __init__ - v10.py:482 v10.py:537
+msgid "Caveat: Ambigouus title!"
+msgstr "Vorsicht! Mehrdeutiger Titel!"
+
+#: __init__ - v10.py:484
+msgid "Other possible book source(s):"
+msgstr "Andere infrage kommende Quelle(n):"
+
+#: __init__ - v10.py:486 v10.py:583
+msgid "Disambiguation at"
+msgstr "Gleicher Titel bei"
+
+#: __init__ - v10.py:489
+msgid "Using first possible book page:"
+msgstr "Die erste mögliche Buchdatenquelle wird verwendet:"
+
+#: __init__ - v10.py:512 v10.py:563 v10.py:655
+msgid " (Caveat! Ambigouus title! Perhaps not the wanted data. See log.)"
+msgstr ""
+" (Vorsicht! Mehrdeutiger Titel! Eventuell sind dies nicht die erwarteten "
+"Daten. Siehe Protokoll)"
+
+#: __init__ - v10.py:541
+msgid "Other possible book source:"
+msgstr "Andere infrage kommende Quelle(n):"
+
+#: __init__ - v10.py:573
+msgid "Not a book page - looking for disambiguation hint."
+msgstr "Keine Buchdatenquelle - Suche nach Verweisen."
+
+#: __init__ - v10.py:619
+msgid "Possible book source:"
+msgstr "Mögliche Buchdatenquelle:"
+
+#: __init__ - v10.py:626
+msgid "No possible book source found."
+msgstr "Keine Buchdatenquelle gefunden."
+
+#: __init__ - v10.py:629
+msgid "Going to the first possible book source:"
+msgstr "Umleitung zur ersten möglichen Buchdatenquelle:"
+
+#: __init__ - v10.py:678 __init__.py:1051
+msgid "Failed to download book metadata with title search. Giving up."
+msgstr "Herunterladen der Buch-Metadaten fehlgeschlagen. Abbruch."
+
+#: __init__ - v10.py:732 __init__.py:1566
+msgid "Found the relative cover page URL:"
+msgstr "Relative URL der Seite mit den Umschlagbildern:"
+
+#: __init__ - v10.py:735 v10.py:767 __init__.py:1569 __init__.py:1601
+msgid "Effective URL:"
+msgstr "Endgültige URL:"
+
+#: __init__ - v10.py:749 __init__.py:1583
+msgid "Cover page not found."
+msgstr "Seite mit den Umschlagbildern nicht gefunden."
+
+#: __init__ - v10.py:763 __init__.py:1597
+msgid "Found the relative cover URL:"
+msgstr "Relative URL eines oder des Umschlagbildes:"
+
+#: __init__ - v10.py:785 __init__.py:91
+msgid "Downloads metadata and covers from Perrypedia (perrypedia.de)"
+msgstr ""
+"Lädt Metadaten und Umschlagbilder aus der Perrypedia (perrypedia.de) "
+"herunter."
+
+#: __init__ - v10.py:1188 __init__.py:492
+msgid "Unexpectedly structure of field pp_id:"
+msgstr "Unerwarteter Aufbau des Feldes pp_id:"
+
+#: __init__ - v10.py:1199 __init__.py:505
+#, python-brace-format
+msgid ""
+"Malformed PPID: {0}. Parse title and authors fields for series and "
+"issuenumber."
+msgstr ""
+"Korrupte PPID: {0}. Untersuche Titel und Autoren-Felder nach "
+"Serienbezeichnung und Nummer."
+
+#: __init__ - v10.py:1237
+msgid "Issuenumber not found. Trying a book title search."
+msgstr "Index zur Serie nicht gefunden. Starte Suche nach Titel."
+
+#: __init__ - v10.py:1241
+msgid "Series code not found. Trying a book title search."
+msgstr "Serienbezeichnung nicht gefunden. Starte Suche nach Titel."
+
+#: __init__ - v10.py:1251 __init__.py:562
+msgid "Result found with title search."
+msgstr "Titelsuche erbrachte ein Ergebnis."
+
+#: __init__ - v10.py:1257 __init__.py:570 __init__.py:1220
+msgid "Trying to get series code and issuenumber from result."
+msgstr "Untersuche Ergebnis nach Serienbezeichnung und Nummer."
+
+#: __init__ - v10.py:1275 __init__.py:588
+msgid ""
+"No book found with text provided in title and authors fields - giving up."
+msgstr ""
+"Kein Treffer mit den Daten aus den Titel- und Autoren-Feldern - Ende der "
+"Fahnenstange."
+
+#: __init__ - v10.py:1276 __init__.py:589
+msgid ""
+"Since metadata plugins cannot read book files for identification purposes, "
+"use the \"PerrypediaTools\" plugin to get identification data from book file."
+msgstr ""
+"Da Metadaten-Plugins keine Buchdateien zum Finden von "
+"Identifikationsmerkmalen lesen können, verwenden Sie zuerst das Plugin "
+"\"PerrypediaTools\"."
+
+#: __init__ - v10.py:1288 __init__.py:591
+msgid "Error: No metadata result. Abort."
+msgstr "Fehler: Keine Metadaten gefunden. Abbruch."
+
+#: __init__ - v10.py:1328 __init__.py:1282
+msgid "Key error while building authors field!"
+msgstr "Schlüsselfehler in Autorenfeld!"
+
+#: __init__ - v10.py:1333 __init__.py:1288
+msgid "Unknown"
+msgstr "Unbekannt"
+
+#: __init__ - v10.py:1370 __init__.py:1336
+msgid "Cover URLs cached:"
+msgstr "Gespeicherte URLs für Buchumschläge:"
+
+#: __init__ - v10.py:1559 __init__.py:608
+msgid "Enter download_cover()"
+msgstr "Starte download_cover()"
+
+#: __init__ - v10.py:1588 __init__.py:637
+msgid "No cached cover found, running identify."
+msgstr ""
+"Keine gespeicherten Buchumschläge gefunden. Identifizierung wird gestartet."
+
+#: __init__ - v10.py:1611 __init__.py:660
+msgid "No luck to find cover with identify."
+msgstr "Es konnte kein Buchumschlag identifiziert werden."
+
+#: __init__ - v10.py:1629 __init__.py:678
+msgid "Going to download cover from url"
+msgstr "Herunterladen eines Umschlagbildes fehlgeschlagen von"
+
+#: __init__ - v10.py:1635 __init__.py:684
+msgid "Have downloaded cover from"
+msgstr "Umschlagbild heruntergeladen von"
+
+#: __init__ - v10.py:1637 __init__.py:686
+msgid "Failed to download cover from"
+msgstr "Herunterladen eines Umschlagbildes fehlgeschlagen von"
+
+#: __init__ - v10.py:1656 __init__.py:1649
+#, python-format
+msgid "Cover test failed. Expected: '%s' found: "
+msgstr "Test für Umschlagbild fehlgeschlagen. Erwartet: '%s', gefunden: "
+
+#: __init__.py:542
+#| msgid "Error: Issuenumber not found. Trying a book title search."
+msgid ""
+"No metadata found with series code and/or issuenumber not found. Trying a "
+"book title search."
+msgstr ""
+"Keine Metadaten gefunden mit Serie und Ausgabe. Starte eine Suche nach Titel."
+
+#: __init__.py:545
+msgid "Series code and/or issuenumber not found. Trying a book title search."
+msgstr "Serie und/oder Ausgabe nicht gefunden. Starte Suche nach Titel."
+
+#: __init__.py:558
+msgid "Next soup, Page title:"
+msgstr "Weitere Seite. Titel:"
+
+#: __init__.py:559
+msgid "Next soup, url:"
+msgstr "Nächste Seite. URL:"
+
+#: __init__.py:905
+msgid "API seaach with:"
+msgstr "API Suche mit:"
+
+#: __init__.py:906
+msgid "GET url:"
+msgstr "GET URL:"
+
+#: __init__.py:911
+msgid "Response list="
+msgstr "Response list="
+
+#: __init__.py:1021
+#, python-brace-format
+#| msgid "No possible book source found."
+msgid "{0} book source(s) found."
+msgstr "{0} Buchdatenquelle(n) gefunden."
+
+#: __init__.py:1043
+msgid "No possible book source found with"
+msgstr "Keine Buchdatenquelle gefunden mit:"
+
+#: config.py:45
+msgid "Other options"
+msgstr "Weitere Einstellungen"
+
+#: config.py:50
+msgid "(Coming soon.)"
+msgstr "(in Arbeit)"

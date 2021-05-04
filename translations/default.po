@@ -1,0 +1,253 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Perrypedia\n"
+"POT-Creation-Date: 2021-01-19 10:49+0100\n"
+"PO-Revision-Date: 2021-01-19 10:49+0100\n"
+"Last-Translator: Michael Detambel <info@michael-detambel.de>\n"
+"Language-Team: Michael Detambel\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.2\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: __init__ - v10.py:77 __init__.py:754
+msgid "Searching in title and authors field:"
+msgstr ""
+
+#: __init__ - v10.py:85 __init__.py:763
+msgid "Match found for series code:"
+msgstr ""
+
+#: __init__ - v10.py:115 __init__.py:793
+msgid "Series and/or issuenumber not found. Searching for subseries..."
+msgstr ""
+
+#: __init__ - v10.py:125 __init__.py:803
+msgid "Searching subseries in title and authors:"
+msgstr ""
+
+#: __init__ - v10.py:133 __init__.py:811
+msgid "Match found for "
+msgstr ""
+
+#: __init__ - v10.py:156 __init__.py:834
+msgid "Subseries and/or subseries issuenumber not found."
+msgstr ""
+
+#: __init__ - v10.py:278 __init__.py:1161
+msgid "Found a relative cover page URL:"
+msgstr ""
+
+#: __init__ - v10.py:307 __init__.py:1190
+msgid "Relative cover url:"
+msgstr ""
+
+#: __init__ - v10.py:389 v10.py:419 v10.py:496
+msgid "Redirected to"
+msgstr ""
+
+#: __init__ - v10.py:390 v10.py:420 v10.py:497 v10.py:634 __init__.py:1035
+msgid "Page title:"
+msgstr ""
+
+#: __init__ - v10.py:460 v10.py:588
+msgid "Found a disambiguation page:"
+msgstr ""
+
+#: __init__ - v10.py:482 v10.py:537
+msgid "Caveat: Ambigouus title!"
+msgstr ""
+
+#: __init__ - v10.py:484
+msgid "Other possible book source(s):"
+msgstr ""
+
+#: __init__ - v10.py:486 v10.py:583
+msgid "Disambiguation at"
+msgstr ""
+
+#: __init__ - v10.py:489
+msgid "Using first possible book page:"
+msgstr ""
+
+#: __init__ - v10.py:512 v10.py:563 v10.py:655
+msgid " (Caveat! Ambigouus title! Perhaps not the wanted data. See log.)"
+msgstr ""
+
+#: __init__ - v10.py:541
+msgid "Other possible book source:"
+msgstr ""
+
+#: __init__ - v10.py:573
+msgid "Not a book page - looking for disambiguation hint."
+msgstr ""
+
+#: __init__ - v10.py:619
+msgid "Possible book source:"
+msgstr ""
+
+#: __init__ - v10.py:626
+msgid "No possible book source found."
+msgstr ""
+
+#: __init__ - v10.py:629
+msgid "Going to the first possible book source:"
+msgstr ""
+
+#: __init__ - v10.py:678 __init__.py:1051
+msgid "Failed to download book metadata with title search. Giving up."
+msgstr ""
+
+#: __init__ - v10.py:732 __init__.py:1566
+msgid "Found the relative cover page URL:"
+msgstr ""
+
+#: __init__ - v10.py:735 v10.py:767 __init__.py:1569 __init__.py:1601
+msgid "Effective URL:"
+msgstr ""
+
+#: __init__ - v10.py:749 __init__.py:1583
+msgid "Cover page not found."
+msgstr ""
+
+#: __init__ - v10.py:763 __init__.py:1597
+msgid "Found the relative cover URL:"
+msgstr ""
+
+#: __init__ - v10.py:785 __init__.py:91
+msgid "Downloads metadata and covers from Perrypedia (perrypedia.de)"
+msgstr ""
+
+#: __init__ - v10.py:1188 __init__.py:492
+msgid "Unexpectedly structure of field pp_id:"
+msgstr ""
+
+#: __init__ - v10.py:1199 __init__.py:505
+#, python-brace-format
+msgid ""
+"Malformed PPID: {0}. Parse title and authors fields for series and "
+"issuenumber."
+msgstr ""
+
+#: __init__ - v10.py:1237
+msgid "Issuenumber not found. Trying a book title search."
+msgstr ""
+
+#: __init__ - v10.py:1241
+msgid "Series code not found. Trying a book title search."
+msgstr ""
+
+#: __init__ - v10.py:1251 __init__.py:562
+msgid "Result found with title search."
+msgstr ""
+
+#: __init__ - v10.py:1257 __init__.py:570 __init__.py:1220
+msgid "Trying to get series code and issuenumber from result."
+msgstr ""
+
+#: __init__ - v10.py:1275 __init__.py:588
+msgid ""
+"No book found with text provided in title and authors fields - giving up."
+msgstr ""
+
+#: __init__ - v10.py:1276 __init__.py:589
+msgid ""
+"Since metadata plugins cannot read book files for identification purposes, "
+"use the \"PerrypediaTools\" plugin to get identification data from book file."
+msgstr ""
+
+#: __init__ - v10.py:1288 __init__.py:591
+msgid "Error: No metadata result. Abort."
+msgstr ""
+
+#: __init__ - v10.py:1328 __init__.py:1282
+msgid "Key error while building authors field!"
+msgstr ""
+
+#: __init__ - v10.py:1333 __init__.py:1288
+msgid "Unknown"
+msgstr ""
+
+#: __init__ - v10.py:1370 __init__.py:1336
+msgid "Cover URLs cached:"
+msgstr ""
+
+#: __init__ - v10.py:1559 __init__.py:608
+msgid "Enter download_cover()"
+msgstr ""
+
+#: __init__ - v10.py:1588 __init__.py:637
+msgid "No cached cover found, running identify."
+msgstr ""
+
+#: __init__ - v10.py:1611 __init__.py:660
+msgid "No luck to find cover with identify."
+msgstr ""
+
+#: __init__ - v10.py:1629 __init__.py:678
+msgid "Going to download cover from url"
+msgstr ""
+
+#: __init__ - v10.py:1635 __init__.py:684
+msgid "Have downloaded cover from"
+msgstr ""
+
+#: __init__ - v10.py:1637 __init__.py:686
+msgid "Failed to download cover from"
+msgstr ""
+
+#: __init__ - v10.py:1656 __init__.py:1649
+#, python-format
+msgid "Cover test failed. Expected: '%s' found: "
+msgstr ""
+
+#: __init__.py:542
+msgid ""
+"No metadata found with series code and/or issuenumber not found. Trying a "
+"book title search."
+msgstr ""
+
+#: __init__.py:545
+msgid "Series code and/or issuenumber not found. Trying a book title search."
+msgstr ""
+
+#: __init__.py:558
+msgid "Next soup, Page title:"
+msgstr ""
+
+#: __init__.py:559
+msgid "Next soup, url:"
+msgstr ""
+
+#: __init__.py:905
+msgid "API seaach with:"
+msgstr ""
+
+#: __init__.py:906
+msgid "GET url:"
+msgstr ""
+
+#: __init__.py:911
+msgid "Response list="
+msgstr ""
+
+#: __init__.py:1021
+#, python-brace-format
+msgid "{0} book source(s) found."
+msgstr ""
+
+#: __init__.py:1043
+msgid "No possible book source found with"
+msgstr ""
+
+#: config.py:45
+msgid "Other options"
+msgstr ""
+
+#: config.py:50
+msgid "(Coming soon.)"
+msgstr ""
