@@ -38,6 +38,7 @@ Einschränkungen:
 Versionsgeschichte:
 ----------------
 v.1.2.0 xx-xx-2021
+- Konfiguration über Calibre-Oberfläche
 - Verbesserte Behandlung von mehrdeutigen Titeln
 - Unterstützung weiterer der unter https://www.perrypedia.de/wiki/Produkte aufgeführten Produkte
 - Aktualisierte Übersetzungen 
