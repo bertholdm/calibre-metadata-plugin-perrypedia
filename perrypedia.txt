@@ -41,6 +41,7 @@ v.1.2.0 xx-xx-2021
 - Konfiguration über Calibre-Oberfläche
 - Verbesserte Behandlung von mehrdeutigen Titeln
 - Unterstützung weiterer der unter https://www.perrypedia.de/wiki/Produkte aufgeführten Produkte
+- Beseitigung von Code-Dopplungen
 - Aktualisierte Übersetzungen 
 
 v.1.1.0 01-19-2021

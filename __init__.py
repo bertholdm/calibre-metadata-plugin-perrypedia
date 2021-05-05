@@ -1180,65 +1180,72 @@ class Perrypedia(Source):
                     line = 0
                     # caveat: There is more than one book description in page!
                     for rz_book in rz_books:
-                        log.info('rz_book=', rz_book.get_text())
+                        if self.loglevel in [self.loglevels['DEBUG']]:
+                            log.info('rz_book=', rz_book.get_text())
                         overview['Titel:'] = rz_book.find('h2').get_text()
-                        log.info('overview["Titel:"] =', overview['Titel:'])
+                        if self.loglevel in [self.loglevels['DEBUG']]:
+                            log.info('overview["Titel:"] =', overview['Titel:'])
                         # 50 Risszeichnungen, 50 Risszeichnungen – Sammelband 2, 50 Risszeichnungen – Band 3,
                         # 50 Risszeichnungen – Band 4
                         try:
                             pos = overview['Titel:'].lower().index('band')
-                            log.info('pos=', pos)
+                            if self.loglevel in [self.loglevels['DEBUG']]:
+                                log.info('pos=', pos)
                             subpage_issuenumber = float(overview['Titel:'][pos + 5:])
                         except ValueError:
                             subpage_issuenumber = 1.0
-                        log.info('subpage_issuenumber=', subpage_issuenumber)
-                        log.info('issuenumber=', issuenumber)
+                        if self.loglevel in [self.loglevels['DEBUG']]:
+                            log.info('subpage_issuenumber=', subpage_issuenumber)
+                        if self.loglevel in [self.loglevels['DEBUG']]:
+                            log.info('issuenumber=', issuenumber)
+                        # ['Serie:': 'Perry Rhodan Neo (Band 240)']
+                        overview['Serie:'] = 'RISSZEICHNUNGSBÄNDE (Band ' + str(issuenumber) + ')'
                         if subpage_issuenumber == issuenumber:
-                            # Find the children, loop trough line per line and save
+                            # Find the children, loop trough line per line and save metadata
                             subpage_children = rz_book.findChildren()
                             for subpage_child in subpage_children:
-                                # ToDo: print(subpage_child)
-                                log.info('subpage_child=', subpage_child)
+                                if self.loglevel in [self.loglevels['DEBUG']]:
+                                    log.info('subpage_child=', subpage_child)
+                                plot = 'Überblick:'
+                                # find next <ul> and extract "Herausgeber:"
+                                ul_list = rz_book.find('ul')
+                                log.info('ul_list=', ul_list)
+                                if len(ul_list) > 0:
+                                    # copy html list items to a python list
+                                    ul_list_items = [ul_list_item.text for ul_list_item in ul_list.select('li')]
+                                    for ul_list_item in ul_list_items:
+                                        log.info('ul_list_item=', ul_list_item)
+                                        line = line + 1
+                                        overview[line] = ul_list_item  # put line in "overview" dict
+                                        if 'Herausgeber:' in ul_list_item:
+                                            pos = ul_list_item.index('Herausgeber:')
+                                            log.info('pos=', pos)
+                                            overview['Autor:'] = ul_list_item[pos + 12:].strip() + ' (Hrsg.)'
+                                            log.info('overview["Autor:"]=', overview['Autor:'])
+                                        if 'Erscheinungsjahr:' in ul_list_item:
+                                            pos = ul_list_item.index('Erscheinungsjahr:')
+                                            log.info('pos=', pos)
+                                            overview['Erstmals erschienen:'] = ul_list_item[pos + 18:].strip()
+                                            log.info('overview["Erstmals erschienen:"]=', overview['Erstmals erschienen:'])
+                                        plot = plot + ul_list_item
+                                        plot = plot + rz_book.get_text()
 
-                            # ToDo
-
-
-                            # find next <ul> and extract "Herausgeber:"
-                            ul_list = rz_book.find('ul')
-                            log.info('ul_list=', ul_list)
-                            if len(ul_list) > 0:
-                                # copy html list items to a python list
-                                ul_list_items = [ul_list_item.text for ul_list_item in ul_list.select('li')]
-                                for ul_list_item in ul_list_items:
-                                    log.info('ul_list_item=', ul_list_item)
-                                    line = line + 1
-                                    overview[line] = ul_list_item  # put line in "overview" dict
-                                    if 'Herausgeber:' in ul_list_item:
-                                        pos = ul_list_item.index('Herausgeber:')
-                                        log.info('pos=', pos)
-                                        overview['Autor:'] = ul_list_item[pos + 12:].strip()
-                                        log.info('overview["Autor:"]=', overview['Autor:'])
-                                    if 'Erscheinungsjahr:' in ul_list_item:
-                                        pos = ul_list_item.index('Erscheinungsjahr:')
-                                        log.info('pos=', pos)
-                                        overview['Erstmals erschienen:'] = ul_list_item[pos + 18:].strip()
-                                        log.info('overview["Erstmals erschienen:"]=', overview['Erstmals erschienen:'])
-                            # find all <h3> sections for this book
-                            hn_sections = rz_book.find_all(['h3', 'h4'])
-                            if hn_sections:
-                                log.info('hn_sections found.')
-                                for hn_section in hn_sections:
-                                    # find all <ul> sections
-                                    ul_sections = hn_section.find_all('ul')
-                                    if ul_sections:
-                                        log.info('ul_sections found.')
-                                        for ul_section in ul_sections:
-                                            # find all <li> sections
-                                            li_sections = ul_section.find_all('li')
-                                            if li_sections:
-                                                log.info('li_sections found.')
-                                                for li_section in li_sections:
-                                                    log.info('li_section=', li_section)
+                                # # find all <h3> sections for this book
+                                # hn_sections = rz_book.find_all(['h3', 'h4'])
+                                # if hn_sections:
+                                #     log.info('hn_sections found.')
+                                #     for hn_section in hn_sections:
+                                #         # find all <ul> sections
+                                #         ul_sections = hn_section.find_all('ul')
+                                #         if ul_sections:
+                                #             log.info('ul_sections found.')
+                                #             for ul_section in ul_sections:
+                                #                 # find all <li> sections
+                                #                 li_sections = ul_section.find_all('li')
+                                #                 if li_sections:
+                                #                     log.info('li_sections found.')
+                                #                     for li_section in li_sections:
+                                #                         log.info('li_section=', li_section)
 
                             # Find ul und dann alle li durchlaufen
                             # Check for html lists and convert them to comma-seperated strings
@@ -1256,21 +1263,6 @@ class Perrypedia(Source):
                             # else:
                             #     col_text = col.get_text()  # ToDo: Get html formatted text (config). See plugin 'Comments Cleaner'
 
-                            # if 'Risszeichnungsbände' in soup.title.string:
-                            #     overview = {}
-                            #     plot = cover_urls = ''
-                            #     rz_selector = '#mw-content-text > div.mw-parser-output > table:nth-child(13)'
-                            #     table_body = soup.select_one(rz_selector)
-                            #     if table_body:
-                            #         rz_books = table_body.find_all('td', {"width": "50%"})
-                            #         if rz_books:
-                            #             line = 0
-                            #             # caveat: There is more than one book description in page!
-                            #             for rz_book in rz_books:
-                            #                 log.info('rz_book=', rz_book.get_text())
-                            #                 overview['Titel:'] = rz_book.find('h2').get_text()
-                            #                 log.info('overview["Titel:"] =', overview['Titel:'])
-                            #                 # ToDo: Avoid duplicate code?
 
                             # log.info('overview[line]=', overview[line])
                             # overview['Serie:'] = 'RISSZEICHNUNGSBÄNDE' #  ToDo: series index
@@ -1290,10 +1282,9 @@ class Perrypedia(Source):
             return {}, '', '', source_url
             return overview, plot, cover_urls, source_url
 
-        # ToD: Weltraumatlas
         # #mw-content-text > div.mw-parser-output
+        # 'PRWA': '/wiki/Weltraumatlas'
         if 'Weltraumatlas' in soup.title.string:
-            # 'PRWA': '/wiki/Weltraumatlas',
             overview = {}
             plot = ''
             cover_urls = []
@@ -1797,7 +1788,10 @@ class Perrypedia(Source):
             path = self.series_metadata_path['DEFAULT']
         mi.comments = mi.comments + '</p>'
         if plot:
-            mi.comments = mi.comments + '<p>Handlung:<br />' + plot + '</p>'
+            if series_code == 'RISSZEICHNUNGSBÄNDE':
+                mi.comments = mi.comments + '<p>Inhalt:<br />' + plot + '</p>'
+            else:
+                mi.comments = mi.comments + '<p>Handlung:<br />' + plot + '</p>'
             mi.comments = mi.comments + '<p>&nbsp;</p>'  # ToDo: Delete extra line?
         mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
         #mi.comments = self.sanitize_comments_html(mi.comments)
