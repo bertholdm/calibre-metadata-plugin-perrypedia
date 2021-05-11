@@ -74,6 +74,15 @@ def remove_duplicate_substring(str, delim):
     str = str[:-3]
     return str
 
+def text_with_newlines(html):
+    text = ''
+    for tag in html.descendants:
+        if isinstance(tag, str):
+            text += tag.strip()
+        elif tag.name == 'br' or tag.name == 'p':
+            text += '\n'
+    return text
+
 # def camel_case_split_title(str):
 #     titles = []
 #     i = 1
@@ -227,7 +236,7 @@ class Perrypedia(Source):
         # 50 Risszeichnungen – Sammelband 2
         # 50 Risszeichnungen – Band 3
         'RISSZEICHNUNGSBÄNDE': r'(50 risszeichnungen[^0-9]{1,9}band)[^0-9]{0,5}(\d{1,})'
-                               r'|(50 risszeichnungen)',
+                               r'|(50 risszeichnungen)|(risszeichnungen)|(rißzeichnungen)|(risszeichnungsband)',
         'PR': r'(perry-rhodan-heft)[^0-9]{0,5}(\d{1,})|(perry%20rhodan)[^0-9]{0,5}(\d{1,})'
               r'|(\d{1,4})[^0-9]{0,3}(perry.{0,3}rhodan)|(\d{1,4})[^0-9]{0,3}(pr)'
               r'|(perry.{0,3}rhodan)[^0-9]{0,5}(\d{1,})|(perry rhodan)[^0-9]{0,5}(\d{1,})'
@@ -519,14 +528,14 @@ class Perrypedia(Source):
                 series_code = pp_id.split('_')[0] + '_'
                 issuenumber = int(pp_id.split('_')[1])
             else:
-                match = re.match(r"([a-z]+)(\d+)", pp_id, re.I)
+                match = re.match(r"([a-zA-ZäöüÄÖÜ]+)(\d+)", pp_id, re.I)
                 if match:
                     items = match.groups()
                     if len(items) == 2:
                         series_code = items[0]
                         issuenumber = int(items[1])
                     else:
-                        log.error(_('Unexpectedly structure of field pp_id:'), pp_id)
+                        log.error(_('Unexpected structure of field pp_id:'), pp_id)
                     if self.loglevel == self.loglevels['DEBUG']:
                         log.info("series_code=", series_code)
                         log.info("issuenumber=", issuenumber)
@@ -534,9 +543,9 @@ class Perrypedia(Source):
                         path = self.series_metadata_path[series_code]
                     else:
                         path = self.series_metadata_path['DEFAULT']
-                    raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, series_code, issuenumber,
+                    raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, title, series_code, issuenumber,
                                                                                   self.browser, 20, log)
-                    mi = self.parse_raw_metadata(raw_metadata, self.series_names, log)
+                    mi = self.parse_raw_metadata(raw_metadata, series_code, issuenumber, self.series_names, log)
                     result_queue.put(mi)
                 else:
                     log.exception(_('Malformed PPID: {0}. Parse title and authors fields for series and issuenumber.'
@@ -552,8 +561,10 @@ class Perrypedia(Source):
             else:
                 authors_str = ' '
 
+            series_code = issuenumber = None
             series_code_issuenumber = self.parse_title_authors_for_series_code_and_issuenumber(title, authors_str, log)
-            series_code = str(series_code_issuenumber[0])
+            if series_code_issuenumber[0]:
+                series_code = str(series_code_issuenumber[0])
             if series_code_issuenumber[1]:
                 issuenumber = series_code_issuenumber[1]
 
@@ -572,13 +583,13 @@ class Perrypedia(Source):
                 if self.loglevel == self.loglevels['DEBUG']:
                     log.info("path=", path)
 
-                raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, series_code, issuenumber,
+                raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, title, series_code, issuenumber,
                                                                               self.browser, 20, log)
                 if raw_metadata:
                     if self.loglevel == self.loglevels['DEBUG']:
                         log.info("Raw metadata found.", path)
                     # Parse metadata source and put metadata in result queue
-                    mi = self.parse_raw_metadata(raw_metadata, self.series_names, log)
+                    mi = self.parse_raw_metadata(raw_metadata, series_code, issuenumber,self.series_names, log)
                     mi.set_identifier('ppid', pp_id)
                     result_queue.put(mi)
                 else:
@@ -603,10 +614,10 @@ class Perrypedia(Source):
                     log.info(''.join([char*20 for char in '-']))
                     log.info(_('Next soup, Page title:'), soup.title.string)
                     log.info(_('Next soup, url:'), url)
-                raw_metadata = self.parse_pp_book_page(soup, series_code, issuenumber, self.browser, timeout, url, log)
+                raw_metadata = self.parse_pp_book_page(soup, title, series_code, issuenumber, self.browser, timeout, url, log)
                 if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Result found with title search.'))
-                mi = self.parse_raw_metadata(raw_metadata, self.series_names, log)
+                mi = self.parse_raw_metadata(raw_metadata, series_code, issuenumber, self.series_names, log)
                 if self.loglevel == self.loglevels['DEBUG']:
                     log.info("mi.identifiers=", mi.identifiers)
                 result_queue.put(mi)
@@ -845,7 +856,8 @@ class Perrypedia(Source):
                             log.info("Group {0}: {1}".format(i, (match.group(i))))
                 series_code = key
                 # reduce match.group() to groups with content
-                # https://stackoverflow.com/questions/2498935/how-to-extract-the-first-non-null-match-from-a-group-of-regexp-matches-in-python
+                # https://stackoverflow.com/questions/2498935/
+                # how-to-extract-the-first-non-null-match-from-a-group-of-regexp-matches-in-python
                 # functools.reduce(lambda x, y : (x, y)[x is None], match_groups, None)
                 nonempty_groups = []
                 for i in range(1, len(match.groups()) + 1):
@@ -856,11 +868,17 @@ class Perrypedia(Source):
                 if self.loglevel in [self.loglevels['DEBUG']]:
                     ("Number of groups now:", len(nonempty_groups))
                 # Check position of issuenumber in search string
-                if nonempty_groups[1].isnumeric():
-                    issuenumber = int(nonempty_groups[1])
-                else:
-                    if nonempty_groups[0].isnumeric():
-                        issuenumber = int(nonempty_groups[0])
+                try:
+                    if nonempty_groups[1].isnumeric():
+                        issuenumber = int(nonempty_groups[1])
+                    else:
+                        if nonempty_groups[0].isnumeric():
+                            issuenumber = int(nonempty_groups[0])
+                except IndexError:
+                    if series_code == 'RISSZEICHNUNGSBÄNDE':
+                        issuenumber = 1
+                    else:
+                        issuenumber = None
                 break
 
         if series_code is not None and issuenumber is not None:
@@ -939,7 +957,7 @@ class Perrypedia(Source):
             title = title[:-8]
         return title
 
-    def get_raw_metadata_from_series_and_issuenumber(self, path, series_code, issuenumber, browser, timeout, log):
+    def get_raw_metadata_from_series_and_issuenumber(self, path, title, series_code, issuenumber, browser, timeout, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter get_raw_metadata_from_series_and_issuenumber()')
             log.info('series_code=', series_code)
@@ -960,7 +978,7 @@ class Perrypedia(Source):
         page = browser.open_novisit(url, timeout=timeout).read().strip()
         soup = BeautifulSoup(page, 'html.parser')
 
-        return self.parse_pp_book_page(soup, series_code, issuenumber, browser, timeout, url, log)
+        return self.parse_pp_book_page(soup, title, series_code, issuenumber, browser, timeout, url, log)
 
     def get_raw_metadata_from_title(self, title, authors_str, exact_match, browser, timeout, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
@@ -1147,7 +1165,7 @@ class Perrypedia(Source):
             log.exception(_('Failed to download book metadata with title search. Giving up.'))
             return [], []
 
-    def parse_pp_book_page(self, soup, series_code, issuenumber, browser, timeout, source_url, log):
+    def parse_pp_book_page(self, soup, title, series_code, issuenumber, browser, timeout, source_url, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_pp_book_page()')
 
@@ -1170,103 +1188,82 @@ class Perrypedia(Source):
 
         # https://www.perrypedia.de/wiki/Risszeichnungsb%C3%A4nde
         if 'Risszeichnungsbände' in soup.title.string:
+            if self.loglevel in [self.loglevels['DEBUG']]:
+                log.info('Risszeichnungsbände werden bearbeitet')
+                log.info('title=', title)
             overview = {}
             plot = cover_urls = ''
-            rz_selector = '#mw-content-text > div.mw-parser-output > table:nth-child(13)'
-            table_body = soup.select_one(rz_selector)
-            if table_body:
-                rz_books = table_body.find_all('td', {"width" : "50%"})
-                if rz_books:
-                    line = 0
-                    # caveat: There is more than one book description in page!
-                    for rz_book in rz_books:
+            #rz_selector = '#mw-content-text > div.mw-parser-output > table'
+            #rz_output = soup.select_one('#mw-content-text > div.mw-parser-output')
+            #rz_books = rz_output.find_all('td', {"width" : "50%"})  # Find all Risszeichnungsbände
+            rz_books = soup.find_all('td', {"width" : "50%"})  # Find all Risszeichnungsbände
+            if rz_books:
+                line = 0
+                subpage_counter = 0
+                # There is more than one book description in this web page! Find the desired.
+                for rz_book in rz_books:
+                    subpage_counter = subpage_counter + 1
+                    overview['Titel:'] = rz_book.find('h2').get_text()
+                    if self.loglevel in [self.loglevels['DEBUG']]:
+                        log.info('subpage_counter=', subpage_counter)
+                        log.info('overview["Titel:"]=', overview['Titel:'])
+                    # try:
+                    #     # 50 Risszeichnungen, 50 Risszeichnungen – Sammelband 2, 50 Risszeichnungen – Band 3,
+                    #     # 50 Risszeichnungen – Band 4
+                    #     # Risszeichnungsband I (STAR FIRE Magazin), NATHAN Risszeichnungsband,
+                    #     # Terranische Raumschiffe – Rißzeichnungen, Extraterrestrische Raumschiffe – Risszeichnungen
+                    #     pos = overview['Titel:'].lower().index('band')
+                    #     if self.loglevel in [self.loglevels['DEBUG']]:
+                    #         log.info('pos=', pos)
+                    #     subpage_issuenumber = float(overview['Titel:'][pos + 5:])
+                    # except ValueError:
+                    #     subpage_issuenumber = subpage_counter  # For Risszeichnungsbände without issue number
+                    # if self.loglevel in [self.loglevels['DEBUG']]:
+                    #     log.info('subpage_issuenumber=', subpage_issuenumber)
+                    # if self.loglevel in [self.loglevels['DEBUG']]:
+                    #     log.info('issuenumber=', issuenumber)
+                    #if subpage_issuenumber == issuenumber and overview['Titel:'] == title:
+                    if overview['Titel:'] == title:
+                        # Get data only for this book (issuenumber)
+                        #issuenumber == subpage_issuenumber
+                        issuenumber == subpage_counter
+                        # ['Serie:': 'Perry Rhodan Neo (Band 240)']
+                        overview['Serie:'] = 'RISSZEICHNUNGSBÄNDE (Band ' + str(issuenumber).strip() + ')'
                         if self.loglevel in [self.loglevels['DEBUG']]:
                             log.info('rz_book=', rz_book.get_text())
-                        overview['Titel:'] = rz_book.find('h2').get_text()
-                        if self.loglevel in [self.loglevels['DEBUG']]:
-                            log.info('overview["Titel:"] =', overview['Titel:'])
-                        # 50 Risszeichnungen, 50 Risszeichnungen – Sammelband 2, 50 Risszeichnungen – Band 3,
-                        # 50 Risszeichnungen – Band 4
-                        try:
-                            pos = overview['Titel:'].lower().index('band')
-                            if self.loglevel in [self.loglevels['DEBUG']]:
-                                log.info('pos=', pos)
-                            subpage_issuenumber = float(overview['Titel:'][pos + 5:])
-                        except ValueError:
-                            subpage_issuenumber = 1.0
-                        if self.loglevel in [self.loglevels['DEBUG']]:
-                            log.info('subpage_issuenumber=', subpage_issuenumber)
-                        if self.loglevel in [self.loglevels['DEBUG']]:
-                            log.info('issuenumber=', issuenumber)
-                        # ['Serie:': 'Perry Rhodan Neo (Band 240)']
-                        overview['Serie:'] = 'RISSZEICHNUNGSBÄNDE (Band ' + str(issuenumber) + ')'
-                        if subpage_issuenumber == issuenumber:
-                            # Find the children, loop trough line per line and save metadata
-                            subpage_children = rz_book.findChildren()
-                            for subpage_child in subpage_children:
-                                if self.loglevel in [self.loglevels['DEBUG']]:
-                                    log.info('subpage_child=', subpage_child)
-                                plot = 'Überblick:'
-                                # find next <ul> and extract "Herausgeber:"
-                                ul_list = rz_book.find('ul')
-                                log.info('ul_list=', ul_list)
-                                if len(ul_list) > 0:
-                                    # copy html list items to a python list
-                                    ul_list_items = [ul_list_item.text for ul_list_item in ul_list.select('li')]
-                                    for ul_list_item in ul_list_items:
-                                        log.info('ul_list_item=', ul_list_item)
-                                        line = line + 1
-                                        overview[line] = ul_list_item  # put line in "overview" dict
-                                        if 'Herausgeber:' in ul_list_item:
-                                            pos = ul_list_item.index('Herausgeber:')
-                                            log.info('pos=', pos)
-                                            overview['Autor:'] = ul_list_item[pos + 12:].strip() + ' (Hrsg.)'
-                                            log.info('overview["Autor:"]=', overview['Autor:'])
-                                        if 'Erscheinungsjahr:' in ul_list_item:
-                                            pos = ul_list_item.index('Erscheinungsjahr:')
-                                            log.info('pos=', pos)
-                                            overview['Erstmals erschienen:'] = ul_list_item[pos + 18:].strip()
-                                            log.info('overview["Erstmals erschienen:"]=', overview['Erstmals erschienen:'])
-                                        plot = plot + ul_list_item
-                                        plot = plot + rz_book.get_text()
+                        plot = rz_book.get_text().replace('\n','<br />').replace(' Abbildung ','')  # ToDo: Customizig
+                        # Get "Herausgeber" etc."
+                        ul_list = rz_book.find('ul')
+                        log.info('ul_list=', ul_list)
+                        if len(ul_list) > 0:
+                            # copy html list items to a python list
+                            ul_list_items = [ul_list_item.text for ul_list_item in ul_list.select('li')]
+                            for ul_list_item in ul_list_items:
+                                log.info('ul_list_item=', ul_list_item)
+                                line = line + 1
+                                overview[line] = ul_list_item  # put line in "overview" dict
+                                if 'Herausgeber:' in ul_list_item:
+                                    pos = ul_list_item.index('Herausgeber:')
+                                    log.info('pos=', pos)
+                                    overview['Autor:'] = ul_list_item[pos + 12:].strip() + ' (Hrsg.)'
+                                    log.info('overview["Autor:"]=', overview['Autor:'])
+                                if 'Erscheinungsjahr:' in ul_list_item:
+                                    pos = ul_list_item.index('Erscheinungsjahr:')
+                                    log.info('pos=', pos)
+                                    overview['Erstmals erschienen:'] = ul_list_item[pos + 18:].strip()
+                                    log.info('overview["Erstmals erschienen:"]=', overview['Erstmals erschienen:'])
+                                if 'Erschienen am ' in ul_list_item:
+                                    pos = ul_list_item.index('Erschienen am ')
+                                    log.info('pos=', pos)
+                                    overview['Erstmals erschienen:'] = ul_list_item[pos + 14:].strip()
+                                    log.info('overview["Erstmals erschienen:"]=', overview['Erstmals erschienen:'])
+                                if 'Inhalt:' in ul_list_item:
+                                    pos = ul_list_item.index('Inhalt:')
+                                    log.info('pos=', pos)
+                                    overview['Inhalt:'] = ul_list_item[pos + 8:].strip()
+                                    log.info('overview["Inhalt:"]=', overview['Inhalt:'])
+                            break  # Ignore the other books
 
-                                # # find all <h3> sections for this book
-                                # hn_sections = rz_book.find_all(['h3', 'h4'])
-                                # if hn_sections:
-                                #     log.info('hn_sections found.')
-                                #     for hn_section in hn_sections:
-                                #         # find all <ul> sections
-                                #         ul_sections = hn_section.find_all('ul')
-                                #         if ul_sections:
-                                #             log.info('ul_sections found.')
-                                #             for ul_section in ul_sections:
-                                #                 # find all <li> sections
-                                #                 li_sections = ul_section.find_all('li')
-                                #                 if li_sections:
-                                #                     log.info('li_sections found.')
-                                #                     for li_section in li_sections:
-                                #                         log.info('li_section=', li_section)
-
-                            # Find ul und dann alle li durchlaufen
-                            # Check for html lists and convert them to comma-seperated strings
-                            # html_lists = col.find_all('ul', 'ol')
-                            # if len(html_lists) > 0:
-                            #     seperator = ', '
-                            #     for html_list in html_lists:
-                            #         # copy html list items to a python list
-                            #         html_list_items = [html_list_item.text for html_list_item in html_list.select('li')]
-                            #         col.ul.replace_with(
-                            #             seperator.join(html_list_items))  # replace ul with a comma-seperated string
-                            #         col.ol.replace_with(
-                            #             seperator.join(html_list_items))  # replace ol with a comma-seperated string
-                            #     col_text = col.get_text()
-                            # else:
-                            #     col_text = col.get_text()  # ToDo: Get html formatted text (config). See plugin 'Comments Cleaner'
-
-
-                            # log.info('overview[line]=', overview[line])
-                            # overview['Serie:'] = 'RISSZEICHNUNGSBÄNDE' #  ToDo: series index
-                            # break
             return overview, plot, cover_urls, source_url
             # End if 'Risszeichnungsbände'
 
@@ -1467,7 +1464,7 @@ class Perrypedia(Source):
 
         return overview, plot, cover_urls, source_url
 
-    def parse_raw_metadata(self, raw_metadata, series_names, log):
+    def parse_raw_metadata(self, raw_metadata, series_code, issuenumber,series_names, log):
         # Parse metadata source and put metadata in result queue
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_raw_metadata()')
@@ -1485,23 +1482,23 @@ class Perrypedia(Source):
         # ToDo: Handling for book pages without standard overview, plot, cover
         # (e. g. Risszeichnungsbände, Werkstattband, ...)
 
+
         # ['Serie:', 'Perry Rhodan-Heftserie (Band 1433)', '© Pabel-Moewig Verlag KG']
         # ['Serie:': 'Perry Rhodan Neo (Band 240)']
-        series_code = None
-        issuenumber = None
-        if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-            log.info(_('Trying to get series code and issuenumber from result.'))
-        try:
-            series_code = self.get_series_code_from_series_and_subseries(overview, log)
-            # series_code = get_key(series_names, overview['Serie:'], exact=False)
-            issuenumber = int(str(re.search(r'\d+', overview['Serie:']).group()).strip())
-            if self.loglevel in [self.loglevels['DEBUG']]:
-                log.info("series_code=", series_code)
-                log.info("issuenumber=", issuenumber)
-        except:
-            # Book without series
-            if self.loglevel in [self.loglevels['DEBUG']]:
-                log.info("Found a book without series.")
+        if not series_code or not issuenumber:
+            if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                log.info(_('Trying to get series code and issuenumber from result.'))
+            try:
+                series_code = self.get_series_code_from_series_and_subseries(overview, log)
+                # series_code = get_key(series_names, overview['Serie:'], exact=False)
+                issuenumber = int(str(re.search(r'\d+', overview['Serie:']).group()).strip())
+                if self.loglevel in [self.loglevels['DEBUG']]:
+                    log.info("series_code=", series_code)
+                    log.info("issuenumber=", issuenumber)
+            except:
+                # Book without series
+                if self.loglevel in [self.loglevels['DEBUG']]:
+                    log.info("Found a book without series.")
 
         try:
             title = str(overview['Titel:'])
@@ -1538,8 +1535,9 @@ class Perrypedia(Source):
                 pass
             authors = []
             if authors_str != '':
-                # remove text in parentheses: 'William Voltz und Hans Kneifel (Atlan-Teil)'
-                authors_str = re.sub(r'\([^)]*\)', '', authors_str)
+                # remove text in parentheses, if not (Hrsg.): 'William Voltz und Hans Kneifel (Atlan-Teil)'
+                if not '(Hrsg.)' in authors_str:
+                    authors_str = re.sub(r'\([^)]*\)', '', authors_str)
                 # convert authors string (perhaps with multiple authors) to authors list
                 if '/' in authors_str:
                     authors = authors_str.split('/')  # 'Christian Montillon / Susan Schwartz'
