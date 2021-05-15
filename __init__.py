@@ -484,7 +484,7 @@ class Perrypedia(Source):
         the user
         """
         if self.loglevel in [self.loglevels['DEBUG']]:
-            log.info('Enter identify()')
+            log.info('*** Enter identify()')
             log.info('identifiers=', identifiers)
             log.info('authors=', authors)
             log.info('title=', title)
@@ -563,16 +563,16 @@ class Perrypedia(Source):
 
             series_code = issuenumber = None
             series_code_issuenumber = self.parse_title_authors_for_series_code_and_issuenumber(title, authors_str, log)
-            if series_code_issuenumber[0]:
+            if series_code_issuenumber[0] is not None:
                 series_code = str(series_code_issuenumber[0])
-            if series_code_issuenumber[1]:
+            if series_code_issuenumber[1] is not None:
                 issuenumber = series_code_issuenumber[1]
 
             if self.loglevel == self.loglevels['DEBUG']:
                 log.info("series_code=", series_code)
                 log.info("issuenumber=", issuenumber)
 
-            if series_code and issuenumber:
+            if series_code is not None and issuenumber is not None:
                 pp_id = series_code + str(issuenumber).strip()
                 if self.loglevel == self.loglevels['DEBUG']:
                     log.info("pp_id=", pp_id)
@@ -666,7 +666,7 @@ class Perrypedia(Source):
         „best“ one.
         """
         if self.loglevel in [self.loglevels['DEBUG']]:
-            log.info(_('Enter download_cover()'))
+            log.info(_('*** Enter download_cover()'))
 
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('identifiers=', identifiers)
@@ -799,7 +799,7 @@ class Perrypedia(Source):
 
     def get_series_code_from_series_and_subseries(self, overview, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
-            log.info('Enter parse_title_authors_for_series_code_and_issuenumber()')
+            log.info('*** Enter parse_title_authors_for_series_code_and_issuenumber()')
         series_code = ''
         try:
             if self.loglevel in [self.loglevels['DEBUG']]:
@@ -826,7 +826,7 @@ class Perrypedia(Source):
     def parse_title_authors_for_series_code_and_issuenumber(self, title, authors_str, log):
         # Combine def parse_title_author_for_series_code() and parse_title_author_for_issuenumber()
         if self.loglevel in [self.loglevels['DEBUG']]:
-            log.info('Enter parse_title_authors_for_series_code_and_issuenumber()')
+            log.info('*** Enter parse_title_authors_for_series_code_and_issuenumber()')
             log.info('title=', title)
             log.info('authors_str=', authors_str)
 
@@ -846,41 +846,41 @@ class Perrypedia(Source):
             match = re.search(self.series_regex[key], title + ' ' + authors_str,
                               re.IGNORECASE)  # check patterns until first match
             if match:
-                if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-                    log.info(_('Match found for series code:'), key)
-                    if self.loglevel in [self.loglevels['DEBUG']]:
-                        log.info("Match at index {0}, {1}".format(match.start(), match.end()))
-                        log.info("Full match: {0}".format(match.group(0)))
-                        log.info("Number of groups:", len(match.groups()))
-                        for i in range(len(match.groups()) + 1):
-                            log.info("Group {0}: {1}".format(i, (match.group(i))))
                 series_code = key
+                if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                    log.info(_('Match found for series code:'), series_code)
+                if self.loglevel in [self.loglevels['DEBUG']]:
+                    log.info("Match at index {0}, {1}".format(match.start(), match.end()))
+                    log.info("Full match: {0}".format(match.group(0)))
+                    log.info("Number of groups:", len(match.groups()))
+                    for i in range(0,len(match.groups()),1):
+                        log.info("Group {0}: {1}".format(i, (match.group(i))))
                 # reduce match.group() to groups with content
                 # https://stackoverflow.com/questions/2498935/
                 # how-to-extract-the-first-non-null-match-from-a-group-of-regexp-matches-in-python
                 # functools.reduce(lambda x, y : (x, y)[x is None], match_groups, None)
                 nonempty_groups = []
-                for i in range(1, len(match.groups()) + 1):
-                    if self.loglevel in [self.loglevels['DEBUG']]:
-                        log.info("Group {0}: {1}".format(i, (match.group(i))))
+                issuenumber = None
+                for i in range(0, len(match.groups()), 1):
                     if match.group(i) is not None:
                         nonempty_groups.append(match.group(i))
-                if self.loglevel in [self.loglevels['DEBUG']]:
-                    ("Number of groups now:", len(nonempty_groups))
-                # Check position of issuenumber in search string
-                try:
-                    if nonempty_groups[1].isnumeric():
-                        issuenumber = int(nonempty_groups[1])
-                    else:
-                        if nonempty_groups[0].isnumeric():
-                            issuenumber = int(nonempty_groups[0])
-                except IndexError:
-                    if series_code == 'RISSZEICHNUNGSBÄNDE':
-                        issuenumber = 1
-                    else:
-                        issuenumber = None
+                        if self.loglevel in [self.loglevels['DEBUG']]:
+                            log.info("append nonempty group: {0}".format(match.group(i)))
+                for i in range(0, len(nonempty_groups), 1):
+                    log.info("nonempty_groups[i]: {0}".format(nonempty_groups[i]))
+                    if nonempty_groups[i].isnumeric():
+                        issuenumber = int(nonempty_groups[i])
+                        if self.loglevel in [self.loglevels['DEBUG']]:
+                            log.info("Found issuenumber: {0}".format(issuenumber))
+                        break
+                if series_code == 'RISSZEICHNUNGSBÄNDE' and issuenumber is None:
+                    issuenumber = 0
+                    if self.loglevel in [self.loglevels['DEBUG']]:
+                        log.info("RISSZEICHNUNGSBÄNDE: Assuming 0 for issuenumber for now - Further checks needed.")
                 break
 
+        if self.loglevel in [self.loglevels['DEBUG']]:
+            log.info('series_code={0}, issuenumber={1}'.format(series_code, issuenumber))
         if series_code is not None and issuenumber is not None:
             return series_code, issuenumber
         else:
@@ -939,7 +939,7 @@ class Perrypedia(Source):
 
     def get_title_from_issuenumber(self, series_code, issuenumber, browser, timeout, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
-            log.info('Enter get_title_from_issuenumber()')
+            log.info('*** Enter get_title_from_issuenumber()')
 
         if series_code in self.series_metadata_path:
             url = self.base_url + self.series_metadata_path[series_code] + series_code + str(issuenumber)
@@ -959,7 +959,7 @@ class Perrypedia(Source):
 
     def get_raw_metadata_from_series_and_issuenumber(self, path, title, series_code, issuenumber, browser, timeout, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
-            log.info('Enter get_raw_metadata_from_series_and_issuenumber()')
+            log.info('*** Enter get_raw_metadata_from_series_and_issuenumber()')
             log.info('series_code=', series_code)
             log.info('issuenumber=', issuenumber)
 
@@ -982,7 +982,7 @@ class Perrypedia(Source):
 
     def get_raw_metadata_from_title(self, title, authors_str, exact_match, browser, timeout, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
-            log.info('Enter get_raw_metadata_from_title()')
+            log.info('*** Enter get_raw_metadata_from_title()')
 
         search_texts = [title.strip(), authors_str.strip()]
         soup = None
@@ -1167,24 +1167,14 @@ class Perrypedia(Source):
 
     def parse_pp_book_page(self, soup, title, series_code, issuenumber, browser, timeout, source_url, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
-            log.info('Enter parse_pp_book_page()')
-
-        # Find 'Handlungsebene' in navigation
-        actionlevel_selector = '#mw-content-text > div.mw-parser-output > div.perrypedia_navigation > ' \
-                               'div:nth-child(15) > div:nth-child(1) > a'  # Handlungsebene
-        actionlevel_soup = soup.select_one(actionlevel_selector)
-        actionlevel = ''
-        actionlevel_list = []
-        if actionlevel_soup:
-            actionlevel = actionlevel_soup.get_text()
-            actionlevel_list = actionlevel.split(':')
-            actionlevel_list[0] = actionlevel_list[0].strip() + ':'
-            actionlevel_list[1] = actionlevel_list[1].strip()
+            log.info('*** Enter parse_pp_book_page()')
 
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('soup.title.string=', soup.title.string)
 
-        # Handle books without overview, e.g.
+        ########################
+        # Handle special books #
+        ########################
 
         # https://www.perrypedia.de/wiki/Risszeichnungsb%C3%A4nde
         if 'Risszeichnungsbände' in soup.title.string:
@@ -1198,7 +1188,6 @@ class Perrypedia(Source):
             #rz_books = rz_output.find_all('td', {"width" : "50%"})  # Find all Risszeichnungsbände
             rz_books = soup.find_all('td', {"width" : "50%"})  # Find all Risszeichnungsbände
             if rz_books:
-                line = 0
                 subpage_counter = 0
                 # There is more than one book description in this web page! Find the desired.
                 for rz_book in rz_books:
@@ -1224,7 +1213,7 @@ class Perrypedia(Source):
                     #     log.info('issuenumber=', issuenumber)
                     #if subpage_issuenumber == issuenumber and overview['Titel:'] == title:
                     if overview['Titel:'] == title:
-                        # Get data only for this book (issuenumber)
+                        # Get data only for this book and generate issuenumber
                         #issuenumber == subpage_issuenumber
                         issuenumber == subpage_counter
                         # ['Serie:': 'Perry Rhodan Neo (Band 240)']
@@ -1232,12 +1221,14 @@ class Perrypedia(Source):
                         if self.loglevel in [self.loglevels['DEBUG']]:
                             log.info('rz_book=', rz_book.get_text())
                         plot = rz_book.get_text().replace('\n','<br />').replace(' Abbildung ','')  # ToDo: Customizig
-                        # Get "Herausgeber" etc."
+                        # Get "Herausgeber" etc. from the first <ul> tag
                         ul_list = rz_book.find('ul')
-                        log.info('ul_list=', ul_list)
+                        if self.loglevel in [self.loglevels['DEBUG']]:
+                            log.info('ul_list=', ul_list)
                         if len(ul_list) > 0:
                             # copy html list items to a python list
                             ul_list_items = [ul_list_item.text for ul_list_item in ul_list.select('li')]
+                            line = 0
                             for ul_list_item in ul_list_items:
                                 log.info('ul_list_item=', ul_list_item)
                                 line = line + 1
@@ -1317,6 +1308,19 @@ class Perrypedia(Source):
         #######################################################
         # Books with overview (Standard books - default case) #
         #######################################################
+
+        # Find 'Handlungsebene' in navigation
+        actionlevel_selector = '#mw-content-text > div.mw-parser-output > div.perrypedia_navigation > ' \
+                               'div:nth-child(15) > div:nth-child(1) > a'  # Handlungsebene
+        actionlevel_soup = soup.select_one(actionlevel_selector)
+        actionlevel = ''
+        actionlevel_list = []
+        if actionlevel_soup:
+            actionlevel = actionlevel_soup.get_text()
+            actionlevel_list = actionlevel.split(':')
+            actionlevel_list[0] = actionlevel_list[0].strip() + ':'
+            actionlevel_list[1] = actionlevel_list[1].strip()
+
         overview_selector = 'html body #content #bodyContent #mw-content-text .mw-parser-output ' \
                             '.perrypedia_std_rframe.overview table tbody'  # Überblick
         table_body = soup.select_one(overview_selector)
@@ -1467,7 +1471,8 @@ class Perrypedia(Source):
     def parse_raw_metadata(self, raw_metadata, series_code, issuenumber,series_names, log):
         # Parse metadata source and put metadata in result queue
         if self.loglevel in [self.loglevels['DEBUG']]:
-            log.info('Enter parse_raw_metadata()')
+            log.info('*** Enter parse_raw_metadata()')
+            log.info('series_code={0}, issuenumber={1}'.format(series_code, issuenumber))
 
         overview = dict(raw_metadata[0])
         plot = str(raw_metadata[1])
@@ -1819,7 +1824,7 @@ class Perrypedia(Source):
 
     def get_cover_url_from_pp_id(self, series_code, issuenumber, browser, timeout, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
-            log.info('Enter get_cover_url_from_pp_id()')
+            log.info('*** Enter get_cover_url_from_pp_id()')
         # Get the metadata page for the book
         url = base_url + metadata_path + series_code + str(issuenumber).strip()
         if series_code == 'PR':
