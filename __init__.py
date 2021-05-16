@@ -437,6 +437,12 @@ class Perrypedia(Source):
         'RISSZEICHNUNGSBÄNDE': '/wiki/Risszeichnungsb%C3%A4nde',
     }
 
+    series_plot_title = {
+        'DEFAULT': 'Handlung:',
+        'Perry Rhodan-Kompakt':  'Inhalt:',
+        'RISSZEICHNUNGSBÄNDE':  'Inhalt:',
+    }
+
     # Strings we found in page titles (in parentheses). Void = Other book source
     # (in most cases PR series), if '(Roman)' not present.
     book_variants = ['Blauband', 'Buch', 'Comic', 'Heftroman', 'Hörbuch', 'Leihbuch', 'Planetenroman', 'PR Neo', 'Roman',
@@ -523,12 +529,14 @@ class Perrypedia(Source):
         # If we have a PP id then we do not need to fire a "search" at Perrypedia.
         # Instead we will go straight to the (redirect-) URL for that book.
         if pp_id:
+            if self.loglevel in [self.loglevels['DEBUG']]:
+                log.info('First case: Get book data with ppid.')
             # Is there a underscore (to distinguish alphanumeric series codes from issue number) in ppid?
             if pp_id.find('_') != -1:
                 series_code = pp_id.split('_')[0] + '_'
                 issuenumber = int(pp_id.split('_')[1])
             else:
-                match = re.match(r"([a-zA-ZäöüÄÖÜ]+)(\d+)", pp_id, re.I)
+                match = re.match(r"([a-zA-ZäöüÄÖÜß]+)(\d+)", pp_id, re.I)
                 if match:
                     items = match.groups()
                     if len(items) == 2:
@@ -554,7 +562,10 @@ class Perrypedia(Source):
 
         # Second, if there's no valid ppid, search title and authors field for series and issuenumber,
         # build a book page url from them and scrape.
+        # Caveat: Perhaps for some books no explicite issuenumber is giveb (e. g. Risszeichnungsbände).
         if not pp_id:
+            if self.loglevel in [self.loglevels['DEBUG']]:
+                log.info('Second case: Get book data with tokens in title and/or authors field.')
 
             if isinstance(authors, list):
                 authors_str = ''.join(authors)
@@ -589,7 +600,7 @@ class Perrypedia(Source):
                     if self.loglevel == self.loglevels['DEBUG']:
                         log.info("Raw metadata found.", path)
                     # Parse metadata source and put metadata in result queue
-                    mi = self.parse_raw_metadata(raw_metadata, series_code, issuenumber,self.series_names, log)
+                    mi = self.parse_raw_metadata(raw_metadata, series_code, issuenumber, self.series_names, log)
                     mi.set_identifier('ppid', pp_id)
                     result_queue.put(mi)
                 else:
@@ -603,6 +614,9 @@ class Perrypedia(Source):
         # search appropriate page titles, build book page urls from them and scrape.
         # Caveat: There are possible disambiguous titles, so we can have more than one result.
         if not pp_id:
+            if self.loglevel in [self.loglevels['DEBUG']]:
+                log.info('Third case: Find metadata with Perrypedia title search.')
+
             series_code = None
             issuenumber = None
             # possible ambiguous title - more than one metadata soup possible
@@ -960,8 +974,7 @@ class Perrypedia(Source):
     def get_raw_metadata_from_series_and_issuenumber(self, path, title, series_code, issuenumber, browser, timeout, log):
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('*** Enter get_raw_metadata_from_series_and_issuenumber()')
-            log.info('series_code=', series_code)
-            log.info('issuenumber=', issuenumber)
+            log.info('series_code={0}, issuenumber={1}'.format(series_code, issuenumber))
 
         # Get the metadata page for the book
         if series_code in self.series_metadata_path:
@@ -1196,30 +1209,21 @@ class Perrypedia(Source):
                     if self.loglevel in [self.loglevels['DEBUG']]:
                         log.info('subpage_counter=', subpage_counter)
                         log.info('overview["Titel:"]=', overview['Titel:'])
-                    # try:
-                    #     # 50 Risszeichnungen, 50 Risszeichnungen – Sammelband 2, 50 Risszeichnungen – Band 3,
-                    #     # 50 Risszeichnungen – Band 4
-                    #     # Risszeichnungsband I (STAR FIRE Magazin), NATHAN Risszeichnungsband,
-                    #     # Terranische Raumschiffe – Rißzeichnungen, Extraterrestrische Raumschiffe – Risszeichnungen
-                    #     pos = overview['Titel:'].lower().index('band')
-                    #     if self.loglevel in [self.loglevels['DEBUG']]:
-                    #         log.info('pos=', pos)
-                    #     subpage_issuenumber = float(overview['Titel:'][pos + 5:])
-                    # except ValueError:
-                    #     subpage_issuenumber = subpage_counter  # For Risszeichnungsbände without issue number
-                    # if self.loglevel in [self.loglevels['DEBUG']]:
-                    #     log.info('subpage_issuenumber=', subpage_issuenumber)
-                    # if self.loglevel in [self.loglevels['DEBUG']]:
-                    #     log.info('issuenumber=', issuenumber)
-                    #if subpage_issuenumber == issuenumber and overview['Titel:'] == title:
+                        #     # 50 Risszeichnungen, 50 Risszeichnungen – Sammelband 2, 50 Risszeichnungen – Band 3,
+                        #     # 50 Risszeichnungen – Band 4
+                        #     # Risszeichnungsband I (STAR FIRE Magazin), NATHAN Risszeichnungsband,
+                        #     # Terranische Raumschiffe – Rißzeichnungen, Extraterrestrische Raumschiffe – Risszeichnungen
                     if overview['Titel:'] == title:
                         # Get data only for this book and generate issuenumber
                         #issuenumber == subpage_issuenumber
-                        issuenumber == subpage_counter
+                        issuenumber = subpage_counter
+                        if self.loglevel in [self.loglevels['DEBUG']]:
+                            log.info('Implicite issuenumber=', issuenumber)
                         # ['Serie:': 'Perry Rhodan Neo (Band 240)']
                         overview['Serie:'] = 'RISSZEICHNUNGSBÄNDE (Band ' + str(issuenumber).strip() + ')'
                         if self.loglevel in [self.loglevels['DEBUG']]:
                             log.info('rz_book=', rz_book.get_text())
+                            log.info("overview['Serie:']", overview['Serie:'])
                         plot = rz_book.get_text().replace('\n','<br />').replace(' Abbildung ','')  # ToDo: Customizig
                         # Get "Herausgeber" etc. from the first <ul> tag
                         ul_list = rz_book.find('ul')
@@ -1237,6 +1241,8 @@ class Perrypedia(Source):
                                     pos = ul_list_item.index('Herausgeber:')
                                     log.info('pos=', pos)
                                     overview['Autor:'] = ul_list_item[pos + 12:].strip() + ' (Hrsg.)'
+                                    if ' u. ' in overview['Autor:']:
+                                        overview['Autor:'].replace(" u. ", " & ")
                                     log.info('overview["Autor:"]=', overview['Autor:'])
                                 if 'Erscheinungsjahr:' in ul_list_item:
                                     pos = ul_list_item.index('Erscheinungsjahr:')
@@ -1248,6 +1254,11 @@ class Perrypedia(Source):
                                     log.info('pos=', pos)
                                     overview['Erstmals erschienen:'] = ul_list_item[pos + 14:].strip()
                                     log.info('overview["Erstmals erschienen:"]=', overview['Erstmals erschienen:'])
+                                if 'ISBN ' in ul_list_item:
+                                    pos = ul_list_item.index('ISBN ')
+                                    log.info('pos=', pos)
+                                    overview['ISBN:'] = ul_list_item[pos + 4:].strip()
+                                    log.info('overview["ISBN:"]=', overview['ISBN:'])
                                 if 'Inhalt:' in ul_list_item:
                                     pos = ul_list_item.index('Inhalt:')
                                     log.info('pos=', pos)
@@ -1255,20 +1266,20 @@ class Perrypedia(Source):
                                     log.info('overview["Inhalt:"]=', overview['Inhalt:'])
                             break  # Ignore the other books
 
-            return overview, plot, cover_urls, source_url
+            return overview, plot, cover_urls, source_url, series_code, issuenumber
             # End if 'Risszeichnungsbände'
 
         # https://www.perrypedia.de/wiki/Die_ersten_25_Jahre_-_Der_gro%C3%9Fe_Werkstattband
         if 'Werkstattband' in soup.title.string:
             # ToDo: parse data and fill return values
             return {}, '', '', source_url
-            return overview, plot, cover_urls, source_url
+            return overview, plot, cover_urls, source_url, series_code, issuenumber
 
         # https://www.perrypedia.de/wiki/Zeitsplitter
         if 'Zeitsplitter' in soup.title.string:
             # ToDo: parse data and fill return values
             return {}, '', '', source_url
-            return overview, plot, cover_urls, source_url
+            return overview, plot, cover_urls, source_url, series_code, issuenumber
 
         # #mw-content-text > div.mw-parser-output
         # 'PRWA': '/wiki/Weltraumatlas'
@@ -1301,7 +1312,7 @@ class Perrypedia(Source):
                 url_body = prwa_body.find('a', class_="image")
                 cover_urls.append(self.base_url + url_body['href'])
 
-            return overview, plot, cover_urls, source_url
+            return overview, plot, cover_urls, source_url, series_code, issuenumber
 
         # ToDo: Other special formats?
 
@@ -1466,7 +1477,8 @@ class Perrypedia(Source):
 
         # ToDo: Perhaps try also plot_summary and other sections (not present in all book pages)
 
-        return overview, plot, cover_urls, source_url
+        series_code = issuenumber = None  # ToDo: Put code for find series_code and issuenumner here
+        return overview, plot, cover_urls, source_url, series_code, issuenumber
 
     def parse_raw_metadata(self, raw_metadata, series_code, issuenumber,series_names, log):
         # Parse metadata source and put metadata in result queue
@@ -1476,17 +1488,32 @@ class Perrypedia(Source):
 
         overview = dict(raw_metadata[0])
         plot = str(raw_metadata[1])
-        cover_urls = list(raw_metadata[2])
+        if raw_metadata[2] is None:
+            cover_urls = []
+        else:
+            cover_urls = list(raw_metadata[2])
         url = str(raw_metadata[3])
+        rm_series_code = str(raw_metadata[4])
+        rm_issuenumber = str(raw_metadata[5])
         if self.loglevel in [self.loglevels['DEBUG']]:
+            log.info('Begin of raw metadata **********')
             log.info('overview=', overview)
-            log.info('plot (abbr.)=', plot[:200])
+            log.info('plot (abbr.)=', plot[:100])
             log.info('cover_urls=', cover_urls)
-            log.info('url=', url)
+            log.info('rm_series_code=', rm_series_code)
+            log.info('rm_issuenumber=', rm_issuenumber)
+            log.info('End of raw metadata **********')
 
         # ToDo: Handling for book pages without standard overview, plot, cover
         # (e. g. Risszeichnungsbände, Werkstattband, ...)
-
+        # overview['Serie:'] = 'RISSZEICHNUNGSBÄNDE (Band ' + str(issuenumber).strip() + ')'
+        if series_code == 'RISSZEICHNUNGSBÄNDE':
+            issuenumber_candidates = list(map(int, re.findall(r'\d+', overview['Serie:'])))
+            if self.loglevel in [self.loglevels['DEBUG']]:
+                log.info('issuenumber_candidates={0}'.format(issuenumber_candidates))
+            issuenumber = issuenumber_candidates[-1]
+            if self.loglevel in [self.loglevels['DEBUG']]:
+                log.info('Found issuenumber for {0}: {1}'.format(series_code, issuenumber))
 
         # ['Serie:', 'Perry Rhodan-Heftserie (Band 1433)', '© Pabel-Moewig Verlag KG']
         # ['Serie:': 'Perry Rhodan Neo (Band 240)']
@@ -1521,6 +1548,12 @@ class Perrypedia(Source):
         try:
             authors_str = ''
             try:
+                authors_str = str(overview['Herausgeber:'])  # Siberbände, Blaubände
+                if self.loglevel in [self.loglevels['DEBUG']]:
+                    log.info("Herausgeber", authors_str)
+            except KeyError:
+                pass
+            try:
                 authors_str = str(overview['Bearbeitung:'])  # Siberbände, Blaubände
                 if self.loglevel in [self.loglevels['DEBUG']]:
                     log.info("Bearbeitung=", authors_str)
@@ -1544,12 +1577,18 @@ class Perrypedia(Source):
                 if not '(Hrsg.)' in authors_str:
                     authors_str = re.sub(r'\([^)]*\)', '', authors_str)
                 # convert authors string (perhaps with multiple authors) to authors list
-                if '/' in authors_str:
-                    authors = authors_str.split('/')  # 'Christian Montillon / Susan Schwartz'
+                    if ' & ' in authors_str:
+                        authors = authors_str.split(' & ')  # 'Klaus N. Frick u. Sabine Bretzinger'
+                    if ' u. ' in authors_str:
+                        authors = authors_str.split(' u. ')  # 'Klaus N. Frick u. Sabine Bretzinger'
+                    if '/' in authors_str:
+                        authors = authors_str.split('/')  # 'Christian Montillon / Susan Schwartz'
                 elif ',' in authors_str:
                     authors = authors_str.split(',')  # 'Christian Montillon, Susan Schwartz'
                 elif ' und ' in authors_str:
                     authors = authors_str.split(' und ')  # 'William Voltz und Hans Kneifel'
+                elif ' u. ' in authors_str:
+                    authors = authors_str.split(' u. ')  # 'Klaus N. Frick u. Sabine Bretzinger'
                 if len(authors) > 0:
                     authors = [x.strip(' ') for x in authors]  # remove leading and trailing spaces
                 else:
@@ -1791,10 +1830,10 @@ class Perrypedia(Source):
             path = self.series_metadata_path['DEFAULT']
         mi.comments = mi.comments + '</p>'
         if plot:
-            if series_code == 'RISSZEICHNUNGSBÄNDE':
-                mi.comments = mi.comments + '<p>Inhalt:<br />' + plot + '</p>'
+            if series_code in self.series_plot_title:
+                mi.comments = mi.comments + '<p>' + self.series_plot_title[series_code] + '<br />' + plot + '</p>'
             else:
-                mi.comments = mi.comments + '<p>Handlung:<br />' + plot + '</p>'
+                mi.comments = mi.comments + '<p>' + self.series_plot_title['DEFAULT'] + '<br />' + plot + '</p>'
             mi.comments = mi.comments + '<p>&nbsp;</p>'  # ToDo: Delete extra line?
         mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
         #mi.comments = self.sanitize_comments_html(mi.comments)
