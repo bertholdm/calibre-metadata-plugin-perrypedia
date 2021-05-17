@@ -1,20 +1,21 @@
+from datetime import datetime
+from dateutil import parser
 
-txt = 'Risszeichnungen (Band 8)'
-txt_list = [int(s) for s in txt.split() if s.isdigit()]
-print(txt_list)
+class GermanParserInfo(parser.parserinfo):
+    """
+    Extends the dateutil parser for german weekday and month names
+    """
+    WEEKDAYS = [('Mon', 'Montag'), ('Tue', 'Dienstag'), ('Wed', 'Mittwoch'), ('Thu', 'Donnerstag'), ('Fri', 'Freitag'),
+                ('Sat', 'Samstag'), ('Sun', 'Sonntag')]
+    MONTHS = [('Jan', 'Januar'), ('Feb', 'Februar'), ('Mar', 'März'), ('Apr', 'April'), ('May', 'Mai'),
+              ('Jun', 'Juni'), ('Jul', 'Juli'), ('Aug', 'August'), ('Sep', 'Sept', 'September'), ('Oct', 'Oktober'),
+              ('Nov', 'November'), ('Dec', 'Dezember')]
 
-a_string = "0abc 1 def23"
-numbers = [int(word) for word in a_string.split() if word.isdigit()]
-print(numbers)
-
-import re
-# initializing string
-test_string = "There are 2 apples for 4persons"
-# printing original string
-print("The original string : " + test_string)
-# using re.findall()
-# getting numbers from string
-temp = re.findall(r'\d+', test_string)
-res = list(map(int, re.findall(r'\d+', test_string)))
-# print result
-print("The numbers list is : " + str(res))
+datum = 'Oktober 1992'
+datum = '13. Oktober 1992'
+datum = '1992'
+pubdate = parser.parse(datum,
+                          dayfirst=True,
+                          default=datetime(1961, 1, 1, 2, 0, 0),
+                          parserinfo=GermanParserInfo())
+print(pubdate)

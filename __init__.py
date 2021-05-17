@@ -232,8 +232,9 @@ class Perrypedia(Source):
         'PRTBT': r'(perry.{1,3}rhodan.{1,5}die tefroder)[^0-9]{1,5}(\d{1,2})'
                  r'|(die tefroder)[^0-9]{1,5}(\d{1,2})',  # Taschenbücher Die Tefroder
         'PRTER': r'(perry.{0,3}rhodan.{0,3}terminus)[^0-9]{1,5}(\d{1,2})|(prte )(\d{1,2})',
-        'PUMIA': r'(perry.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})'
-                 r'|(perry rhodan.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})',
+        'PUMIA': r'(perry.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})'  # Perry Rhodan - Unser Mann im All 049
+                 r'|(perry rhodan.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})'
+                 r'|(perry rhodan - unser mann im all )(\d{1,3})',
         'SE': r'\b(hörbuch|silber\-edition|silberedition)\b[^0-9]{1,5}(\d{1,3})',
         # ToDo: Concept for non-standard book pages:
         # Perry Rhodan - 50 Risszeichnungen
@@ -450,7 +451,7 @@ class Perrypedia(Source):
     # Strings we found in page titles (in parentheses). Void = Other book source
     # (in most cases PR series), if '(Roman)' not present.
     book_variants = ['Blauband', 'Buch', 'Comic', 'Heftroman', 'Hörbuch', 'Leihbuch', 'Planetenroman', 'PR Neo', 'Roman',
-                     'Silberband', 'Taschenheft']
+                     'Silberband', 'Taschenheft', 'PR Neo-Roman']
     # (Begriffsklärung)
 
     def is_customizable(self):
@@ -841,6 +842,7 @@ class Perrypedia(Source):
             log.info('series_code=', series_code)
         return series_code
 
+
     def parse_title_authors_for_series_code_and_issuenumber(self, title, authors_str, log):
         # Combine def parse_title_author_for_series_code() and parse_title_author_for_issuenumber()
         if self.loglevel in [self.loglevels['DEBUG']]:
@@ -1107,7 +1109,7 @@ class Perrypedia(Source):
                 else:
                     for book_variant in self.book_variants:
                         # ['Blauband', 'Buch', 'Comic', 'Heftroman', 'Hörbuch', 'Leihbuch', 'Planetenroman', 'PR Neo',
-                        # 'Roman', 'Silberband']
+                        # 'Roman', 'Silberband', 'PR Neo-Roman']
                         # search_text = 'Ordoban'
                         # if str(search_text + ' (' + book_variant + ')').lower() == title.lower():  # exact search
                         if str(search_text + ' (' + book_variant + ')').lower() in title.lower():  # exact search
@@ -1419,9 +1421,10 @@ class Perrypedia(Source):
                 # In der dritten Spalte der 'Überblick"-Tabelle stehen die Titelbilder mit Copyright-Einträgen.
                 # Den ersten Eintrag für Feld "publisher" auswerten:
                 # ['Serie:', 'Perry Rhodan-Heftserie (Band 1433)', '© Pabel-Moewig Verlag KG']
+                # ['Serie:', 'Atlan-Blaubände (Band 1)', '© Pabel-Moewig Verlag KGE-Book-Titelbild | © Pabel-Moewig Verlag KG']
                 if row[0] == 'Serie:' and len(row) > 2:
                     overview_supplement['Verlag:'] = row[2]
-                    not_publisher_texts = ['Innenillustration', 'Titelbildinspiration:', 'Covervorlage']
+                    not_publisher_texts = ['Innenillustration', 'Titelbildinspiration:', 'Covervorlage', 'E-Book-Titelbild']
                     for not_publisher_text in not_publisher_texts:
                         if not_publisher_text in overview_supplement['Verlag:']:
                             overview_supplement['Verlag:'] = \
@@ -1500,22 +1503,34 @@ class Perrypedia(Source):
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('cover_urls=', cover_urls)
 
-        # Get pubdate from pubdate_url
+        # Get pubdate from pubdate_url (caveat: not guaranted, that book shows up in this page)
         if pubdate_url:
             page = browser.open_novisit(pubdate_url, timeout=timeout).read().strip()
             if page is not None:
                 soup = BeautifulSoup(page, 'html.parser')
                 pubdate_table = soup.select_one('#mw-content-text > div.mw-parser-output > table > tbody')
                 if pubdate_table:
+                    # Woche (Mo. - Fr.)	        1. Aufl.  3. Aufl.	4. Aufl. 5. Aufl.  TB 1. Aufl.	Silberb.  Atlan Hardcover  Sonstiges / Bemerkungen
+                    # 30.12.1991 - 03.01.1992	PR 1584	  PR 987	PR 743	 PR 483
+                    # 06.01.1992 - 10.01.1992	PR 1585	  PR 988	PR 744	 PR 484	   PR-TB 346
                     if self.loglevel in [self.loglevels['DEBUG']]:
                         log.info('pubdate table found.')
                     pubdate_found = False
                     for row in pubdate_table.findAll("tr"):
+                        first_cell = True
                         for cell in row.findAll("td"):
                             if self.loglevel in [self.loglevels['DEBUG']]:
                                 log.info('cell=', cell.text)
                             # <td>04.09.1961 - 08.09.1961</td>
                             # <a href="/wiki/Quelle:PR1" class="mw-redirect" title="Quelle:PR1">PR&nbsp;1</a>
+                            if series_code is None or issuenumber is None:
+                                # overview= {'Serie:': 'Perry Rhodan Neo (Band 1)
+                                series_code = self.get_series_code_from_series_and_subseries(overview, log)
+                                # series_code = get_key(self.series_names, overview['Serie:'], exact=False)
+                                issuenumber = int(str(re.search(r'\d+', overview['Serie:']).group()).strip())
+                                if self.loglevel == self.loglevels['DEBUG']:
+                                    log.info("series_code=", series_code)
+                                    log.info("issuenumber=", issuenumber)
                             title_cell = cell.find('a', title='Quelle:' + series_code + str(issuenumber).strip())
                             if title_cell:
                                 if self.loglevel in [self.loglevels['DEBUG']]:
@@ -1524,7 +1539,9 @@ class Perrypedia(Source):
                                 pubdate_found = True
                                 break
                             else:
-                                cell_text = cell.text  # memorize cell text
+                                if first_cell:
+                                    cell_text = cell.text  # memorize cell text
+                                    first_cell = False
                         if pubdate_found:
                             break
 
@@ -1639,18 +1656,16 @@ class Perrypedia(Source):
                 if not '(Hrsg.)' in authors_str:
                     authors_str = re.sub(r'\([^)]*\)', '', authors_str)
                 # convert authors string (perhaps with multiple authors) to authors list
-                    if ' & ' in authors_str:
-                        authors = authors_str.split(' & ')  # 'Klaus N. Frick u. Sabine Bretzinger'
-                    if ' u. ' in authors_str:
-                        authors = authors_str.split(' u. ')  # 'Klaus N. Frick u. Sabine Bretzinger'
-                    if '/' in authors_str:
-                        authors = authors_str.split('/')  # 'Christian Montillon / Susan Schwartz'
-                elif ',' in authors_str:
-                    authors = authors_str.split(',')  # 'Christian Montillon, Susan Schwartz'
-                elif ' und ' in authors_str:
-                    authors = authors_str.split(' und ')  # 'William Voltz und Hans Kneifel'
-                elif ' u. ' in authors_str:
+                if ' & ' in authors_str:
+                    authors = authors_str.split(' & ')  # 'Klaus N. Frick & Sabine Bretzinger'
+                if ' u. ' in authors_str:
                     authors = authors_str.split(' u. ')  # 'Klaus N. Frick u. Sabine Bretzinger'
+                if '/' in authors_str:
+                    authors = authors_str.split('/')  # 'Christian Montillon / Susan Schwartz'
+                if ',' in authors_str:
+                    authors = authors_str.split(',')  # 'Christian Montillon, Susan Schwartz'
+                if ' und ' in authors_str:
+                    authors = authors_str.split(' und ')  # 'William Voltz und Hans Kneifel'
                 if len(authors) > 0:
                     authors = [x.strip(' ') for x in authors]  # remove leading and trailing spaces
                 else:
@@ -1682,8 +1697,7 @@ class Perrypedia(Source):
         try:
             isbn = str(overview['ISBN:'])  # ISBN: ISBN 3-8118-2035-4
             isbn = isbn.replace('ISBN ', '')
-            # mi.set_identifier('isbn', isbn)  # ToDo: activate again when merge algorithm in identify.py
-                                               #  works as expected
+            mi.set_identifier('isbn', isbn)
             if self.loglevel in [self.loglevels['DEBUG']]:
                 log.info('mi.identifiers=', mi.get_identifiers())
         except KeyError:
@@ -1837,7 +1851,8 @@ class Perrypedia(Source):
                 # mi.pubdate = parser.parse(str(overview['Erstmals\xa0erschienen:']),
                 mi.pubdate = parser.parse(str(overview['Erstmals erschienen:']),
                                           dayfirst=True,
-                                          default=datetime(1961, 1, 1, 2, 0, 0), parserinfo=GermanParserInfo())
+                                          default=datetime(1961, 1, 1, 2, 0, 0),
+                                          parserinfo=GermanParserInfo())
                 # Hinweis datetime(1961, 1, 1, 2, 0, 0): Addiere 2 Stunden, dann stimmt der Tag (MEZ/MESZ -> GMT)
                 # (unsauber, aber reicht, da max. Tagesgenauigkeit verlangt.)
                 # Es könnte so einfach sein... Dateparser kennt nicht-englische Date-Strings:
@@ -1877,6 +1892,7 @@ class Perrypedia(Source):
             mi.tags = [x.strip(' ') for x in mi.tags]  # remove spaces
         except:
             pass
+        mi.tags = [x for x in mi.tags if x != '...']  # remove ...
         # remove duplicates
         mi.tags = list(dict.fromkeys(mi.tags))
         if self.loglevel in [self.loglevels['DEBUG']]:
