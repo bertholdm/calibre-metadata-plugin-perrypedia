@@ -122,6 +122,10 @@ class Perrypedia(Source):
     # 1.2.0 Handlungsebene eingefügt
     # 1.2.0 Ermittlung Serien-Code verbessert (Atlas Traversan, Obsidian)
     # 1.2.0 Remove duplicate substrings from publisher
+    # 1.2.0 Datum aus Übersichtsseite, wenn nur Jahr angegeben (https://www.perrypedia.de/wiki/Ver%C3%B6ffentlichungen_<jahr>)>
+    # 1.2.0 Fehler beim Parsen des Datums behoben (dayfirst)
+    # 1.2.0 nonstandard book formats (Werkstattband, Risszeichnungen, ...)
+
     minimum_calibre_version = (5, 1, 0)
 
     has_html_comments = True
@@ -1320,6 +1324,9 @@ class Perrypedia(Source):
         # Books with overview (Standard books - default case) #
         #######################################################
 
+        if self.loglevel in [self.loglevels['DEBUG']]:
+            log.info('Handling for std book.')
+
         # Find 'Handlungsebene' in navigation
         actionlevel_selector = '#mw-content-text > div.mw-parser-output > div.perrypedia_navigation > ' \
                                'div:nth-child(15) > div:nth-child(1) > a'  # Handlungsebene
@@ -1337,8 +1344,13 @@ class Perrypedia(Source):
         table_body = soup.select_one(overview_selector)
         rows = table_body.find_all('tr')
         overview_data = []
+        pubdate_url = None
 
         for row in rows:
+
+            #if self.loglevel in [self.loglevels['DEBUG']]:
+            #    log.info('row={0}'.format(row))
+
             cols = row.find_all(['td', 'th'])
             # Warum auch nach <th> suchen:
             # In der Perrypedia gibt es in dieser Tabelle einen Fehler. Die zweite Spalte der Zeile "Titel"
@@ -1349,6 +1361,10 @@ class Perrypedia(Source):
             # find_all returns a list, so we’ll have to loop through
             overview_entry = []
             for col in cols:
+
+                #if self.loglevel in [self.loglevels['DEBUG']]:
+                #    log.info('col={0}'.format(col))
+
                 # Check for multiple lines with line break
                 for br in col.find_all('br'):
                     br.replace_with(' | ')
@@ -1376,6 +1392,13 @@ class Perrypedia(Source):
                 col_text = col_text.replace('\n', '')  # delete new line character
                 col_text = col_text.replace(u'\xa0', u' ')  # convert non-breakable space to simple space
                 overview_entry.append(col_text)
+
+                # row= ['Erstmals erschienen:', '1961']
+                if 'Erstmals erschienen:' in overview_entry[0]:
+                    pubdate_url = self.base_url + row.find('a').get('href')   # /wiki/Ver%C3%B6ffentlichungen_1961
+                    if self.loglevel in [self.loglevels['DEBUG']]:
+                        log.info('Found a pubdate page URL:', pubdate_url)
+
             overview_data.append(overview_entry)
             if 'Zyklus:' in overview_entry[0]:
                 if actionlevel_list:
@@ -1426,6 +1449,8 @@ class Perrypedia(Source):
         # ToDo: Find relevant text (Header none, "Inhalt", ...) for books with no plots
         # (e. g. https://www.perrypedia.de/wiki/PR-Die_Chronik_1)
 
+        # ToDo: Perhaps try also plot_summary and other sections (not present in all book pages)
+
         # Find cover url
         # Beim Parsen der Überblick-Daten Link(s) zu Bildseite(n) merken (mehrere Titelbildvarianten möglich),
         # dort nach Link für Originalgröße suchen
@@ -1475,7 +1500,44 @@ class Perrypedia(Source):
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('cover_urls=', cover_urls)
 
-        # ToDo: Perhaps try also plot_summary and other sections (not present in all book pages)
+        # Get pubdate from pubdate_url
+        if pubdate_url:
+            page = browser.open_novisit(pubdate_url, timeout=timeout).read().strip()
+            if page is not None:
+                soup = BeautifulSoup(page, 'html.parser')
+                pubdate_table = soup.select_one('#mw-content-text > div.mw-parser-output > table > tbody')
+                if pubdate_table:
+                    if self.loglevel in [self.loglevels['DEBUG']]:
+                        log.info('pubdate table found.')
+                    pubdate_found = False
+                    for row in pubdate_table.findAll("tr"):
+                        for cell in row.findAll("td"):
+                            if self.loglevel in [self.loglevels['DEBUG']]:
+                                log.info('cell=', cell.text)
+                            # <td>04.09.1961 - 08.09.1961</td>
+                            # <a href="/wiki/Quelle:PR1" class="mw-redirect" title="Quelle:PR1">PR&nbsp;1</a>
+                            title_cell = cell.find('a', title='Quelle:' + series_code + str(issuenumber).strip())
+                            if title_cell:
+                                if self.loglevel in [self.loglevels['DEBUG']]:
+                                    log.info('title=', title_cell['title'])
+                                overview['Erstmals erschienen:'] = cell_text[-10:]  # from previous cell
+                                pubdate_found = True
+                                break
+                            else:
+                                cell_text = cell.text  # memorize cell text
+                        if pubdate_found:
+                            break
+
+                # cover_url = ''
+                # # ToDo: Error handling
+                # for div_tag in soup.find_all('div', class_='fullMedia'):  # , id_='file'
+                #     for a_tag in div_tag.find_all('a', class_='internal', href=True):
+                #         url = a_tag.attrs.get("href")
+                #         if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                #             log.info(_('Relative cover url:'), url)
+                #         # cover_urls.append(base_url + url['href'])  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
+                #         cover_urls.append(self.base_url + url)  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
+
 
         series_code = issuenumber = None  # ToDo: Put code for find series_code and issuenumner here
         return overview, plot, cover_urls, source_url, series_code, issuenumber
@@ -1764,10 +1826,17 @@ class Perrypedia(Source):
             try:
                 # 'Erstmals erschienen:': r'Freitag, 18. September 2020'
                 # 'Erstmals erschienen:': r'1978'
+
+                # If the year has a link to the page 'https://www.perrypedia.de/wiki/Ver%C3%B6ffentlichungen_<year>>',
+                # parse this page for the date corresponding with the issuenumber:
+                # 04.09.1961 - 08.09.1961	PR 1
+                # #mw-content-text > div.mw-parser-output > table
+
                 # Dateparser recognize only english date terms!
                 # So you must implement a own Object, e.g. GermanDateParserInfo
                 # mi.pubdate = parser.parse(str(overview['Erstmals\xa0erschienen:']),
                 mi.pubdate = parser.parse(str(overview['Erstmals erschienen:']),
+                                          dayfirst=True,
                                           default=datetime(1961, 1, 1, 2, 0, 0), parserinfo=GermanParserInfo())
                 # Hinweis datetime(1961, 1, 1, 2, 0, 0): Addiere 2 Stunden, dann stimmt der Tag (MEZ/MESZ -> GMT)
                 # (unsauber, aber reicht, da max. Tagesgenauigkeit verlangt.)
