@@ -43,6 +43,15 @@ v.1.2.0 xx-xx-2021
 - Unterstützung weiterer der unter https://www.perrypedia.de/wiki/Produkte aufgeführten Produkte
 - Beseitigung von Code-Dopplungen
 - Aktualisierte Übersetzungen 
+    # 1.2.0 "Leihbuch"-Series
+    # 1.2.0 Perry - Unser Mann im All: New Regex
+    # 1.2.0 Handlungsebene eingefügt
+    # 1.2.0 Ermittlung Serien-Code verbessert (Atlas Traversan, Obsidian)
+    # 1.2.0 Remove duplicate substrings from publisher
+    # 1.2.0 Datum aus Übersichtsseite, wenn nur Jahr angegeben (https://www.perrypedia.de/wiki/Ver%C3%B6ffentlichungen_<jahr>)>
+    # 1.2.0 Fehler beim Parsen des Datums behoben (dayfirst)
+    # 1.2.0 nonstandard book formats (Werkstattband, Risszeichnungen, ...)
+
 
 v.1.1.0 01-19-2021
 - Titelsuche (mit Behandlung von mehrdeutigen Titeln)

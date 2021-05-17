@@ -116,15 +116,6 @@ class Perrypedia(Source):
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
     version = (1, 2, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    # 1.2.0 "Leihbuch"-Series
-    # 1.2.0 Perry - Unser Mann im All: New Regex
-    # ToDo: Warum wird Serientitel geändert in "Unser Mann im All"? - ppid:6 !!! PP = "Perry - Unser Mann im All"
-    # 1.2.0 Handlungsebene eingefügt
-    # 1.2.0 Ermittlung Serien-Code verbessert (Atlas Traversan, Obsidian)
-    # 1.2.0 Remove duplicate substrings from publisher
-    # 1.2.0 Datum aus Übersichtsseite, wenn nur Jahr angegeben (https://www.perrypedia.de/wiki/Ver%C3%B6ffentlichungen_<jahr>)>
-    # 1.2.0 Fehler beim Parsen des Datums behoben (dayfirst)
-    # 1.2.0 nonstandard book formats (Werkstattband, Risszeichnungen, ...)
 
     minimum_calibre_version = (5, 1, 0)
 
@@ -236,10 +227,6 @@ class Perrypedia(Source):
                  r'|(perry rhodan.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})'
                  r'|(perry rhodan - unser mann im all )(\d{1,3})',
         'SE': r'\b(hörbuch|silber\-edition|silberedition)\b[^0-9]{1,5}(\d{1,3})',
-        # ToDo: Concept for non-standard book pages:
-        # Perry Rhodan - 50 Risszeichnungen
-        # 50 Risszeichnungen – Sammelband 2
-        # 50 Risszeichnungen – Band 3
         'RISSZEICHNUNGSBÄNDE': r'(50 risszeichnungen[^0-9]{1,9}band)[^0-9]{0,5}(\d{1,})'
                                r'|(50 risszeichnungen)|(risszeichnungen)|(rißzeichnungen)|(risszeichnungsband)',
         'PR': r'(perry-rhodan-heft)[^0-9]{0,5}(\d{1,})|(perry%20rhodan)[^0-9]{0,5}(\d{1,})'
@@ -249,7 +236,7 @@ class Perrypedia(Source):
     }
 
     # Zyklen
-    # ToDo: Automatically grab from https://www.perrypedia.de/wiki/Zyklen ?
+    # ToDo: determine automatically from https://www.perrypedia.de/wiki/Zyklen ?
     subseries_offsets = [
         # Perry Rhodan-Heftserie
         ['Die Dritte Macht', 'PR', 1, r'(die dritte macht) (\d{1,})'],
@@ -303,7 +290,7 @@ class Perrypedia(Source):
         ['Olymp', 'PROL', 1, r'(olymp) (\d{1,})'],
         ['Mission SOL', 'PRMS', 1, r'(mission sol) (\d{1,})'],
         ['Mission SOL 2', 'PRMS_', 1, r'(mission sol 2) (\d{1,})'],
-        ['Wega', 'PRW', 1, r'(wega) (\d{1,})'],
+        ['Wega', 'PRW', 1, r'(wega) (\d{1,})|(wega)(\d{1,})'],
         # Atlan-Heftserie
         ['Im Auftrag der Menschheit', 'A', 1, r'(im auftrag der menschheit) (\d{1,})'],
         ['Der Held von Arkon', 'A', 88, r'(der held von arkon) (\d{1,})'],
@@ -445,7 +432,9 @@ class Perrypedia(Source):
     series_plot_title = {
         'DEFAULT': 'Handlung:',
         'Perry Rhodan-Kompakt':  'Inhalt:',
-        'RISSZEICHNUNGSBÄNDE':  'Inhalt:',
+        'RISSZEICHNUNGSBÄNDE': 'Inhalt:',
+        'PRWA': 'Inhalt:',
+        'Weltraumatlas': 'Inhalt:',
     }
 
     # Strings we found in page titles (in parentheses). Void = Other book source
@@ -1155,22 +1144,24 @@ class Perrypedia(Source):
                         soups.append(soup)
                         urls.append(book_info[1])
                     else:
-                        # ToDo: Handle books without overview
                         # ToDo: put in seperate function get_raw_metadata_for_non_std_books
                         non_std_book_list = ['Werkstattband', 'Zeitsplitter', 'Weltraumatlas', 'Risszeichnungsbände']
+                        if self.loglevel in [self.loglevels['DEBUG']]:
+                            log.info('Check for non-standard books.')
+                            log.info('non_std_book_list=', non_std_book_list)
+                            log.info('soup.title.string=', soup.title.string)
                         # https://www.perrypedia.de/wiki/Die_ersten_25_Jahre_-_Der_gro%C3%9Fe_Werkstattband
                         # https://www.perrypedia.de/wiki/Zeitsplitter
                         # https://www.perrypedia.de/wiki/Weltraumatlas
                         # https://www.perrypedia.de/wiki/Risszeichnungsb%C3%A4nde
-                        if any(x in non_std_book_list for x in soup.title.string):
+                        if any(x in soup.title.string for x in non_std_book_list):
                             generic_selector = '#mw-content-text > div.mw-parser-output'
                             generic_body = soup.select_one(generic_selector)
                             if generic_body:
                                 is_book_page = True
-                                soups.append(generic_body)
+                                soups.append(soup)
+                                urls.append(book_info[1])
                                 # urls.append(book_info[1])
-                            # ToDo: What else???????????????
-                        # ToDo: What else???????????????
             else:
                 if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('No possible book source found with'), search_text)
@@ -1449,9 +1440,6 @@ class Perrypedia(Source):
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('plot (abbr.)=', plot[:200])
 
-        # ToDo: Find relevant text (Header none, "Inhalt", ...) for books with no plots
-        # (e. g. https://www.perrypedia.de/wiki/PR-Die_Chronik_1)
-
         # ToDo: Perhaps try also plot_summary and other sections (not present in all book pages)
 
         # Find cover url
@@ -1555,8 +1543,12 @@ class Perrypedia(Source):
                 #         # cover_urls.append(base_url + url['href'])  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
                 #         cover_urls.append(self.base_url + url)  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
 
+        # overview= {'Serie:': 'Perry Rhodan Neo (Band 1)
+        if series_code is None :
+            series_code = self.get_series_code_from_series_and_subseries(overview, log)
+        if issuenumber is None:
+                issuenumber = int(str(re.search(r'\d+', overview['Serie:']).group()).strip())
 
-        series_code = issuenumber = None  # ToDo: Put code for find series_code and issuenumner here
         return overview, plot, cover_urls, source_url, series_code, issuenumber
 
     def parse_raw_metadata(self, raw_metadata, series_code, issuenumber,series_names, log):
@@ -1583,8 +1575,8 @@ class Perrypedia(Source):
             log.info('rm_issuenumber=', rm_issuenumber)
             log.info('End of raw metadata **********')
 
-        # ToDo: Handling for book pages without standard overview, plot, cover
         # (e. g. Risszeichnungsbände, Werkstattband, ...)
+        # Handling for book pages without standard overview, plot, cover
         # overview['Serie:'] = 'RISSZEICHNUNGSBÄNDE (Band ' + str(issuenumber).strip() + ')'
         if series_code == 'RISSZEICHNUNGSBÄNDE':
             issuenumber_candidates = list(map(int, re.findall(r'\d+', overview['Serie:'])))
@@ -1593,6 +1585,8 @@ class Perrypedia(Source):
             issuenumber = issuenumber_candidates[-1]
             if self.loglevel in [self.loglevels['DEBUG']]:
                 log.info('Found issuenumber for {0}: {1}'.format(series_code, issuenumber))
+
+        # ToDo: Handling for other book pages without standard overview, plot, cover
 
         # ['Serie:', 'Perry Rhodan-Heftserie (Band 1433)', '© Pabel-Moewig Verlag KG']
         # ['Serie:': 'Perry Rhodan Neo (Band 240)']
@@ -1761,7 +1755,7 @@ class Perrypedia(Source):
             sub_subseries_name = None
             sub_subseries_index = None
 
-        # ToDo: #subseries_index Aus erstem Titel der Zyklus-Seite berechnen:
+        # ToDo: #subseries_index aus erstem Titel der Zyklus-Seite berechnen:
         # https://www.perrypedia.de/wiki/Mythos_(Zyklus)
         # #mw-content-text > div.mw-parser-output > table:nth-child(85) > tbody > tr:nth-child(2) > td:nth-child(1)
         # <table class="perrypedia_std_table">
@@ -1919,7 +1913,7 @@ class Perrypedia(Source):
                 mi.comments = mi.comments + '<p>' + self.series_plot_title[series_code] + '<br />' + plot + '</p>'
             else:
                 mi.comments = mi.comments + '<p>' + self.series_plot_title['DEFAULT'] + '<br />' + plot + '</p>'
-            mi.comments = mi.comments + '<p>&nbsp;</p>'  # ToDo: Delete extra line?
+            # mi.comments = mi.comments + '<p>&nbsp;</p>'
         mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
         #mi.comments = self.sanitize_comments_html(mi.comments)
 
