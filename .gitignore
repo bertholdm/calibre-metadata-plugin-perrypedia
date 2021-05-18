@@ -112,5 +112,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-.idea/workspace.xml
+
+# PyrCharm
+.idea/
+
+# Calibre plugin installer
 plugin_install.bat
