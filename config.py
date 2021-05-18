@@ -11,7 +11,7 @@ from calibre.gui2.metadata.config import ConfigWidget as DefaultConfigWidget
 from calibre.utils.config import JSONConfig
 
 __license__ = 'GPL v3'
-__copyright__ = '2020, Michael Detambel <info@michael-detambel.de>'
+__copyright__ = '2021, Michael Detambel <info@michael-detambel.de>'
 __docformat__ = 'restructuredtext en'
 
 _ = gettext.gettext

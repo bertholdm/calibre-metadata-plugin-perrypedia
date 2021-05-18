@@ -133,7 +133,7 @@ class Perrypedia(Source):
     # Calibre's log object uses the two methods 'info' and 'error'
     loglevels = {'NOTSET': 0, 'DEBUG': 10, 'INFO': 20, 'WARN': 30, 'ERROR': 40, 'CRITICAL': 50}
     # loglevel = loglevels['INFO']
-    loglevel = loglevels['DEBUG']  # loglevels[cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_LOGLEVEL]]
+    loglevel = loglevels['INFO']  # loglevels[cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_LOGLEVEL]]
     exact_match = True  # cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_EXACT_MATCH_SEARCH]
     exact_match = True  # Fuzzy search not implemented yet
     append_edition_to_title = False  # cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_APPEND_EDITION_TO_TITLE]
