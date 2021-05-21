@@ -60,6 +60,7 @@ def get_key(d, val, exact=False):
                 return key
     return None
 
+
 def remove_duplicate_substring(str, delim):
     l = [x.strip() for x in str.split(delim)]  # Split string into list items
     # Convert list to dictionary to remove duplicates
@@ -74,6 +75,7 @@ def remove_duplicate_substring(str, delim):
     str = str[:-3]
     return str
 
+
 def text_with_newlines(html):
     text = ''
     for tag in html.descendants:
@@ -82,6 +84,7 @@ def text_with_newlines(html):
         elif tag.name == 'br' or tag.name == 'p':
             text += '\n'
     return text
+
 
 # def camel_case_split_title(str):
 #     titles = []
@@ -107,6 +110,7 @@ class GermanParserInfo(parser.parserinfo):
               ('Jun', 'Juni'), ('Jul', 'Juli'), ('Aug', 'August'), ('Sep', 'Sept', 'September'), ('Oct', 'Oktober'),
               ('Nov', 'November'), ('Dec', 'Dezember')]
 
+
 #####################
 # Plugin main class #
 #####################
@@ -115,7 +119,9 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 2, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    version = (1, 2, 1)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    # RegEx for "Perry Rhodan - Die Chronik"
+    # Modiefied RegEx handling for seperate series code and issuenumber
 
     minimum_calibre_version = (5, 1, 0)
 
@@ -132,8 +138,8 @@ class Perrypedia(Source):
     # There are six log levels in Python; each level is associated with an integer that indicates the log severity.
     # Calibre's log object uses the two methods 'info' and 'error'
     loglevels = {'NOTSET': 0, 'DEBUG': 10, 'INFO': 20, 'WARN': 30, 'ERROR': 40, 'CRITICAL': 50}
-    # loglevel = loglevels['INFO']
     loglevel = loglevels['INFO']  # loglevels[cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_LOGLEVEL]]
+    loglevel = loglevels['DEBUG']
     exact_match = True  # cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_EXACT_MATCH_SEARCH]
     exact_match = True  # Fuzzy search not implemented yet
     append_edition_to_title = False  # cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_APPEND_EDITION_TO_TITLE]
@@ -156,7 +162,7 @@ class Perrypedia(Source):
     # https://www.perrypedia.de/mediawiki/images/thumb/6/67/PR3088.jpg/270px-PR3088.jpg
     # Originaldatei: https://www.perrypedia.de/mediawiki/images/d/d1/PR2038.jpg
     api_url = 'https://www.perrypedia.de/mediawiki/api.php?'
-    #action=opensearch&namespace=0&search=Die+Dritte+Macht&limit=5&format=json
+    # action=opensearch&namespace=0&search=Die+Dritte+Macht&limit=5&format=json
 
     series_regex = {
         'A': r'(atlan) \d{1,3}_(\d{1,3})_-|(atlan)\d{1,3}_(\d{1,3})_-'  # ATLAN 91_93_-Atlan und der Graue
@@ -178,11 +184,14 @@ class Perrypedia(Source):
         'LB': r'(Leihbuch.{1,5})[^0-9]{0,5}(\d{1,3})|(SF-Leihbuch-Datenbank)',
         # 'PR': search pattern "perry rhodan" or "pr" must be at end of the search loop,
         # otherwise things like "perry rhodan tb" are unwanted matched
-        'PR-Die_Chronik_': r'(perry.{0,3}rhodan.{0,3}die.{0,3}chronik)[^0-9]{0,5}(\d{1,2})'
-                           r'|(pr.{0,3}die.{1,1}chronik)[^0-9]{0,5}(\d{1,2})',
         'PRA': r'(perry.{0,3}rhodan.{0,3}action)[^0-9]{0,5}(\d{1,2})',
         'PRAR': r'(perry.{0,3}rhodan.{0,3}arkon)[^0-9]{1,5}(\d{1,2})',
         'PRCL': r'(perry.{0,3}rhodan.{0,3}classics)[^0-9]{1,5}(\d{1,2})',
+        # 'PR-Die_Chronik_': r'(perry.{0,3}rhodan.{0,3}die.{0,3}chronik)[^0-9]{0,5}(\d{1,2})'
+        #                   r'|(pr.{0,3}die.{1,1}chronik)[^0-9]{0,5}(\d{1,2})',
+        'PRDCHR': r'(perry.{0,3}rhodan[^0-9]{1,5}die.{0,3}chronik)[^0-9]{1,5}band[^0-9]{0,5}(\d{1,2})',
+        #                   r'|(perry.{0,3}rhodan.{0,3}die.{0,3}chronik)[^0-9]{0,5}(\d{1,2})'
+        #                   r'|(pr.{0,3}die.{1,1}chronik)[^0-9]{0,5}(\d{1,2})',
         'PRE': r'(perry.{1,3}rhodan.{1,5}extra)[^0-9]{1,5}(\d{1,2})',  # Extra
         'PRHC': r'(silberband)[^0-9]{1,5}(\d{1,4})|(silberbände)[^0-9]{1,5}(\d{1,4})'
                 r'|(sb)[^0-9]{1,5}(\d{1,4})|(prhc)[^0-9]{0,3}(\d{1,4})',
@@ -340,7 +349,6 @@ class Perrypedia(Source):
         'MF': 'Moewig Fantastic',
         'PERRYHC': 'Perry Comics Hardcover (Alligator-Farm)',
         'PR': 'Perry Rhodan-Heftserie',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Heftserie
-        'PR-Die_Chronik_': 'Perry Rhodan - Die Chronik',
         'PRA': 'Perry Rhodan-Action',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Action
         'PRAB': 'Perry Rhodan-Autorenbibliothek',
         'PRAH': 'Perry Rhodan-Andromeda Hörbücher',
@@ -350,6 +358,8 @@ class Perrypedia(Source):
         'PRCCCA': 'Perry Rhodan Cross Cult-Comics HC-Alben',
         'PRCL': 'Perry Rhodan-Classics',
         'PRDC': 'Perry Rhodan Der Comic od. Di\'akir Comic',
+        # 'PR-Die_Chronik_': 'Perry Rhodan - Die Chronik',
+        'PRDCHR': 'Perry Rhodan - Die Chronik',
         'PRE': 'Perry Rhodan-Extra',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Extra
         'PRET': 'Perry Rhodan-Edition Terrania',
         'PRFD': 'Perry Rhodan Fan-Serie DORGON',
@@ -424,23 +434,27 @@ class Perrypedia(Source):
         'DEFAULT': '/mediawiki/index.php?title=Quelle:',
         'A': '/wiki/Quelle:',
         'AHC': '/wiki/Quelle:',
-        'PR-Die_Chronik_': '/wiki/',
+        # m'PR-Die_Chronik_': '/wiki/',
+        # 'PRDCHR': '/wiki/',
         'PRWA': '/wiki/Weltraumatlas',
         'RISSZEICHNUNGSBÄNDE': '/wiki/Risszeichnungsb%C3%A4nde',
     }
 
     series_plot_title = {
         'DEFAULT': 'Handlung:',
-        'Perry Rhodan-Kompakt':  'Inhalt:',
-        'RISSZEICHNUNGSBÄNDE': 'Inhalt:',
+        'Perry Rhodan-Kompakt': 'Inhalt:',
+        'PRDCHR': 'Inhalt:',
         'PRWA': 'Inhalt:',
+        'RISSZEICHNUNGSBÄNDE': 'Inhalt:',
         'Weltraumatlas': 'Inhalt:',
     }
 
     # Strings we found in page titles (in parentheses). Void = Other book source
     # (in most cases PR series), if '(Roman)' not present.
-    book_variants = ['Blauband', 'Buch', 'Comic', 'Heftroman', 'Hörbuch', 'Leihbuch', 'Planetenroman', 'PR Neo', 'Roman',
+    book_variants = ['Blauband', 'Buch', 'Comic', 'Heftroman', 'Hörbuch', 'Leihbuch', 'Planetenroman', 'PR Neo',
+                     'Roman',
                      'Silberband', 'Taschenheft', 'PR Neo-Roman']
+
     # (Begriffsklärung)
 
     def is_customizable(self):
@@ -456,7 +470,6 @@ class Perrypedia(Source):
         # from calibre_plugins.Perrypedia.config import ConfigWidget
         from calibre_plugins.perrypedia.config import ConfigWidget
         return ConfigWidget(self)
-
 
     def identify(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30):
 
@@ -545,8 +558,9 @@ class Perrypedia(Source):
                         path = self.series_metadata_path[series_code]
                     else:
                         path = self.series_metadata_path['DEFAULT']
-                    raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, title, series_code, issuenumber,
-                                                                                  self.browser, 20, log)
+                    raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, title, series_code,
+                                                                                     issuenumber,
+                                                                                     self.browser, 20, log)
                     mi = self.parse_raw_metadata(raw_metadata, series_code, issuenumber, self.series_names, log)
                     result_queue.put(mi)
                 else:
@@ -566,7 +580,8 @@ class Perrypedia(Source):
             else:
                 authors_str = ' '
 
-            series_code = issuenumber = None
+            series_code = None
+            issuenumber = None
             series_code_issuenumber = self.parse_title_authors_for_series_code_and_issuenumber(title, authors_str, log)
             if series_code_issuenumber[0] is not None:
                 series_code = str(series_code_issuenumber[0])
@@ -589,7 +604,7 @@ class Perrypedia(Source):
                     log.info("path=", path)
 
                 raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, title, series_code, issuenumber,
-                                                                              self.browser, 20, log)
+                                                                                 self.browser, 20, log)
                 if raw_metadata:
                     if self.loglevel == self.loglevels['DEBUG']:
                         log.info("Raw metadata found.", path)
@@ -599,7 +614,8 @@ class Perrypedia(Source):
                     result_queue.put(mi)
                 else:
                     pp_id = None
-                    log.info(_('No metadata found with series code and/or issuenumber not found. Trying a book title search.'))
+                    log.info(
+                        _('No metadata found with series code and/or issuenumber not found. Trying a book title search.'))
             else:
                 pp_id = None
                 log.info(_('Series code and/or issuenumber not found. Trying a book title search.'))
@@ -619,10 +635,11 @@ class Perrypedia(Source):
             urls = result[1]
             for soup, url in zip(soups, urls):
                 if self.loglevel in [self.loglevels['DEBUG']]:
-                    log.info(''.join([char*20 for char in '-']))
+                    log.info(''.join([char * 20 for char in '-']))
                     log.info(_('Next soup, Page title:'), soup.title.string)
                     log.info(_('Next soup, url:'), url)
-                raw_metadata = self.parse_pp_book_page(soup, title, series_code, issuenumber, self.browser, timeout, url, log)
+                raw_metadata = self.parse_pp_book_page(soup, title, series_code, issuenumber, self.browser, timeout,
+                                                       url, log)
                 if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Result found with title search.'))
                 mi = self.parse_raw_metadata(raw_metadata, series_code, issuenumber, self.series_names, log)
@@ -831,7 +848,6 @@ class Perrypedia(Source):
             log.info('series_code=', series_code)
         return series_code
 
-
     def parse_title_authors_for_series_code_and_issuenumber(self, title, authors_str, log):
         # Combine def parse_title_author_for_series_code() and parse_title_author_for_issuenumber()
         if self.loglevel in [self.loglevels['DEBUG']]:
@@ -862,7 +878,7 @@ class Perrypedia(Source):
                     log.info("Match at index {0}, {1}".format(match.start(), match.end()))
                     log.info("Full match: {0}".format(match.group(0)))
                     log.info("Number of groups:", len(match.groups()))
-                    for i in range(0,len(match.groups()),1):
+                    for i in range(1, len(match.groups()) + 1, 1):
                         log.info("Group {0}: {1}".format(i, (match.group(i))))
                 # reduce match.group() to groups with content
                 # https://stackoverflow.com/questions/2498935/
@@ -966,7 +982,8 @@ class Perrypedia(Source):
             title = title[:-8]
         return title
 
-    def get_raw_metadata_from_series_and_issuenumber(self, path, title, series_code, issuenumber, browser, timeout, log):
+    def get_raw_metadata_from_series_and_issuenumber(self, path, title, series_code, issuenumber, browser, timeout,
+                                                     log):
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('*** Enter get_raw_metadata_from_series_and_issuenumber()')
             log.info('series_code={0}, issuenumber={1}'.format(series_code, issuenumber))
@@ -1193,10 +1210,10 @@ class Perrypedia(Source):
                 log.info('title=', title)
             overview = {}
             plot = cover_urls = ''
-            #rz_selector = '#mw-content-text > div.mw-parser-output > table'
-            #rz_output = soup.select_one('#mw-content-text > div.mw-parser-output')
-            #rz_books = rz_output.find_all('td', {"width" : "50%"})  # Find all Risszeichnungsbände
-            rz_books = soup.find_all('td', {"width" : "50%"})  # Find all Risszeichnungsbände
+            # rz_selector = '#mw-content-text > div.mw-parser-output > table'
+            # rz_output = soup.select_one('#mw-content-text > div.mw-parser-output')
+            # rz_books = rz_output.find_all('td', {"width" : "50%"})  # Find all Risszeichnungsbände
+            rz_books = soup.find_all('td', {"width": "50%"})  # Find all Risszeichnungsbände
             if rz_books:
                 subpage_counter = 0
                 # There is more than one book description in this web page! Find the desired.
@@ -1212,7 +1229,7 @@ class Perrypedia(Source):
                         #     # Terranische Raumschiffe – Rißzeichnungen, Extraterrestrische Raumschiffe – Risszeichnungen
                     if overview['Titel:'] == title:
                         # Get data only for this book and generate issuenumber
-                        #issuenumber == subpage_issuenumber
+                        # issuenumber == subpage_issuenumber
                         issuenumber = subpage_counter
                         if self.loglevel in [self.loglevels['DEBUG']]:
                             log.info('Implicite issuenumber=', issuenumber)
@@ -1221,7 +1238,7 @@ class Perrypedia(Source):
                         if self.loglevel in [self.loglevels['DEBUG']]:
                             log.info('rz_book=', rz_book.get_text())
                             log.info("overview['Serie:']", overview['Serie:'])
-                        plot = rz_book.get_text().replace('\n','<br />').replace(' Abbildung ','')  # ToDo: Customizig
+                        plot = rz_book.get_text().replace('\n', '<br />').replace(' Abbildung ', '')  # ToDo: Customizig
                         # Get "Herausgeber" etc. from the first <ul> tag
                         ul_list = rz_book.find('ul')
                         if self.loglevel in [self.loglevels['DEBUG']]:
@@ -1341,7 +1358,7 @@ class Perrypedia(Source):
 
         for row in rows:
 
-            #if self.loglevel in [self.loglevels['DEBUG']]:
+            # if self.loglevel in [self.loglevels['DEBUG']]:
             #    log.info('row={0}'.format(row))
 
             cols = row.find_all(['td', 'th'])
@@ -1355,7 +1372,7 @@ class Perrypedia(Source):
             overview_entry = []
             for col in cols:
 
-                #if self.loglevel in [self.loglevels['DEBUG']]:
+                # if self.loglevel in [self.loglevels['DEBUG']]:
                 #    log.info('col={0}'.format(col))
 
                 # Check for multiple lines with line break
@@ -1388,7 +1405,7 @@ class Perrypedia(Source):
 
                 # row= ['Erstmals erschienen:', '1961']
                 if 'Erstmals erschienen:' in overview_entry[0]:
-                    pubdate_url = self.base_url + row.find('a').get('href')   # /wiki/Ver%C3%B6ffentlichungen_1961
+                    pubdate_url = self.base_url + row.find('a').get('href')  # /wiki/Ver%C3%B6ffentlichungen_1961
                     if self.loglevel in [self.loglevels['DEBUG']]:
                         log.info('Found a pubdate page URL:', pubdate_url)
 
@@ -1415,7 +1432,8 @@ class Perrypedia(Source):
                 # ['Serie:', 'Atlan-Blaubände (Band 1)', '© Pabel-Moewig Verlag KGE-Book-Titelbild | © Pabel-Moewig Verlag KG']
                 if row[0] == 'Serie:' and len(row) > 2:
                     overview_supplement['Verlag:'] = row[2]
-                    not_publisher_texts = ['Innenillustration', 'Titelbildinspiration:', 'Covervorlage', 'E-Book-Titelbild']
+                    not_publisher_texts = ['Innenillustration', 'Titelbildinspiration:', 'Covervorlage',
+                                           'E-Book-Titelbild']
                     for not_publisher_text in not_publisher_texts:
                         if not_publisher_text in overview_supplement['Verlag:']:
                             overview_supplement['Verlag:'] = \
@@ -1544,14 +1562,14 @@ class Perrypedia(Source):
                 #         cover_urls.append(self.base_url + url)  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
 
         # overview= {'Serie:': 'Perry Rhodan Neo (Band 1)
-        if series_code is None :
+        if series_code is None:
             series_code = self.get_series_code_from_series_and_subseries(overview, log)
         if issuenumber is None:
-                issuenumber = int(str(re.search(r'\d+', overview['Serie:']).group()).strip())
+            issuenumber = int(str(re.search(r'\d+', overview['Serie:']).group()).strip())
 
         return overview, plot, cover_urls, source_url, series_code, issuenumber
 
-    def parse_raw_metadata(self, raw_metadata, series_code, issuenumber,series_names, log):
+    def parse_raw_metadata(self, raw_metadata, series_code, issuenumber, series_names, log):
         # Parse metadata source and put metadata in result queue
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('*** Enter parse_raw_metadata()')
@@ -1915,7 +1933,7 @@ class Perrypedia(Source):
                 mi.comments = mi.comments + '<p>' + self.series_plot_title['DEFAULT'] + '<br />' + plot + '</p>'
             # mi.comments = mi.comments + '<p>&nbsp;</p>'
         mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
-        #mi.comments = self.sanitize_comments_html(mi.comments)
+        # mi.comments = self.sanitize_comments_html(mi.comments)
 
         # Kovid: IIRC, metadata downloading discards all custom metadata fields, setting them on the metadata object
         # will have no effect.
@@ -2043,6 +2061,7 @@ if __name__ == '__main__':  # tests
 
     from calibre import prints
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin, title_test, authors_test)
+
 
     def cover_test(cover_url):
         if cover_url is not None:
