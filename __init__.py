@@ -886,12 +886,12 @@ class Perrypedia(Source):
                 # functools.reduce(lambda x, y : (x, y)[x is None], match_groups, None)
                 nonempty_groups = []
                 issuenumber = None
-                for i in range(0, len(match.groups()), 1):
+                for i in range(1, len(match.groups()) + 1, 1):
                     if match.group(i) is not None:
                         nonempty_groups.append(match.group(i))
                         if self.loglevel in [self.loglevels['DEBUG']]:
                             log.info("append nonempty group: {0}".format(match.group(i)))
-                for i in range(0, len(nonempty_groups), 1):
+                for i in range(1, len(nonempty_groups) + 1, 1):
                     log.info("nonempty_groups[i]: {0}".format(nonempty_groups[i]))
                     if nonempty_groups[i].isnumeric():
                         issuenumber = int(nonempty_groups[i])
@@ -1448,13 +1448,25 @@ class Perrypedia(Source):
 
         plot = ''  # Handlung
         # <h2>id="Handlung"<p>
-        plot_header = soup.find('span', {'id': 'Handlung'})
+        plot_header = soup.find('span', {'id': 'Handlung'})  # standard books
+        # non standard books, e. g. https://www.perrypedia.de/wiki/Perry_Rhodan_-_Die_Chronik_4
+        if plot_header is None:
+            plot_header = soup.find('span', {'id': 'Inhalt'})
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('plot_header=', plot_header)
-        for tag in soup.h2.find_next_siblings(name=['p', 'dl']):
-            plot = plot + tag.text + '<br />'  # ToDo: config user choice text or html
-            # plot = plot + str(tag.decode(formatter="html5"))  # ToDo: config user choice text or html
-            # Note: The HTML formatter produces '<pre>' for '<dl>'
+        if 'Perry Rhodan - Die Chronik' in soup.title.string:
+            for tag in soup.h3.find_next_siblings(name=['ul', 'li']):
+                plot = plot + tag.text + '<br />'  # ToDo: config user choice text or html
+                # plot = plot + str(tag.decode(formatter="html5"))  # ToDo: config user choice text or html
+                # Note: The HTML formatter produces '<pre>' for '<dl>'
+
+                # ToDo: Stop after first <h3>
+        else:
+            for tag in soup.h2.find_next_siblings(name=['p', 'dl']):
+                plot = plot + tag.text + '<br />'  # ToDo: config user choice text or html
+                # plot = plot + str(tag.decode(formatter="html5"))  # ToDo: config user choice text or html
+                # Note: The HTML formatter produces '<pre>' for '<dl>'
+
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('plot (abbr.)=', plot[:200])
 
