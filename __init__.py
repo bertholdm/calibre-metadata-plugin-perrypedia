@@ -119,9 +119,15 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 2, 1)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    version = (1, 2, 2)  # MAJOR.MINOR.PATCH (https://semver.org/)
     # RegEx for "Perry Rhodan - Die Chronik"
     # Modiefied RegEx handling for seperate series code and issuenumber
+    # New RegEx for "PR Neo"
+    # New RegEx for "PR WEGA"
+    # ToDo: Include PR FanFiction:
+    # https://www.perrypedia.de/wiki/Perry_Rhodan-Fan-Edition
+    # https://www.prfz.de/fan-edition.html
+    # https://www.prfz.de/fan-edition/articles/fe-22-sonnenwaerts.html
 
     minimum_calibre_version = (5, 1, 0)
 
@@ -140,7 +146,7 @@ class Perrypedia(Source):
     loglevels = {'NOTSET': 0, 'DEBUG': 10, 'INFO': 20, 'WARN': 30, 'ERROR': 40, 'CRITICAL': 50}
     loglevel = loglevels['INFO']  # loglevels[cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_LOGLEVEL]]
     loglevel = loglevels['DEBUG']
-    exact_match = True  # cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_EXACT_MATCH_SEARCH]
+    # exact_match = False  # cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_EXACT_MATCH_SEARCH]
     exact_match = True  # Fuzzy search not implemented yet
     append_edition_to_title = False  # cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_APPEND_EDITION_TO_TITLE]
     formatting_comment = 'HTML'  # cfg.plugin_prefs[cfg.STORE_NAME][cfg.KEY_FORMATTING_COMMENT]
@@ -183,7 +189,7 @@ class Perrypedia(Source):
                r'|(das absolute abenteuer)[^0-9]{0,5}(\d{1,4})',
         'LB': r'(Leihbuch.{1,5})[^0-9]{0,5}(\d{1,3})|(SF-Leihbuch-Datenbank)',
         # 'PR': search pattern "perry rhodan" or "pr" must be at end of the search loop,
-        # otherwise things like "perry rhodan tb" are unwanted matched
+        # otherwise things like "perry rhodan tb" or "PRJUP 01" are unwanted matched
         'PRA': r'(perry.{0,3}rhodan.{0,3}action)[^0-9]{0,5}(\d{1,2})',
         'PRAR': r'(perry.{0,3}rhodan.{0,3}arkon)[^0-9]{1,5}(\d{1,2})',
         'PRCL': r'(perry.{0,3}rhodan.{0,3}classics)[^0-9]{1,5}(\d{1,2})',
@@ -196,13 +202,13 @@ class Perrypedia(Source):
         'PRHC': r'(silberband)[^0-9]{1,5}(\d{1,4})|(silberbände)[^0-9]{1,5}(\d{1,4})'
                 r'|(sb)[^0-9]{1,5}(\d{1,4})|(prhc)[^0-9]{0,3}(\d{1,4})',
         'PRIB': r'(perry rhodan im bild)[^0-9]{0,5}(\d{1,2})',  # Perry Rhodan im Bild 05 - Atom-Alarm
-        'PRJUP': r'(perry.{0,3}rhodan.{0,3}jupiter)[^0-9]{1,5}(\d{1,2})',
+        'PRJUP': r'(perry.{0,3}rhodan.{0,3}jupiter)[^0-9]{1,5}(\d{1,2})|(prjup)[^0-9]{1,5}(\d{1,2})',
         'PRMS': r'(perry.{0,3}rhodan.{0,3}mission.{0,3}sol)[^0-9]{1,5}(\d{1,2})'
                 r'|(pr.{0,3}mission.{0,3}sol)[^0-9]{1,5}(\d{1,2})|(mission.{0,3}sol)[^0-9]{1,5}(\d{1,2})',
         'PRMS2_': r'(perry.{0,3}rhodan.{0,3}mission.{0,3}sol[^0-9]{0,3}[2-9]{1})[^0-9]{1,5}(\d{1,2})'
                   r'|(pr.{0,3}mission.{0,3}sol[^0-9]{0,3}[2-9]{1})[^0-9]{1,5}(\d{1,2})'
                   r'|(mission.{0,3}sol[^0-9]{0,3}[2-9]{1})[^0-9]{1,5}(\d{1,2})',
-        'PRN': r'(perry rhodan neo)[^0-9]{0,3}(\d{1,4})|(prn)[^0-9]{0,3}(\d{1,4})',
+        'PRN': r'(perry rhodan neo)[^0-9]{0,3}(\d{1,4})|(prn)[^0-9]{0,3}(\d{1,4})|(pr neo)[^0-9]{0,3}(\d{1,4})',
         'PROL': r'(perry.{0,3}rhodan.{0,3}olymp)[^0-9]{1,5}(\d{1,2})',
         'PRS': r'(perry.{0,3}rhodan.{0,3}stardust)[^0-9]{0,5}(\d{1,2})',
         'PRSB': r'(perry.{0,3}rhodan.{0,3}sonderbände)[^0-9]{1,5}(\d{1,2})'
@@ -232,6 +238,7 @@ class Perrypedia(Source):
         'PRTBT': r'(perry.{1,3}rhodan.{1,5}die tefroder)[^0-9]{1,5}(\d{1,2})'
                  r'|(die tefroder)[^0-9]{1,5}(\d{1,2})',  # Taschenbücher Die Tefroder
         'PRTER': r'(perry.{0,3}rhodan.{0,3}terminus)[^0-9]{1,5}(\d{1,2})|(prte )(\d{1,2})',
+        'PRW': r'(prwe_)(\d{1,2})|(prwe )(\d{1,2})',
         'PUMIA': r'(perry.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})'  # Perry Rhodan - Unser Mann im All 049
                  r'|(perry rhodan.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})'
                  r'|(perry rhodan - unser mann im all )(\d{1,3})',
@@ -245,7 +252,6 @@ class Perrypedia(Source):
     }
 
     # Zyklen
-    # ToDo: determine automatically from https://www.perrypedia.de/wiki/Zyklen ?
     subseries_offsets = [
         # Perry Rhodan-Heftserie
         ['Die Dritte Macht', 'PR', 1, r'(die dritte macht) (\d{1,})'],
@@ -318,6 +324,31 @@ class Perrypedia(Source):
         ['Lepso', 'ATB', 1, r'(lepso)[^0-9]{1,3}(\d{1,})'],
         ['Rudyn', 'ATB', 4, r'(rudyn) (\d{1,})|(lordrichter)[^0-9]{1,3}(\d{1,})'],
     ]
+
+    # ToDo: fetch automatically from https://www.perrypedia.de/wiki/Zyklen ?
+    # # Check PP for new subseries
+    # url = 'https://www.perrypedia.de/wiki/Zyklen'
+    # page = browser.open_novisit(url, timeout=timeout).read().strip()
+    # soup = BeautifulSoup(page, 'html.parser')
+    # # <h3><span class="mw-headline" id="Perry_Rhodan-Heftserie">Perry Rhodan-Heftserie</span></h3>
+    # table_rows = soup.select_one('html body #content #bodyContent #mw-content-text .mw-parser-output perrypedia_std_table table tbody')
+    # title_list = []
+    # url_list = []
+    # for table_row in table_rows.find_all('tr'):
+    #     link = table_row.find('a', href=True)
+    #     text = redirect.find('a').contents[0]
+    #     title = link.get('title')
+    #     href = link.get('href')
+    #     if self.loglevel in [self.loglevels['DEBUG']]:
+    #         log.info('redirect=', redirect.text)
+    #         log.info('text=', text)
+    #         log.info('title=', title)
+    #         log.info('href=', href)
+    #     if subseries not in subseries_offsets:
+    #         subseries_offsets.append(list(subseries, subseries_code, subseries_offset, subseries_regex))
+    #         if self.loglevel in [self.loglevels['DEBUG']]:
+    #             log.info('Found new subseries: {0}', subseries)
+
 
     # see https://www.perrypedia.de/wiki/Produkte
     # https://www.perrypedia.de/wiki/Hilfe:Quellenangaben
@@ -828,7 +859,7 @@ class Perrypedia(Source):
         series_code = ''
         try:
             if self.loglevel in [self.loglevels['DEBUG']]:
-                log.info('overview["Serie:"], overview["Zyklus:"]=', overview['Serie:'] + ', ' + overview['Zyklus:'])
+                log.info('overview={0}'.format(overview))
             series_code = get_key(self.series_names, overview['Serie:'], exact=False)
             # Caveat: Atlan Miniserien
             # ['Obsidian', 'AM', 1, r'(obsidian)[^0-9]{0,8}(\d{1,})'],
@@ -838,10 +869,13 @@ class Perrypedia(Source):
             # ['Flammenstaub', 'AM', 49, r'(flammenstaub)[^0-9]{0,8}(\d{1,})'],
             # ['Centauri', 'AO', 1, r'(centauri)[^0-9]{0,8}(\d{1,})'],  # Atlan - Centauri-Zyklus 07 - Frank Borsch
             # ['Traversan', 'AT', 1, r'(traversan)[^0-9]{0,8}(\d{1,})'],
-            if overview['Zyklus:'] == 'Centauri':
-                series_code = 'AO'
-            if overview['Zyklus:'] == 'Traversan':
-                series_code = 'AT'
+            try:
+                if overview['Zyklus:'] == 'Centauri':
+                    series_code = 'AO'
+                elif overview['Zyklus:'] == 'Traversan':
+                    series_code = 'AT'
+            except KeyError:
+                pass
         except KeyError:
             pass
         if self.loglevel in [self.loglevels['DEBUG']]:
@@ -975,7 +1009,8 @@ class Perrypedia(Source):
         if self.loglevel in [self.loglevels['DEBUG']]:
             log.info('url=', url)
         page = browser.open_novisit(url, timeout=timeout).read().strip()
-        soup = BeautifulSoup(page.text, 'html.parser')
+        # soup = BeautifulSoup(page.text, 'html.parser')
+        soup = BeautifulSoup(page, 'html.parser')
         # <h1 id="firstHeading" class="firstHeading" lang="de">Brigade der Sternenlotsen</h1>
         title = soup.find(id='firstHeading').contents[0]
         if title.endswith(' (Roman)'):
@@ -1024,7 +1059,7 @@ class Perrypedia(Source):
             url = self.api_url + 'action=opensearch&namespace=0&search=' + search_text + '&limit=10&format=json'
             # url = search_base_url + urllib.parse.quote(search_text) + '&title=Spezial%3ASuche'
             if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-                log.info(_('API seaach with:'), search_text)
+                log.info(_('API search with:'), search_text)
                 log.info(_('GET url:'), url)
             response = browser.open_novisit(url, timeout=timeout)
             response_text = response.read().strip()
@@ -1433,7 +1468,7 @@ class Perrypedia(Source):
                 if row[0] == 'Serie:' and len(row) > 2:
                     overview_supplement['Verlag:'] = row[2]
                     not_publisher_texts = ['Innenillustration', 'Titelbildinspiration:', 'Covervorlage',
-                                           'E-Book-Titelbild']
+                                           'E-Book-Titelbild', 'Star-Galerie', 'Titelbildvorlage']
                     for not_publisher_text in not_publisher_texts:
                         if not_publisher_text in overview_supplement['Verlag:']:
                             overview_supplement['Verlag:'] = \
@@ -1574,10 +1609,15 @@ class Perrypedia(Source):
                 #         cover_urls.append(self.base_url + url)  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
 
         # overview= {'Serie:': 'Perry Rhodan Neo (Band 1)
+        if self.loglevel in [self.loglevels['DEBUG']]:
+            log.info('series_code={0}, issuenumber={1}'.format(series_code, issuenumber))
+            # overview= {'Serie:'
         if series_code is None:
             series_code = self.get_series_code_from_series_and_subseries(overview, log)
         if issuenumber is None:
             issuenumber = int(str(re.search(r'\d+', overview['Serie:']).group()).strip())
+        if self.loglevel in [self.loglevels['DEBUG']]:
+            log.info('series_code={0}, issuenumber={1}'.format(series_code, issuenumber))
 
         return overview, plot, cover_urls, source_url, series_code, issuenumber
 
