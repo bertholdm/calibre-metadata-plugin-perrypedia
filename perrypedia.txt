@@ -1,4 +1,4 @@
-[Metadata Source Plugin] Perrypedia - Version 1.2.0 - 05-17-2021
+[Metadata Source Plugin] Perrypedia - Version 1.2.0 - 11-01-2021
 
 Dieses Plugin verwendet Perrypedia als Metadatenquelle. Es lädt Metadaten und Cover herunter.
 Perrypedia (https://www.perrypedia.de/) ist ein Fanprojekt zur Erstellung eines kostenlosen Nachschlagewerks für die Perry Rhodan SF-Serie.
@@ -74,14 +74,9 @@ So melden Sie Fehler und Vorschläge:
 -----------------------------------
 Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem Thread.
 
-Paypal-Spenden:
------------------
-Wenn Sie dieses Plugin nützlich finden, können Sie gerne Ihre Wertschätzung zeigen.
-[URL="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=T9WKA9BSC85CW"][COLOR=#3399CC]PayPal[/COLOR][/URL]
-
 ---
 
-[Metadata Source Plugin] Perrypedia -  Version 1.2.0 - 05-17-2021
+[Metadata Source Plugin] Perrypedia -  Version 1.2.0 - 11-01-2021
 
 This plugin uses Perrypedia as metadata source. It downloads metadata and covers. 
 Perrypedia (https://www.perrypedia.de/) is a fan project for the creation of a free reference work for the Perry Rhodan SF series.
@@ -156,8 +151,3 @@ Download the attached zip file and install the plugin as described in the Introd
 How to report Bugs and suggestions:
 -----------------------------------
 If you find any issues or have suggestions please report them in this thread.
-
-Paypal Donations:
------------------
-If you find this plugin useful please feel free to show your appreciation.
-[URL="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=T9WKA9BSC85CW"][COLOR=#3399CC]PayPal[/COLOR][/URL]
