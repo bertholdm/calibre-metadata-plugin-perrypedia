@@ -11,7 +11,7 @@ from dateutil import parser
 from queue import Empty, Queue
 from bs4 import BeautifulSoup
 from calibre.ebooks.metadata import authors_to_string
-from calibre.ebooks.metadata.sources.base import Source
+from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.gui2.book_details import *
 
 __license__ = 'GPL v3'
