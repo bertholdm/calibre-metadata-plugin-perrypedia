@@ -115,8 +115,8 @@ class Perrypedia(Source):
             'exact_match',
             'bool',
             True,
-            _('Title / Author Search mode'),
-            _('Choose exact match or fuzzy search.'),
+            _('Title / Author search mode'),
+            _('Exact match in Title / Author search mode, otherwise fuzzy search.'),
         ),
         # Set debug level
         Option(
@@ -127,7 +127,7 @@ class Perrypedia(Source):
             _('log level'),
             _('Log detail level. NOTSET: no logging, only global info and error messages, '
               'DEBUG: all processing messages, INFO: essential procesing messages'),
-            {'NOTSET': 0, 'DEBUG': 10, 'INFO': 20}
+            {'NOTSET': 'NOTSET', 'DEBUG': 'DEBUG', 'INFO': 'INFO'}
         ),
         Option(
             'comment_style',
