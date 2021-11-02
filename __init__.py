@@ -941,7 +941,7 @@ class Perrypedia(Source):
             url = self.api_url + 'action=opensearch&namespace=0&search=' + search_text + '&limit=10&format=json'
             # url = search_base_url + urllib.parse.quote(search_text) + '&title=Spezial%3ASuche'
             if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-                log.info(_('API seaach with:'), search_text)
+                log.info(_('API search with:'), search_text)
                 log.info(_('GET url:'), url)
             response = browser.open_novisit(url, timeout=timeout)
             response_text = response.read().strip()
