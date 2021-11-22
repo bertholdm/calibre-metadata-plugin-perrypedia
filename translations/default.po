@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Perrypedia\n"
-"POT-Creation-Date: 2021-11-02 19:19+0100\n"
-"PO-Revision-Date: 2021-11-02 19:19+0100\n"
+"POT-Creation-Date: 2021-11-21 15:23+0100\n"
+"PO-Revision-Date: 2021-11-21 15:24+0100\n"
 "Last-Translator: Michael Detambel <info@michael-detambel.de>\n"
 "Language-Team: Michael Detambel\n"
 "Language: de_DE@formal\n"
@@ -14,200 +14,204 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: __init__.py:89
+#: __init__.py:90
 msgid "Downloads metadata and covers from Perrypedia (perrypedia.de)"
 msgstr ""
 
-#: __init__.py:118
+#: __init__.py:121
 msgid "Title / Author search mode"
 msgstr ""
 
-#: __init__.py:119
+#: __init__.py:122
 msgid "Exact match in Title / Author search mode, otherwise fuzzy search."
 msgstr ""
 
-#: __init__.py:127
+#: __init__.py:130
 msgid "log level"
 msgstr ""
 
-#: __init__.py:128
+#: __init__.py:131
 msgid ""
 "Log detail level. NOTSET: no logging, only global info and error messages, "
 "DEBUG: all processing messages, INFO: essential procesing messages"
 msgstr ""
 
-#: __init__.py:136
+#: __init__.py:139
 msgid "comments field style - text or html"
 msgstr ""
 
-#: __init__.py:137
+#: __init__.py:140
 msgid ""
 "Choose if comments should formatted with html/css or should contain pure "
 "text with line breaks."
 msgstr ""
 
-#: __init__.py:530
-msgid "Unexpectedly structure of field pp_id:"
+#: __init__.py:539
+msgid "Unexpected structure of field pp_id:"
 msgstr ""
 
-#: __init__.py:543
+#: __init__.py:552
 #, python-brace-format
 msgid ""
 "Malformed PPID: {0}. Parse title and authors fields for series and "
 "issuenumber."
 msgstr ""
 
-#: __init__.py:581
+#: __init__.py:590
 msgid ""
 "No metadata found with series code and/or issuenumber not found. Trying a "
 "book title search."
 msgstr ""
 
-#: __init__.py:584
+#: __init__.py:593
 msgid "Series code and/or issuenumber not found. Trying a book title search."
 msgstr ""
 
-#: __init__.py:597
+#: __init__.py:606
 msgid "Next soup, Page title:"
 msgstr ""
 
-#: __init__.py:598
+#: __init__.py:607
 msgid "Next soup, url:"
 msgstr ""
 
-#: __init__.py:601
+#: __init__.py:610
 msgid "Result found with title search."
 msgstr ""
 
-#: __init__.py:609 __init__.py:1259
+#: __init__.py:618 __init__.py:1268
 msgid "Trying to get series code and issuenumber from result."
 msgstr ""
 
-#: __init__.py:627
+#: __init__.py:636
 msgid ""
 "No book found with text provided in title and authors fields - giving up."
 msgstr ""
 
-#: __init__.py:628
+#: __init__.py:637
 msgid ""
 "Since metadata plugins cannot read book files for identification purposes, "
-"use the \"PerrypediaTools\" plugin to get identification data from book file."
+"you must the manually put in identification data."
 msgstr ""
 
-#: __init__.py:630
+#: __init__.py:639
 msgid "Error: No metadata result. Abort."
 msgstr ""
 
-#: __init__.py:676
+#: __init__.py:691
 msgid "No cached cover found, running identify."
 msgstr ""
 
-#: __init__.py:699
+#: __init__.py:717
 msgid "No luck to find cover with identify."
 msgstr ""
 
-#: __init__.py:717
+#: __init__.py:735
 msgid "Going to download cover from url"
 msgstr ""
 
-#: __init__.py:723
+#: __init__.py:741
 msgid "Have downloaded cover from"
 msgstr ""
 
-#: __init__.py:725
+#: __init__.py:743
 msgid "Failed to download cover from"
 msgstr ""
 
-#: __init__.py:793
+#: __init__.py:798
 msgid "Searching in title and authors field:"
 msgstr ""
 
-#: __init__.py:802
+#: __init__.py:807
 msgid "Match found for series code:"
 msgstr ""
 
-#: __init__.py:832
+#: __init__.py:837
 msgid "Series and/or issuenumber not found. Searching for subseries..."
 msgstr ""
 
-#: __init__.py:842
+#: __init__.py:847
 msgid "Searching subseries in title and authors:"
 msgstr ""
 
-#: __init__.py:850
+#: __init__.py:855
 msgid "Match found for "
 msgstr ""
 
-#: __init__.py:873
+#: __init__.py:878
 msgid "Subseries and/or subseries issuenumber not found."
 msgstr ""
 
-#: __init__.py:944
+#: __init__.py:951
 msgid "API search with:"
 msgstr ""
 
-#: __init__.py:945
+#: __init__.py:952
 msgid "GET url:"
 msgstr ""
 
-#: __init__.py:950
+#: __init__.py:957
 msgid "Response list="
 msgstr ""
 
-#: __init__.py:1060
+#: __init__.py:1067
 #, python-brace-format
 msgid "{0} book source(s) found."
 msgstr ""
 
-#: __init__.py:1074
+#: __init__.py:1081
 msgid "Page title:"
 msgstr ""
 
-#: __init__.py:1082
+#: __init__.py:1089
 msgid "No possible book source found with"
 msgstr ""
 
-#: __init__.py:1090
+#: __init__.py:1097
 msgid "Failed to download book metadata with title search. Giving up."
 msgstr ""
 
-#: __init__.py:1200
+#: __init__.py:1208
 msgid "Found a relative cover page URL:"
 msgstr ""
 
-#: __init__.py:1229
+#: __init__.py:1237
 msgid "Relative cover url:"
 msgstr ""
 
-#: __init__.py:1321
+#: __init__.py:1330
 msgid "Key error while building authors field!"
 msgstr ""
 
-#: __init__.py:1327
+#: __init__.py:1336
 msgid "Unknown"
 msgstr ""
 
-#: __init__.py:1375
-msgid "Cover URLs cached:"
+#: __init__.py:1382
+msgid "Cover URLs cached with ppid:"
 msgstr ""
 
-#: __init__.py:1605
+#: __init__.py:1386
+msgid "Cover URLs cached with title:"
+msgstr ""
+
+#: __init__.py:1611
 msgid "Found the relative cover page URL:"
 msgstr ""
 
-#: __init__.py:1608 __init__.py:1640
+#: __init__.py:1614 __init__.py:1646
 msgid "Effective URL:"
 msgstr ""
 
-#: __init__.py:1622
+#: __init__.py:1628
 msgid "Cover page not found."
 msgstr ""
 
-#: __init__.py:1636
+#: __init__.py:1642
 msgid "Found the relative cover URL:"
 msgstr ""
 
-#: __init__.py:1689
+#: __init__.py:1710
 #, python-format
 msgid "Cover test failed. Expected: '%s' found: "
 msgstr ""

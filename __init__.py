@@ -1,4 +1,5 @@
 # !/usr/bin/env python
+# !/usr/bin/env python
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 from __future__ import (unicode_literals, division, absolute_import, print_function)
@@ -88,8 +89,10 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 2, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    version = (1, 3, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    history = True
     minimum_calibre_version = (0, 8, 5)
+    platforms = ['windows', 'linux', 'osx']
 
     has_html_comments = True
     can_get_multiple_covers = True
@@ -143,6 +146,7 @@ class Perrypedia(Source):
     # Calibre's log object uses the two methods 'info' and 'error'
     loglevels = {'NOTSET': 0, 'DEBUG': 10, 'INFO': 20, 'WARN': 30, 'ERROR': 40, 'CRITICAL': 50}
     # loglevel = loglevels['INFO']  # now customized
+    # loglevel = loglevels['DEBUG']
     # exact_match = True  # # now customized
 
     # Quotes from Kovid Goyal:
@@ -228,7 +232,8 @@ class Perrypedia(Source):
         'PRTBT': r'(perry.{1,3}rhodan.{1,5}die tefroder)[^0-9]{1,5}(\d{1,2})'
                  r'|(die tefroder)[^0-9]{1,5}(\d{1,2})',  # Taschenbücher Die Tefroder
         'PRTER': r'(perry.{0,3}rhodan.{0,3}terminus)[^0-9]{1,5}(\d{1,2})',
-        'PUMIA': r'(perry.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})',
+        'PUMIA': r'(perry.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})'
+                 r'|(perry rhodan.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})',
         'SE': r'\b(hörbuch|silber\-edition|silberedition)\b[^0-9]{1,5}(\d{1,3})',
         # ToDo: Concept for non-standard book pages:
         # 'RISSZEICHNUNGSBÄNDE': r'(risszeichnung[^0-9]{1,5}band)[^0-9]{0,5}(\d{1,})',
@@ -433,8 +438,7 @@ class Perrypedia(Source):
     # Strings we found in page titles (in parentheses). Void = Other book source (in most cases PR series),
     # if '(Roman)' not present.
     book_variants = ['Blauband', 'Buch', 'Comic', 'Heftroman', 'Hörbuch', 'Leihbuch', 'Planetenroman', 'PR Neo',
-                     'Roman',
-                     'Taschenheft', 'Silberband']
+                     'Roman', 'Taschenheft', 'Silberband']
 
     # (Begriffsklärung)
 
@@ -476,7 +480,11 @@ class Perrypedia(Source):
         :return: None if no errors occurred, otherwise a unicode representation of the error suitable for showing to
         the user
         """
-        if self.loglevel in [self.loglevels['DEBUG']]:
+
+        loglevel = self.prefs["loglevel"]
+        log.info('loglevel={0}'.format(loglevel))
+
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter identify()')
             log.info('identifiers=', identifiers)
             log.info('authors=', authors)
@@ -492,7 +500,8 @@ class Perrypedia(Source):
         # a issue number in author and / or title fields. If not found, a search with title (fuzzy) is triggered.
 
         pp_id = identifiers.get('ppid', None)
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        # if loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('ppid=', pp_id)
 
         # https://manual.calibre-ebook.com/de/_modules/calibre/ebooks/metadata/book/base.html
@@ -527,8 +536,8 @@ class Perrypedia(Source):
                         series_code = items[0]
                         issuenumber = int(items[1])
                     else:
-                        log.error(_('Unexpectedly structure of field pp_id:'), pp_id)
-                    if self.loglevel == self.loglevels['DEBUG']:
+                        log.error(_('Unexpected structure of field pp_id:'), pp_id)
+                    if loglevel == self.loglevels['DEBUG']:
                         log.info("series_code=", series_code)
                         log.info("issuenumber=", issuenumber)
                     if series_code in self.series_metadata_path:
@@ -536,9 +545,9 @@ class Perrypedia(Source):
                     else:
                         path = self.series_metadata_path['DEFAULT']
                     raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, series_code, issuenumber,
-                                                                                     self.browser, 20, log)
-                    mi = self.parse_raw_metadata(raw_metadata, self.series_names, log)
-                    result_queue.put(mi)
+                                                                                     self.browser, 20, log, loglevel)
+                    mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
+                    result_queue.put(mi)  # Send the metadata found to calibre
                 else:
                     log.exception(_('Malformed PPID: {0}. Parse title and authors fields for series and issuenumber.'
                                     .format(pp_id)))
@@ -553,12 +562,12 @@ class Perrypedia(Source):
             else:
                 authors_str = ' '
 
-            series_code_issuenumber = self.parse_title_authors_for_series_code_and_issuenumber(title, authors_str, log)
+            series_code_issuenumber = self.parse_title_authors_for_series_code_and_issuenumber(title, authors_str, log, loglevel)
             series_code = str(series_code_issuenumber[0])
             if series_code_issuenumber[1]:
                 issuenumber = series_code_issuenumber[1]
 
-            if self.loglevel == self.loglevels['DEBUG']:
+            if loglevel == self.loglevels['DEBUG']:
                 log.info("series_code=", series_code)
                 log.info("issuenumber=", issuenumber)
 
@@ -570,10 +579,10 @@ class Perrypedia(Source):
                     path = self.series_metadata_path['DEFAULT']
 
                 raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, series_code, issuenumber,
-                                                                                 self.browser, 20, log)
+                                                                                 self.browser, 20, log, loglevel)
                 if raw_metadata:
                     # Parse metadata source and put metadata in result queue
-                    mi = self.parse_raw_metadata(raw_metadata, self.series_names, log)
+                    mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
                     result_queue.put(mi)
                 else:
                     pp_id = None
@@ -588,32 +597,32 @@ class Perrypedia(Source):
         # Caveat: There are possible disambiguous titles, so we can have more than one result.
         if not pp_id:
             # possible ambiguous title - more than one metadata soup possible
-            result = self.get_raw_metadata_from_title(title, authors_str, self.exact_match, self.browser, 20, log)
+            result = self.get_raw_metadata_from_title(title, authors_str, self.browser, 20, log, loglevel)
             soups = result[0]
             urls = result[1]
             for soup, url in zip(soups, urls):
-                if self.loglevel in [self.loglevels['DEBUG']]:
+                if loglevel in [self.loglevels['DEBUG']]:
                     log.info(''.join([char * 20 for char in '-']))
                     log.info(_('Next soup, Page title:'), soup.title.string)
                     log.info(_('Next soup, url:'), url)
-                raw_metadata = self.parse_pp_book_page(soup, self.browser, timeout, url, log)
-                if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                raw_metadata = self.parse_pp_book_page(soup, self.browser, timeout, url, log, loglevel)
+                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Result found with title search.'))
-                mi = self.parse_raw_metadata(raw_metadata, self.series_names, log)
+                mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
                 result_queue.put(mi)
                 # ['Serie:', 'Perry Rhodan-Heftserie (Band 1433)', '© Pabel-Moewig Verlag KG']
                 series_code = None
                 issuenumber = None
                 overview = {}
-                if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Trying to get series code and issuenumber from result.'))
                 try:
                     overview = dict(raw_metadata[0])
-                    if self.loglevel == self.loglevels['DEBUG']:
+                    if loglevel == self.loglevels['DEBUG']:
                         log.info("overview=", overview)
                     series_code = get_key(self.series_names, overview['Serie:'], exact=False)
                     issuenumber = int(str(re.search(r'\d+', overview['Serie:']).group()).strip())
-                    if self.loglevel == self.loglevels['DEBUG']:
+                    if loglevel == self.loglevels['DEBUG']:
                         log.info("series_code=", series_code)
                         log.info("issuenumber=", issuenumber)
                 except:
@@ -625,8 +634,8 @@ class Perrypedia(Source):
         # Nothing found with title and authors fields - better data needed
         if not pp_id:
             log.info(_('No book found with text provided in title and authors fields - giving up.'))
-            log.info(_('Since metadata plugins cannot read book files for identification purposes, use the '
-                       '"PerrypediaTools" plugin to get identification data from book file.'))
+            log.info(_('Since metadata plugins cannot read book files for identification purposes, you must the '
+                       'manually put in identification data.'))
             log.exception(_('Error: No metadata result. Abort.'))
             abort = True
             return []
@@ -643,26 +652,32 @@ class Perrypedia(Source):
         If the parameter get_best_cover is True and this plugin can get multiple covers, it should only get the
         „best“ one.
         """
-        if self.loglevel in [self.loglevels['DEBUG']]:
+
+        loglevel = self.prefs["loglevel"]
+        # log.info('loglevel={0}'.format(loglevel))
+
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('*** Enter download_cover()')
 
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('identifiers=', identifiers)
             log.info('identifiers["ppid"]=', identifiers['ppid'])
 
         caches = self.dump_caches()
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('Caches=', self.dump_caches())
 
         identifier_to_cover = caches['identifier_to_cover']
-        cover_urls = identifier_to_cover['ppid:' + str(identifiers['ppid'])]
-        if self.loglevel in [self.loglevels['DEBUG']]:
-            log.info('cover_url(s) from caches=', cover_urls)
-
-        if get_best_cover:
-            cover_urls = cover_urls[:1]
-            if self.loglevel in [self.loglevels['DEBUG']]:
-                log.info('Best cover_url=', cover_urls)
+        try:
+            cover_urls = identifier_to_cover['ppid:' + str(identifiers['ppid'])]
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('cover_url(s) from caches=', cover_urls)
+                if get_best_cover:
+                    cover_urls = cover_urls[:1]
+                    if loglevel in [self.loglevels['DEBUG']]:
+                        log.info('Best cover_url=', cover_urls)
+        except KeyError:
+            cover_urls = None
 
         # Return cached cover URL for the book identified by the identifiers dict or None if no such URL exists.
         # Note that this method must only return validated URLs, i.e. not URLS that could result in a generic
@@ -672,7 +687,7 @@ class Perrypedia(Source):
         # cover_url = 'https://www.perrypedia.de/mediawiki/images/a/a9/PR0777.jpg'
 
         if cover_urls is None:
-            if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+            if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                 log.info(_('No cached cover found, running identify.'))
             rq = Queue()
             self.identify(log, rq, abort, title=title, authors=authors, identifiers=identifiers)
@@ -687,7 +702,10 @@ class Perrypedia(Source):
             results.sort(key=self.identify_results_keygen(title=title, authors=authors, identifiers=identifiers))
             for mi in results:
                 cover_urls = self.get_cached_cover_url(mi.identifiers)
-                if self.loglevel in [self.loglevels['DEBUG']]:
+
+                # why comes no cached cover url?
+
+                if loglevel in [self.loglevels['DEBUG']]:
                     log.info('mi.identifiers=', mi.identifiers)
                     log.info('mi.cover_data=', mi.cover_data)
                     log.info('Got cached_cover_url(s) from identify=', cover_urls)
@@ -695,7 +713,7 @@ class Perrypedia(Source):
                     break
 
         if cover_urls is None:
-            if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+            if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                 log.info(_('No luck to find cover with identify.'))
             return
         if abort.is_set():
@@ -713,13 +731,13 @@ class Perrypedia(Source):
 
         for cover_url in cover_urls:
             try:
-                if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Going to download cover from url'), cover_url)
                 cdata = self.browser.open_novisit(cover_url, timeout=timeout).read()
-                if self.loglevel in [self.loglevels['DEBUG']]:
+                if loglevel in [self.loglevels['DEBUG']]:
                     log.info('cdata=', str(cdata)[:80])
                 result_queue.put((self, cdata))
-                if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Have downloaded cover from'), cover_url)
             except Exception:
                 log.exception(_('Failed to download cover from'), cover_url)
@@ -760,24 +778,11 @@ class Perrypedia(Source):
             raw = browser.open_novisit(url, timeout=timeout).read()
         return raw
 
-    def get_cached_cover_url(self, identifiers):
-        """
-        Return cached cover URL for the book identified by the identifiers dict or None if no such URL exists.
-        Note that this method must only return validated URLs, i.e. not URLS that could result in a generic cover image
-        or a not found error.
-        """
-        url = None
-        pp_id = identifiers.get('ppid', None)
-        # pp_id = identifiers['ppid']
-        if pp_id is not None:
-            url = self.cached_identifier_to_cover_url('ppid:' + pp_id)
-        return url  # cover.py need a iterable object ???
-
     # Perrypedia specific identification methods
 
-    def parse_title_authors_for_series_code_and_issuenumber(self, title, authors_str, log):
+    def parse_title_authors_for_series_code_and_issuenumber(self, title, authors_str, log, loglevel):
         # Combine def parse_title_author_for_series_code() and parse_title_author_for_issuenumber()
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_title_authors_for_series_code_and_issuenumber()')
             log.info('title=', title)
             log.info('authors_str=', authors_str)
@@ -789,18 +794,18 @@ class Perrypedia(Source):
 
         # Find series and issuenumber in title and/or authors field
         # (in some cases title and authors are inadvertently reversed)
-        if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+        if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
             log.info(_('Searching in title and authors field:')), title + ' ' + authors_str
 
         for key in self.series_regex:
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('Search pattern:', self.series_regex[key])
             match = re.search(self.series_regex[key], title + ' ' + authors_str,
                               re.IGNORECASE)  # check patterns until first match
             if match:
-                if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Match found for series code:'), key)
-                    if self.loglevel in [self.loglevels['DEBUG']]:
+                    if loglevel in [self.loglevels['DEBUG']]:
                         log.info("Match at index {0}, {1}".format(match.start(), match.end()))
                         log.info("Full match: {0}".format(match.group(0)))
                         log.info("Number of groups:", len(match.groups()))
@@ -812,11 +817,11 @@ class Perrypedia(Source):
                 # functools.reduce(lambda x, y : (x, y)[x is None], match_groups, None)
                 nonempty_groups = []
                 for i in range(1, len(match.groups()) + 1):
-                    if self.loglevel in [self.loglevels['DEBUG']]:
+                    if loglevel in [self.loglevels['DEBUG']]:
                         log.info("Group {0}: {1}".format(i, (match.group(i))))
                     if match.group(i) is not None:
                         nonempty_groups.append(match.group(i))
-                if self.loglevel in [self.loglevels['DEBUG']]:
+                if loglevel in [self.loglevels['DEBUG']]:
                     ("Number of groups now:", len(nonempty_groups))
                 # Check position of issuenumber in search string
                 if nonempty_groups[1].isnumeric():
@@ -838,25 +843,25 @@ class Perrypedia(Source):
         subseries_issuenumber = None
         # ['Der Schwarm', 'PR', 500],
         # Search in title and authors field (in some cases title and authors are inadvertently reversed
-        if self.loglevel in [self.loglevels['DEBUG'], 20]:
+        if loglevel in [self.loglevels['DEBUG'], 20]:
             log.info(_('Searching subseries in title and authors:'), title + ' ' + authors_str)
         for subserie in self.subseries_offsets:
             # Search in title field
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('Searching with ', subserie[3])
             match = re.search(subserie[3], title + ' ' + authors_str, re.IGNORECASE)
             if match:
-                if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Match found for '), subserie[0])
-                if self.loglevel in [self.loglevels['DEBUG']]:
+                if loglevel in [self.loglevels['DEBUG']]:
                     log.info('match.group(0)='), match.group(0)
                 nonempty_groups = []
                 for i in range(1, len(match.groups()) + 1):
-                    if self.loglevel in [self.loglevels['DEBUG']]:
+                    if loglevel in [self.loglevels['DEBUG']]:
                         log.info("Group {0}: {1}".format(i, (match.group(i))))
                     if match.group(i) is not None:
                         nonempty_groups.append(match.group(i))
-                if self.loglevel in [self.loglevels['DEBUG']]:
+                if loglevel in [self.loglevels['DEBUG']]:
                     log.info("Number of groups now:", len(nonempty_groups))
                 # Check position of issuenumber in search string
                 if nonempty_groups[1].isnumeric():
@@ -874,7 +879,7 @@ class Perrypedia(Source):
             return None, None
 
         # Get issuenumber from subseries
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('subseries_issuenumber=', subseries_issuenumber)
         if series_offset > 0:
             # ['Der Schwarm', 'PR', 500],
@@ -883,7 +888,8 @@ class Perrypedia(Source):
         return series_code, issuenumber
 
     def get_title_from_issuenumber(self, series_code, issuenumber, browser, timeout, log):
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter get_title_from_issuenumber()')
 
         if series_code in self.series_metadata_path:
@@ -892,7 +898,7 @@ class Perrypedia(Source):
             url = self.base_url + self.series_metadata_path['DEFAULT'] + series_code + str(issuenumber)
         if series_code == 'PR':
             url = url + '&redirect=yes'
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('url=', url)
         page = browser.open_novisit(url, timeout=timeout).read().strip()
         soup = BeautifulSoup(page.text, 'html.parser')
@@ -902,8 +908,8 @@ class Perrypedia(Source):
             title = title[:-8]
         return title
 
-    def get_raw_metadata_from_series_and_issuenumber(self, path, series_code, issuenumber, browser, timeout, log):
-        if self.loglevel in [self.loglevels['DEBUG']]:
+    def get_raw_metadata_from_series_and_issuenumber(self, path, series_code, issuenumber, browser, timeout, log, loglevel):
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter get_raw_metadata_from_series_and_issuenumber()')
             log.info('series_code=', series_code)
             log.info('issuenumber=', issuenumber)
@@ -915,15 +921,16 @@ class Perrypedia(Source):
             url = self.base_url + self.series_metadata_path['DEFAULT'] + series_code + str(issuenumber).strip()
         if series_code == 'PR':
             url = url + '&redirect=yes'
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('url=', url)
         page = browser.open_novisit(url, timeout=timeout).read().strip()
         soup = BeautifulSoup(page, 'html.parser')
 
-        return self.parse_pp_book_page(soup, browser, timeout, url, log)
+        return self.parse_pp_book_page(soup, browser, timeout, url, log, loglevel)
 
-    def get_raw_metadata_from_title(self, title, authors_str, exact_match, browser, timeout, log):
-        if self.loglevel in [self.loglevels['DEBUG']]:
+    def get_raw_metadata_from_title(self, title, authors_str, browser, timeout, log, loglevel):
+        
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter get_raw_metadata_from_title()')
 
         search_texts = [title.strip(), authors_str.strip()]
@@ -940,13 +947,13 @@ class Perrypedia(Source):
             # Find all pages with searchstring in title
             url = self.api_url + 'action=opensearch&namespace=0&search=' + search_text + '&limit=10&format=json'
             # url = search_base_url + urllib.parse.quote(search_text) + '&title=Spezial%3ASuche'
-            if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+            if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                 log.info(_('API search with:'), search_text)
                 log.info(_('GET url:'), url)
             response = browser.open_novisit(url, timeout=timeout)
             response_text = response.read().strip()
             response_list = json.loads(response_text)
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info(_('Response list='), response_list)
             # Search response for book pages. If '(Roman') is not present, the title without parentheses is a book.
             # ['Ordoban',
@@ -967,10 +974,10 @@ class Perrypedia(Source):
             #
 
             title_list = list(response_list[1])
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('title_list=', title_list)
             url_list = list(response_list[3])
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('url_list=', url_list)
 
             # Search response for ambiguous page
@@ -1005,7 +1012,7 @@ class Perrypedia(Source):
                     text = redirect.find('a').contents[0]
                     title = link.get('title')
                     href = link.get('href')
-                    if self.loglevel in [self.loglevels['DEBUG']]:
+                    if loglevel in [self.loglevels['DEBUG']]:
                         log.info('redirect=', redirect.text)
                         log.info('text=', text)
                         log.info('title=', title)
@@ -1013,7 +1020,7 @@ class Perrypedia(Source):
                     if '(Buch)' in title:
                         title_list.append(title)
                         url_list.append(self.base_url + href)
-                if self.loglevel in [self.loglevels['DEBUG']]:
+                if loglevel in [self.loglevels['DEBUG']]:
                     log.info('title_list=', title_list)
                     log.info('url_list=', url_list)
 
@@ -1027,7 +1034,7 @@ class Perrypedia(Source):
                 # if exact_match ...
                 if search_text.lower() == title.lower():  # exact search
                     books['(unknown)'] = [title, url_list[list_index]]
-                    if self.loglevel in [self.loglevels['DEBUG']]:
+                    if loglevel in [self.loglevels['DEBUG']]:
                         log.info('Match:', search_text + '==' + title)
                 else:
                     for book_variant in self.book_variants:
@@ -1037,7 +1044,7 @@ class Perrypedia(Source):
                         # if str(search_text + ' (' + book_variant + ')').lower() == title.lower():  # exact search
                         if str(search_text + ' (' + book_variant + ')').lower() in title.lower():  # exact search
                             books[book_variant] = [title, url_list[list_index]]
-                            if self.loglevel in [self.loglevels['DEBUG']]:
+                            if loglevel in [self.loglevels['DEBUG']]:
                                 log.info('Match:', str(search_text + ' (' + book_variant + ')') + '!=' + title)
                         else:
                             # if loglevel in [self.loglevels['DEBUG']]:
@@ -1045,32 +1052,32 @@ class Perrypedia(Source):
                             pass
                 list_index = list_index + 1
 
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('books=', books)
             for book in books:
                 # If the title page contains '(Roman)', delete the entry without disambiguation marker
                 if 'Roman' in book[0]:
                     books.pop('(unknown)')
-                    if self.loglevel in [self.loglevels['DEBUG']]:
+                    if loglevel in [self.loglevels['DEBUG']]:
                         log.info('After pop(), books=', books)
                     break
 
             if books:
-                if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('{0} book source(s) found.'.format(len(books))))
-                    if self.loglevel in [self.loglevels['DEBUG']]:
+                    if loglevel in [self.loglevels['DEBUG']]:
                         log.info('books=', books)
                         # {'(unknown)': ['Perry Rhodan Chronik', 'https://www.perrypedia.de/wiki/Perry_Rhodan_Chronik']}
                         log.info('books.items()=', books.items())  # .items() returns a list of tuples
                         # [('(unknown)', ['Perry Rhodan Chronik', 'https://www.perrypedia.de/wiki/Perry_Rhodan_Chronik'])]
                 for book_variant, book_info in books.items():
-                    if self.loglevel in [self.loglevels['DEBUG']]:
+                    if loglevel in [self.loglevels['DEBUG']]:
                         log.info('book_variant=', book_variant)
                         log.info('books[book_variant][0]=', book_info[0])
                         log.info('books[book_variant][1]=', book_info[1])
                     page = browser.open_novisit(book_info[1], timeout=timeout).read().strip()
                     soup = BeautifulSoup(page, 'html.parser')
-                    if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                    if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                         log.info(_('Page title:'), soup.title.string)
                     overview_div = soup.find('div', {'class': 'perrypedia_std_rframe overview'})
                     if overview_div is not None:
@@ -1078,7 +1085,7 @@ class Perrypedia(Source):
                         soups.append(soup)
                         urls.append(book_info[1])
             else:
-                if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('No possible book source found with'), search_text)
 
             if is_book_page:
@@ -1090,8 +1097,9 @@ class Perrypedia(Source):
             log.exception(_('Failed to download book metadata with title search. Giving up.'))
             return [], []
 
-    def parse_pp_book_page(self, soup, browser, timeout, source_url, log):
-        if self.loglevel in [self.loglevels['DEBUG']]:
+    def parse_pp_book_page(self, soup, browser, timeout, source_url, log, loglevel):
+        
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_pp_book_page()')
 
         overview_selector = 'html body #content #bodyContent #mw-content-text .mw-parser-output ' \
@@ -1138,7 +1146,7 @@ class Perrypedia(Source):
                 col_text = col_text.replace(u'\xa0', u' ')  # convert non-breakable space to simple space
                 overview_entry.append(col_text)
             overview_data.append(overview_entry)
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('overview_data=', overview_data)
         overview_data = list(filter(None, overview_data))  # get rid of empty list elements
         # Und noch die Zeile *Überblick* löschen, die zwar korrekt mit <th> getaggt ist, die aber durch
@@ -1147,7 +1155,7 @@ class Perrypedia(Source):
             overview_data.pop(0)
         overview = overview_supplement = {}
         for row in overview_data:
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('row=', row)
             if len(row) > 1:
                 overview[row[0]] = row[1]
@@ -1164,7 +1172,7 @@ class Perrypedia(Source):
                             break
 
         overview.update(overview_supplement)
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('overview=', overview)
 
         # Find plot
@@ -1172,13 +1180,13 @@ class Perrypedia(Source):
         plot = ''  # Handlung
         # <h2>id="Handlung"<p>
         plot_header = soup.find('span', {'id': 'Handlung'})
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('plot_header=', plot_header)
         for tag in soup.h2.find_next_siblings(name=['p', 'dl']):
             plot = plot + tag.text + '<br />'  # ToDo: config user choice text or html
             # plot = plot + str(tag.decode(formatter="html5"))  # ToDo: config user choice text or html
             # Note: The HTML formatter produces '<pre>' for '<dl>'
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('plot (abbr.)=', plot[:200])
 
         # ToDo: Find relevant text (Header none, "Inhalt", ...) for books with no plots
@@ -1196,7 +1204,7 @@ class Perrypedia(Source):
         # https://www.perrypedia.de/wiki/Datei:A500_1.JPG
         cover_urls = []
         for url in table_body.find_all('a', class_="image"):
-            if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+            if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                 log.info(_('Found a relative cover page URL:'), url['href'])  # /wiki/Datei:A500_1.JPG
             cover_page_url = self.base_url + url['href']
 
@@ -1225,27 +1233,28 @@ class Perrypedia(Source):
                 for div_tag in soup.find_all('div', class_='fullMedia'):  # , id_='file'
                     for a_tag in div_tag.find_all('a', class_='internal', href=True):
                         url = a_tag.attrs.get("href")
-                        if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                        if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                             log.info(_('Relative cover url:'), url)
                         # cover_urls.append(base_url + url['href'])  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
                         cover_urls.append(self.base_url + url)  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
 
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('cover_urls=', cover_urls)
 
         # ToDo: Perhaps try also plot_summary and other sections (not present in all book pages)
         return overview, plot, cover_urls, source_url
 
-    def parse_raw_metadata(self, raw_metadata, series_names, log):
+    def parse_raw_metadata(self, raw_metadata, series_names, log, loglevel):
         # Parse metadata source and put metadata in result queue
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_raw_metadata()')
 
         overview = dict(raw_metadata[0])
         plot = str(raw_metadata[1])
         cover_urls = list(raw_metadata[2])
         url = str(raw_metadata[3])
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('overview=', overview)
             log.info('plot (abbr.)=', plot[:200])
             log.info('cover_urls=', cover_urls)
@@ -1255,29 +1264,29 @@ class Perrypedia(Source):
         # ['Serie:': 'Perry Rhodan Neo (Band 240)']
         series_code = None
         issuenumber = None
-        if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+        if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
             log.info(_('Trying to get series code and issuenumber from result.'))
         try:
             series_code = get_key(series_names, overview['Serie:'], exact=False)
             issuenumber = int(str(re.search(r'\d+', overview['Serie:']).group()).strip())
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info("series_code=", series_code)
                 log.info("issuenumber=", issuenumber)
         except:
             # Book without serieS
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info("Found a book without series.")
 
         try:
             title = str(overview['Titel:'])
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info("title=", str(overview['Titel:']))
             # "Der Weltraum-Zoo", "Safari ins Ungewisse" (https://www.perrypedia.de/mediawiki/index.php?title=Quelle:PRTB363)
             # titles = camel_case_split_title(title)
             # if len(titles) > 1:
             #     title = titles[0] + ' / ' + titles[1]
         except KeyError:
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.error('Key error title!')
             title = ''
 
@@ -1285,19 +1294,19 @@ class Perrypedia(Source):
             authors_str = ''
             try:
                 authors_str = str(overview['Bearbeitung:'])  # Siberbände, Blaubände
-                if self.loglevel in [self.loglevels['DEBUG']]:
+                if loglevel in [self.loglevels['DEBUG']]:
                     log.info("Bearbeitung=", authors_str)
             except KeyError:
                 pass
             try:
                 authors_str = str(overview['Sprecher:'])  # Hörbücher
-                if self.loglevel in [self.loglevels['DEBUG']]:
+                if loglevel in [self.loglevels['DEBUG']]:
                     log.info("Sprecher=", authors_str)
             except KeyError:
                 pass
             try:
                 authors_str = str(overview['Autor:'])
-                if self.loglevel in [self.loglevels['DEBUG']]:
+                if loglevel in [self.loglevels['DEBUG']]:
                     log.info("Autor=", authors_str)
             except KeyError:
                 pass
@@ -1317,11 +1326,11 @@ class Perrypedia(Source):
                 else:
                     authors = [authors_str]
         except KeyError:
-            if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO'], self.loglevels['WARN']]:
+            if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO'], self.loglevels['WARN']]:
                 log.error(_('Key error while building authors field!'))
             authors = []
 
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info("title=", title)
             log.info("authors=", authors)
             log.info('authors_to_string()=', authors_to_string(authors) if authors else _('Unknown'))
@@ -1335,7 +1344,7 @@ class Perrypedia(Source):
             mi.set_identifier('ppid', series_code + str(issuenumber).strip())
         except:
             mi.set_identifier('ppid', title)
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('mi.identifiers=', mi.get_identifiers())
             # log.info('mi.identifiers=', mi.identifiers)  # Same output as above
 
@@ -1344,7 +1353,7 @@ class Perrypedia(Source):
             isbn = str(overview['ISBN:'])  # ISBN: ISBN 3-8118-2035-4
             isbn = isbn.replace('ISBN ', '')
             # mi.set_identifier('isbn', isbn)  # ToDo: activate again when merge algorithm in identify.py works as specified
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('mi.identifiers=', mi.get_identifiers())
         except KeyError:
             pass
@@ -1355,7 +1364,7 @@ class Perrypedia(Source):
         except:
             mi.series = ''
             mi.series_index = 0.0
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('mi.series=', mi.series)
             log.info('mi.series_index=', mi.series_index)
 
@@ -1363,19 +1372,21 @@ class Perrypedia(Source):
         # If this metadata source also provides covers, the URL to the cover should be cached so that a subsequent call
         # to the get covers API with the same ISBN/special identifier does not need to get the cover URL again. Use the
         # caching API for this.
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('cover_urls=', cover_urls)
         if cover_urls is not []:
             mi.has_cover = True
             try:
                 self.cache_identifier_to_cover_url('ppid:' + series_code + str(issuenumber).strip(), cover_urls)
+                if loglevel in [self.loglevels['DEBUG'], 20]:
+                    log.info(_('Cover URLs cached with ppid:'), cover_urls)
             except:
                 self.cache_identifier_to_cover_url('ppid:' + title, cover_urls)
-            if self.loglevel in [self.loglevels['DEBUG'], 20]:
-                log.info(_('Cover URLs cached:'), cover_urls)
+                if loglevel in [self.loglevels['DEBUG'], 20]:
+                    log.info(_('Cover URLs cached with title:'), cover_urls)
 
         try:
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('#subtitle=', str(overview['Untertitel:']))
             subtitle = str(overview['Untertitel:'])
             # mi.set_user_metadata('#subtitle', str(overview['Untertitel:']))
@@ -1383,7 +1394,7 @@ class Perrypedia(Source):
             subtitle = None
 
         try:
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('#subseries=', str(overview['Zyklus:']))
             subseries = str(overview['Zyklus:'])
             subseries_index = 0.0  # ToDo: Aus Übersichtsseite Zyklus ermitteln
@@ -1393,7 +1404,7 @@ class Perrypedia(Source):
             subseries_index = None
 
         try:
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('sub-subseries=', str(overview['Unterzyklus:']))
             sub_subseries = str(overview['Unterzyklus:'])  # Die Solaner (Band 1/50)
             sub_subseries_name = sub_subseries[:sub_subseries.find('(') - 1]
@@ -1429,14 +1440,14 @@ class Perrypedia(Source):
         # </td></tr>
 
         try:
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('#period=', str(overview['Handlungszeitraum:']))
             period = str(overview['Handlungszeitraum:'])
         except KeyError:
             period = ''
 
         try:
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('#scene=', str(overview['Handlungsort:']))
             scene = str(overview['Handlungsort:'])
         except KeyError:
@@ -1448,14 +1459,14 @@ class Perrypedia(Source):
         mi.publisher = ''
         try:
             verlag = str(overview['Verlag:'])
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('Verlag=', str(overview['Verlag:']))
         except KeyError:
             pass
         if verlag == '':
             try:
                 verlag = str(overview['Leseprobe:'])
-                if self.loglevel in [self.loglevels['DEBUG']]:
+                if loglevel in [self.loglevels['DEBUG']]:
                     log.info('Leseprobe=', str(overview['Leseprobe:']))
             except KeyError:
                 pass
@@ -1467,11 +1478,11 @@ class Perrypedia(Source):
                 mi.publisher = mi.publisher_name
             else:
                 mi.publisher = mi.publisher_name + ', ' + mi.publisher_location
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('mi.publisher=', mi.publisher)
 
         try:
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 # log.info('pubdate=', str(overview['Erstmals\xa0erschienen:']))
                 log.info('pubdate=', str(overview['Erstmals erschienen:']))
             try:
@@ -1490,7 +1501,7 @@ class Perrypedia(Source):
                 mi.pubdate = None
         except KeyError:
             mi.pubdate = None
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('mi.pubdate=', mi.pubdate)
 
         mi.language = 'deu'  # "Die Wikisprache ist Deutsch."
@@ -1500,7 +1511,7 @@ class Perrypedia(Source):
             main_characters = str(overview['Hauptpersonen:']).split(',')
         except KeyError:
             main_characters = None
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('main_characters=', main_characters)
         try:
             glossary = str(overview['Glossar:']).split('/')  # 'Glossar:': 'B-Hormon / Jülziish; Geschichte'
@@ -1524,14 +1535,10 @@ class Perrypedia(Source):
             pass
         # remove duplicates
         mi.tags = list(dict.fromkeys(mi.tags))
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('mi.tags=', mi.tags)
             # mi.tags= ['Chaotarchen', None, '', 'Reginald Bull', ' Perry Rhodan', ' Gucky', ' Anzu Gotjian']
 
-        # ToDo: config option: append or overwrite comments
-        # default_append_toc = cfg.DEFAULT_STORE_VALUES[cfg.KEY_APPEND_TOC]
-        # append_toc = cfg.plugin_prefs[cfg.STORE_NAME].get(cfg.KEY_APPEND_TOC, default_append_toc)
-        # comments = ''
         mi.comments = '<p>Überblick:<br />'
         try:
             for key in overview:
@@ -1544,7 +1551,6 @@ class Perrypedia(Source):
             path = self.series_metadata_path['DEFAULT']
         mi.comments = mi.comments + '</p>'
         mi.comments = mi.comments + '<p>Handlung:<br />' + plot + '</p>'
-        mi.comments = mi.comments + '<p>&nbsp;</p>'  # ToDo: Delete extra line?
         mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
         # mi.comments = self.sanitize_comments_html(mi.comments)
 
@@ -1567,18 +1573,18 @@ class Perrypedia(Source):
         # for every result.
         mi.source_relevance = 0
 
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('*** Final formatted result (object mi): {0}'.format(mi))
         return mi
 
     def get_cover_url_from_pp_id(self, series_code, issuenumber, browser, timeout, log):
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter get_cover_url_from_pp_id()')
         # Get the metadata page for the book
         url = base_url + metadata_path + series_code + str(issuenumber).strip()
         if series_code == 'PR':
             url = url + '&redirect=yes'
-        if self.loglevel in [self.loglevels['DEBUG']]:
+        if loglevel in [self.loglevels['DEBUG']]:
             log.info('url=', url)
         # page = requests.get(url)
         page = browser.open_novisit(url, timeout=timeout).read().strip()
@@ -1601,10 +1607,10 @@ class Perrypedia(Source):
         # https://www.perrypedia.de/wiki/Datei:PR3088.jpg
         # https://www.perrypedia.de/wiki/Datei:A500_1.JPG
         for url in table_body.find_all('a', class_="image"):
-            if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+            if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                 log.info(_('Found the relative cover page URL:'), url['href'])  # Found the URL: /wiki/Datei:A500_1.JPG
         cover_page_url = self.base_url + url['href']
-        if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+        if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
             log.info(_('Effective URL:'), cover_page_url)
         # #mw-content-text > div.mw-parser-output > div.perrypedia_std_rframe.overview > table > tbody > tr:nth-child(2) >
         # td > div:nth-child(2) > div > div:nth-child(2) > div > div > a
@@ -1628,15 +1634,15 @@ class Perrypedia(Source):
         # <div class="mw-filepage-resolutioninfo">Es ist keine höhere Auflösung vorhanden.</div></div>
         cover_url = ''
         for div_tag in soup.find_all('div', class_='fullMedia'):  # , id_='file'
-            if self.loglevel in [self.loglevels['DEBUG']]:
+            if loglevel in [self.loglevels['DEBUG']]:
                 log.info('div=', div_tag.text)
             for a_tag in div_tag.find_all('a', class_='internal', href=True):
                 url = a_tag.attrs.get("href")
-                if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Found the relative cover URL:'), url)
                 cover_url = base_url + url
         # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
-        if self.loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+        if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
             log.info(_('Effective URL:'), cover_url)
 
         return cover_url
@@ -1645,15 +1651,30 @@ class Perrypedia(Source):
         with self.cache_lock:
             self._identifier_to_cover_url_cache[id_] = url
 
+    # def get_cached_cover_url(self, identifiers):
+    #     url = None
+    #     pp_id = identifiers.get('ppid', None)
+    #     # if pp_id is None:
+    #     #     isbn = identifiers.get('isbn', None)
+    #     #     if isbn is not None:
+    #     #         pp_id = self.cached_isbn_to_identifier(isbn)
+    #     if pp_id is not None:
+    #         url = self.cached_identifier_to_cover_url(pp_id)
+    #     return url
+
     def get_cached_cover_url(self, identifiers):
+        """
+        Return cached cover URL for the book identified by the identifiers dict or None if no such URL exists.
+        Note that this method must only return validated URLs, i.e. not URLS that could result in a generic cover image
+        or a not found error.
+        """
         url = None
-        pp_id = identifiers.get('ppid', None)
-        # if pp_id is None:
-        #     isbn = identifiers.get('isbn', None)
-        #     if isbn is not None:
-        #         pp_id = self.cached_isbn_to_identifier(isbn)
+
+        # pp_id = identifiers.get('ppid', None)
+        pp_id = identifiers['ppid']
+
         if pp_id is not None:
-            url = self.cached_identifier_to_cover_url(pp_id)
+            url = self.cached_identifier_to_cover_url('ppid:' + pp_id)
         return url
 
     def cached_identifier_to_cover_url(self, id_):
