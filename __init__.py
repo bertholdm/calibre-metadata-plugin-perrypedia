@@ -16,7 +16,7 @@ from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.gui2.book_details import *
 
 __license__ = 'GPL v3'
-__copyright__ = '2020 - 2021, Michael Detambel <info@michael-detambel.de>'
+__copyright__ = '2020 - 2022, Michael Detambel <info@michael-detambel.de>'
 __docformat__ = 'restructuredtext en'
 
 _ = gettext.gettext
@@ -89,7 +89,10 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 3, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    version = (1, 4, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    # 1.5.0
+    # - Option to set ignore_ssl_errors
+    # - New Mini serie: Atlantis
     history = True
     minimum_calibre_version = (0, 8, 5)
     platforms = ['windows', 'linux', 'osx']
@@ -101,6 +104,7 @@ class Perrypedia(Source):
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'series', 'series_index', 'tags', 'publisher', 'pubdate',
                                 'languages', 'comments', 'identifier:ppid', 'identifier:isbn'], )
+    # ignore_ssl_errors = True
 
     # from class 'option' in base.py:
     '''
@@ -132,6 +136,15 @@ class Perrypedia(Source):
               'DEBUG: all processing messages, INFO: essential procesing messages'),
             {'NOTSET': 'NOTSET', 'DEBUG': 'DEBUG', 'INFO': 'INFO'}
         ),
+        # ignore SSL errors?
+        Option(
+            'ignore_ssl_errors',
+            'bool',
+            False,
+            _('Ignore SSL errors'),
+            _('Make this choice if client and/or server site certificate makes trouble.'),
+        ),
+        # comment style
         Option(
             'comment_style',
             'choices',
@@ -191,6 +204,7 @@ class Perrypedia(Source):
                            r'|(pr.{0,3}die.{1,1}chronik)[^0-9]{0,5}(\d{1,2})',
         'PRA': r'(perry.{0,3}rhodan.{0,3}action)[^0-9]{0,5}(\d{1,2})',
         'PRAR': r'(perry.{0,3}rhodan.{0,3}arkon)[^0-9]{1,5}(\d{1,2})',
+        'PRATL': r'(PR Atlantis )(\d{1,2})',
         'PRCL': r'(perry.{0,3}rhodan.{0,3}classics)[^0-9]{1,5}(\d{1,2})',
         'PRE': r'(perry.{1,3}rhodan.{1,5}extra)[^0-9]{1,5}(\d{1,2})',  # Extra
         'PRHC': r'(silberband)[^0-9]{1,5}(\d{1,4})|(silberbände)[^0-9]{1,5}(\d{1,4})'
@@ -352,6 +366,7 @@ class Perrypedia(Source):
         'PRAH': 'Perry Rhodan-Andromeda Hörbücher',
         'PRAR': 'Perry Rhodan-Arkon',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Miniserien
         'PRATB': 'Perry Rhodan-Action Taschenbücher',
+        'PRATL': 'Perry Rhodan-Atlantis', # https://www.perrypedia.de/wiki/Atlantis_(Serie)
         'PRCCC': 'Perry Rhodan Cross Cult-Comics',
         'PRCCCA': 'Perry Rhodan Cross Cult-Comics HC-Alben',
         'PRCL': 'Perry Rhodan-Classics',
@@ -431,8 +446,11 @@ class Perrypedia(Source):
         'DEFAULT': '/mediawiki/index.php?title=Quelle:',
         'A': '/wiki/Quelle:',
         'AHC': '/wiki/Quelle:',
+        'Ara-Toxin_(Serie)': '/wiki/',
+        'Perry_Rhodan_Die_Chronik': '/wiki/',
         'PR-Die_Chronik_': '/wiki/',
         'RISSZEICHNUNGSBÄNDE': '/wiki/Risszeichnungsb%C3%A4nde',
+        'Weltraumatlas': '/wiki/',
     }
 
     # Strings we found in page titles (in parentheses). Void = Other book source (in most cases PR series),
@@ -484,6 +502,8 @@ class Perrypedia(Source):
         loglevel = self.prefs["loglevel"]
         log.info('loglevel={0}'.format(loglevel))
 
+        ignore_ssl_errors = self.prefs["ignore_ssl_errors"]
+
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter identify()')
             log.info('identifiers=', identifiers)
@@ -526,8 +546,13 @@ class Perrypedia(Source):
         if pp_id:
             # Is there a underscore (to distinguish alphanumeric series codes from issue number) in ppid?
             if pp_id.find('_') != -1:
-                series_code = pp_id.split('_')[0] + '_'
-                issuenumber = int(pp_id.split('_')[1])
+                # Check this: Ara-Toxin_(Serie): https://www.perrypedia.de/wiki/Ara-Toxin_(Serie)
+                if pp_id.split('_')[1].isnumeric():
+                    series_code = pp_id.split('_')[0] + '_'
+                    issuenumber = int(pp_id.split('_')[1])
+                    if loglevel == self.loglevels['DEBUG']:
+                        log.info("series_code=", series_code)
+                        log.info("issuenumber=", issuenumber)
             else:
                 match = re.match(r"([a-z]+)(\d+)", pp_id, re.I)
                 if match:
@@ -535,11 +560,11 @@ class Perrypedia(Source):
                     if len(items) == 2:
                         series_code = items[0]
                         issuenumber = int(items[1])
+                        if loglevel == self.loglevels['DEBUG']:
+                            log.info("series_code=", series_code)
+                            log.info("issuenumber=", issuenumber)
                     else:
                         log.error(_('Unexpected structure of field pp_id:'), pp_id)
-                    if loglevel == self.loglevels['DEBUG']:
-                        log.info("series_code=", series_code)
-                        log.info("issuenumber=", issuenumber)
                     if series_code in self.series_metadata_path:
                         path = self.series_metadata_path[series_code]
                     else:
@@ -549,9 +574,20 @@ class Perrypedia(Source):
                     mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
                     result_queue.put(mi)  # Send the metadata found to calibre
                 else:
-                    log.exception(_('Malformed PPID: {0}. Parse title and authors fields for series and issuenumber.'
-                                    .format(pp_id)))
-                    pp_id = None
+                    # Prüfen: https://www.perrypedia.de/wiki/Weltraumatlas
+                    if pp_id in self.series_metadata_path:
+                        series_code = pp_id
+                        issuenumber = 0
+                        path = self.series_metadata_path[series_code]
+                        raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, series_code, issuenumber,
+                                                                                         self.browser, 20, log,
+                                                                                         loglevel)
+                        mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
+                        result_queue.put(mi)  # Send the metadata found to calibre
+                    else:
+                        log.exception(_('Malformed PPID: {0}. Parse title and authors fields for series and issuenumber.'
+                                        .format(pp_id)))
+                        pp_id = None
 
         # Second, if there's no valid ppid, search title and authors field for series and issuenumber,
         # build a book page url from them and scrape.
@@ -916,7 +952,10 @@ class Perrypedia(Source):
 
         # Get the metadata page for the book
         if series_code in self.series_metadata_path:
-            url = self.base_url + self.series_metadata_path[series_code] + series_code + str(issuenumber).strip()
+            if issuenumber > 0:  # Pseudo-Issunumber (single publications and anthology)
+                url = self.base_url + self.series_metadata_path[series_code] + series_code + str(issuenumber).strip()
+            else:
+                url = self.base_url + self.series_metadata_path[series_code] + series_code
         else:
             url = self.base_url + self.series_metadata_path['DEFAULT'] + series_code + str(issuenumber).strip()
         if series_code == 'PR':
@@ -1105,6 +1144,10 @@ class Perrypedia(Source):
         overview_selector = 'html body #content #bodyContent #mw-content-text .mw-parser-output ' \
                             '.perrypedia_std_rframe.overview table tbody'
         table_body = soup.select_one(overview_selector)
+
+        # ToDo: Handle other page structures
+        # if table_body is not None:
+
         rows = table_body.find_all('tr')
         overview_data = []
         for row in rows:
