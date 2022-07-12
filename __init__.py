@@ -57,7 +57,6 @@ def get_key(d, val, exact=False):
                 return key
     return None
 
-
 # def camel_case_split_title(str):
 #     titles = []
 #     i = 1
@@ -90,9 +89,11 @@ class Perrypedia(Source):
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
     version = (1, 4, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    # 1.5.0
+    # 1.4.0
     # - Option to set ignore_ssl_errors
     # - New Mini serie: Atlantis
+    # - Special page handling for Stellaris book packets
+    # - Compatible with Calibre 6.0
     history = True
     minimum_calibre_version = (0, 8, 5)
     platforms = ['windows', 'linux', 'osx']
@@ -157,7 +158,8 @@ class Perrypedia(Source):
 
     # There are six log levels in Python; each level is associated with an integer that indicates the log severity.
     # Calibre's log object uses the two methods 'info' and 'error'
-    loglevels = {'NOTSET': 0, 'DEBUG': 10, 'INFO': 20, 'WARN': 30, 'ERROR': 40, 'CRITICAL': 50}
+    # loglevels = {'NOTSET': 0, 'DEBUG': 10, 'INFO': 20, 'WARN': 30, 'ERROR': 40, 'CRITICAL': 50}
+    loglevels = {'NOTSET': 'NOTSET', 'DEBUG': 'DEBUG', 'INFO': 'INFO'}
     # loglevel = loglevels['INFO']  # now customized
     # loglevel = loglevels['DEBUG']
     # exact_match = True  # # now customized
@@ -246,9 +248,11 @@ class Perrypedia(Source):
         'PRTBT': r'(perry.{1,3}rhodan.{1,5}die tefroder)[^0-9]{1,5}(\d{1,2})'
                  r'|(die tefroder)[^0-9]{1,5}(\d{1,2})',  # Taschenbücher Die Tefroder
         'PRTER': r'(perry.{0,3}rhodan.{0,3}terminus)[^0-9]{1,5}(\d{1,2})',
+        'PRW': r'(perry.{0,3}rhodan.{0,3}wega)[^0-9]{1,5}(\d{1,2})',
         'PUMIA': r'(perry.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})'
                  r'|(perry rhodan.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})',
         'SE': r'\b(hörbuch|silber\-edition|silberedition)\b[^0-9]{1,5}(\d{1,3})',
+        'STEBP': r'\b(pr stellaris) (\d{3})-\d{3}',  # PR Stellaris 001-010
         # ToDo: Concept for non-standard book pages:
         # 'RISSZEICHNUNGSBÄNDE': r'(risszeichnung[^0-9]{1,5}band)[^0-9]{0,5}(\d{1,})',
         'PR': r'(perry-rhodan-heft)[^0-9]{0,5}(\d{1,})|(perry%20rhodan)[^0-9]{0,5}(\d{1,})'
@@ -312,6 +316,8 @@ class Perrypedia(Source):
         ['Olymp', 'PROL', 1, r'(olymp) (\d{1,})'],
         ['Mission SOL', 'PRMS', 1, r'(mission sol) (\d{1,})'],
         ['Mission SOL 2', 'PRMS_', 1, r'(mission sol 2) (\d{1,})'],
+        ['Wega', 'PRW', 1, r'(wega) (\d{1,})'],
+        ['Atlantis', 'PRATL', 1, r'(atlantis) (\d{1,})'],
         # Atlan-Heftserie
         ['Im Auftrag der Menschheit', 'A', 1, r'(im auftrag der menschheit) (\d{1,})'],
         ['Der Held von Arkon', 'A', 88, r'(der held von arkon) (\d{1,})'],
@@ -424,6 +430,7 @@ class Perrypedia(Source):
         'RISSZEICHNUNGSBÄNDE': 'Risszeichnungsbände',
         'SE': 'Silber Edition',  # https://www.perrypedia.de/wiki/Silber_Edition
         'SOL': 'SOL-Magazin',
+        'STEBP': 'Stellaris E-Book Pakete',  # https://www.perrypedia.de/wiki/Stellaris_E-Book_Pakete
     }
     # https://www.perrypedia.de/wiki/Perry_Rhodan-Gold-Edition
     # https://www.perrypedia.de/wiki/Titelbildgalerie_Gold-Edition_1_-_99_(in_der_Reihenfolge_der_Heftnummern)
@@ -571,6 +578,8 @@ class Perrypedia(Source):
                         path = self.series_metadata_path['DEFAULT']
                     raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, series_code, issuenumber,
                                                                                      self.browser, 20, log, loglevel)
+                    if loglevel == self.loglevels['DEBUG']:
+                        log.info('raw_metadata={0}'.format(raw_metadata))
                     mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
                     result_queue.put(mi)  # Send the metadata found to calibre
                 else:
@@ -582,6 +591,8 @@ class Perrypedia(Source):
                         raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, series_code, issuenumber,
                                                                                          self.browser, 20, log,
                                                                                          loglevel)
+                        if loglevel == self.loglevels['DEBUG']:
+                            log.info('raw_metadata={0}'.format(raw_metadata))
                         mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
                         result_queue.put(mi)  # Send the metadata found to calibre
                     else:
@@ -616,6 +627,8 @@ class Perrypedia(Source):
 
                 raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, series_code, issuenumber,
                                                                                  self.browser, 20, log, loglevel)
+                if loglevel == self.loglevels['DEBUG']:
+                    log.info('raw_metadata={0}'.format(raw_metadata))
                 if raw_metadata:
                     # Parse metadata source and put metadata in result queue
                     mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
@@ -642,6 +655,8 @@ class Perrypedia(Source):
                     log.info(_('Next soup, Page title:'), soup.title.string)
                     log.info(_('Next soup, url:'), url)
                 raw_metadata = self.parse_pp_book_page(soup, self.browser, timeout, url, log, loglevel)
+                if loglevel == self.loglevels['DEBUG']:
+                    log.info('raw_metadata={0}'.format(raw_metadata))
                 if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Result found with title search.'))
                 mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
@@ -868,6 +883,9 @@ class Perrypedia(Source):
                 break
 
         if series_code is not None and issuenumber is not None:
+            # Besondere Behandlung für Buchpakete
+            if series_code == 'STEBP':
+                issuenumber = issuenumber // 10 + 1
             return series_code, issuenumber
         else:
             log.warning(_('Series and/or issuenumber not found. Searching for subseries...'))
@@ -1141,12 +1159,75 @@ class Perrypedia(Source):
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_pp_book_page()')
 
+        # Selector for standard book pages
         overview_selector = 'html body #content #bodyContent #mw-content-text .mw-parser-output ' \
                             '.perrypedia_std_rframe.overview table tbody'
         table_body = soup.select_one(overview_selector)
 
         # ToDo: Handle other page structures
-        # if table_body is not None:
+
+        if table_body is None:
+            # Book packages
+            # https://www.perrypedia.de/wiki/Stellaris_E-Book_Paket_1
+            if 'Stellaris E-Book Paket' in soup.text:
+
+                content = ''  # Inhalt
+                # <h2>id="Inhalt"<p>
+                content_header = soup.find('span', {'id': 'Inhalt'})
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('content_header=', content_header)
+                for tag in soup.h2.find_next_siblings(name=['p', 'dl']):
+                    content = content + tag.text + '<br />'  # ToDo: config user choice text or html
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('content (abbr.)=', content[:200])
+
+                overview = {}  # Titles
+                overview_data = []
+                # Die Titel
+                table_selector = 'html body #content #bodyContent #mw-content-text .mw-parser-output table tbody'
+                table_body = soup.select_one(table_selector)
+                rows = table_body.find_all('tr')
+                for row in rows:
+                    cols = row.find_all(['th', 'td'])  # Strange header formatting
+                    cols = [ele.text.strip() for ele in cols]
+                    overview_data.append([ele for ele in cols if ele])  # Get rid of empty values
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('overview_data={0}'.format(overview_data))
+                for row in overview_data:
+                    if len(row) > 1:
+                        overview[row[0]] = ' | ' + row[1] + ' | ' + row[2] + ' | ' + row[3] + ' | ' + row[4]
+
+                cover_urls = []
+                cover_selector = '#mw-content-text > div.mw-parser-output > div:nth-child(3)'
+                cover_body = soup.select_one(cover_selector)
+                for url in cover_body.find_all('a', class_="image"):
+                    if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                        log.info(_('Found a relative cover page URL:'), url['href'])  # /wiki/Datei:A500_1.JPG
+                    cover_page_url = self.base_url + url['href']
+                    page = browser.open_novisit(cover_page_url, timeout=timeout).read().strip()
+                    if page is not None:
+                        soup = BeautifulSoup(page, 'html.parser')
+                        cover_url = ''
+                        # ToDo: Error handling
+                        # for div_tag in soup.find_all('div', class_='fullMedia'):  # , id_='file'
+                        for div_tag in soup.find_all('div', class_='fullImageLink'):  # , id_='file'
+                            for a_tag in div_tag.find_all('a', href=True):
+                                url = a_tag.attrs.get("href")
+                                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                                    log.info(_('Relative cover url:'), url)
+                                cover_urls.append(self.base_url + url)  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('cover_urls=', cover_urls)
+
+                return  overview, content, cover_urls, source_url
+
+        # ToDo: Other page types
+
+        # If page type is still not identified
+        if table_body is None:
+            log.info('table_body is None. source_url={0}'.format(source_url))
+            log.info('soup.text={0}'.format(soup.text))
+            exit(1)
 
         rows = table_body.find_all('tr')
         overview_data = []
@@ -1292,6 +1373,8 @@ class Perrypedia(Source):
         
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_raw_metadata()')
+            log.info('raw_metadata={0}'.format(raw_metadata))
+            log.info('series_names={0}'.format(series_names))
 
         overview = dict(raw_metadata[0])
         plot = str(raw_metadata[1])
@@ -1302,6 +1385,50 @@ class Perrypedia(Source):
             log.info('plot (abbr.)=', plot[:200])
             log.info('cover_urls=', cover_urls)
             log.info('url=', url)
+
+        # Overview data for not standard pages
+
+        # url = https://www.perrypedia.de/mediawiki/index.php?title=Quelle:STEBP1
+        if 'Quelle:STEBP' in url:
+            series_code = 'STEBP'
+            issuenumber = url.split('Quelle:STEBP')[1]
+            title = series_names[series_code][:-1] + " " + str(issuenumber).strip() # Stellaris E-Book Paket 1
+            authors = []
+            # Create Metadata instance
+            mi = Metadata(title=title, authors=authors)
+            mi.set_identifier('ppid', series_code + str(issuenumber).strip())
+            mi.series = series_names[series_code]
+            mi.series_index = issuenumber
+            if cover_urls is not []:
+                mi.has_cover = True
+                try:
+                    self.cache_identifier_to_cover_url('ppid:' + series_code + str(issuenumber).strip(), cover_urls)
+                    if loglevel in [self.loglevels['DEBUG'], 20]:
+                        log.info(_('Cover URLs cached with ppid:'), cover_urls)
+                except:
+                    self.cache_identifier_to_cover_url('ppid:' + title, cover_urls)
+                    if loglevel in [self.loglevels['DEBUG'], 20]:
+                        log.info(_('Cover URLs cached with title:'), cover_urls)
+            mi.language = 'deu'  # "Die Wikisprache ist Deutsch."
+            mi.comments = '<p>Überblick:<br />'
+            try:
+                for key in overview:
+                    mi.comments = mi.comments + key + '&nbsp;' + overview[key] + '<br />'
+            except:
+                pass
+            if series_code in self.series_metadata_path:
+                path = self.series_metadata_path[series_code]
+            else:
+                path = self.series_metadata_path['DEFAULT']
+            mi.comments = mi.comments + '</p>'
+            mi.comments = mi.comments + '<p>Inhalt:<br />' + plot + '</p>'
+            mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
+            mi.source_relevance = 0
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('*** Final formatted result (object mi): {0}'.format(mi))
+            return mi
+
+        # Overview for standard pages
 
         # ['Serie:', 'Perry Rhodan-Heftserie (Band 1433)', '© Pabel-Moewig Verlag KG']
         # ['Serie:': 'Perry Rhodan Neo (Band 240)']
@@ -1714,7 +1841,10 @@ class Perrypedia(Source):
         url = None
 
         # pp_id = identifiers.get('ppid', None)
-        pp_id = identifiers['ppid']
+        try:
+            pp_id = identifiers['ppid']
+        except KeyError:
+            pp_id = None
 
         if pp_id is not None:
             url = self.cached_identifier_to_cover_url('ppid:' + pp_id)
