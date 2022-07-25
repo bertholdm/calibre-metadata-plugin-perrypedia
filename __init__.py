@@ -88,7 +88,9 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 4, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    version = (1, 4, 1)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    # 1.4.1
+    # - Korrektur regex für Mini-Serien Atlantis und Wega
     # 1.4.0
     # - Option to set ignore_ssl_errors
     # - New Mini serie: Atlantis
@@ -206,7 +208,7 @@ class Perrypedia(Source):
                            r'|(pr.{0,3}die.{1,1}chronik)[^0-9]{0,5}(\d{1,2})',
         'PRA': r'(perry.{0,3}rhodan.{0,3}action)[^0-9]{0,5}(\d{1,2})',
         'PRAR': r'(perry.{0,3}rhodan.{0,3}arkon)[^0-9]{1,5}(\d{1,2})',
-        'PRATL': r'(PR Atlantis )(\d{1,2})',
+        'PRATL': r'(atlantis)-(\d{2,2})|(pratlantis)(\d{2,2})',  # Atlantis-10-Das-Talagon.epub, pratlantis01_leseprobe_0.pdf,
         'PRCL': r'(perry.{0,3}rhodan.{0,3}classics)[^0-9]{1,5}(\d{1,2})',
         'PRE': r'(perry.{1,3}rhodan.{1,5}extra)[^0-9]{1,5}(\d{1,2})',  # Extra
         'PRHC': r'(silberband)[^0-9]{1,5}(\d{1,4})|(silberbände)[^0-9]{1,5}(\d{1,4})'
@@ -248,7 +250,7 @@ class Perrypedia(Source):
         'PRTBT': r'(perry.{1,3}rhodan.{1,5}die tefroder)[^0-9]{1,5}(\d{1,2})'
                  r'|(die tefroder)[^0-9]{1,5}(\d{1,2})',  # Taschenbücher Die Tefroder
         'PRTER': r'(perry.{0,3}rhodan.{0,3}terminus)[^0-9]{1,5}(\d{1,2})',
-        'PRW': r'(perry.{0,3}rhodan.{0,3}wega)[^0-9]{1,5}(\d{1,2})',
+        'PRW': r'(wega)(\d{2,2})Leseprobe.*|(prwe)_(\d{2,2}).*', # wega01leseprobe_0.pdf, PRWE 1221 Leseprobe.indd
         'PUMIA': r'(perry.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})'
                  r'|(perry rhodan.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})',
         'SE': r'\b(hörbuch|silber\-edition|silberedition)\b[^0-9]{1,5}(\d{1,3})',
@@ -316,8 +318,8 @@ class Perrypedia(Source):
         ['Olymp', 'PROL', 1, r'(olymp) (\d{1,})'],
         ['Mission SOL', 'PRMS', 1, r'(mission sol) (\d{1,})'],
         ['Mission SOL 2', 'PRMS_', 1, r'(mission sol 2) (\d{1,})'],
-        ['Wega', 'PRW', 1, r'(wega) (\d{1,})'],
-        ['Atlantis', 'PRATL', 1, r'(atlantis) (\d{1,})'],
+        ['Wega', 'PRW', 1, r'(wega)(\d{2,2})Leseprobe.*|(prwe)_(\d{2,2}).*'],  # wega01leseprobe_0.pdf, PRWE 1221 Leseprobe.indd
+        ['Atlantis', 'PRATL', 1, r'(atlantis)-(\d{2,2})|(pratlantis)(\d{2,2})'],  # Atlantis-10-Das-Talagon.epub, pratlantis01_leseprobe_0.pdf
         # Atlan-Heftserie
         ['Im Auftrag der Menschheit', 'A', 1, r'(im auftrag der menschheit) (\d{1,})'],
         ['Der Held von Arkon', 'A', 88, r'(der held von arkon) (\d{1,})'],
@@ -422,7 +424,7 @@ class Perrypedia(Source):
         'PRTO': 'Perry Rhodan-Thoregon-Ausgabe',
         'PRTRI': 'Perry Rhodan-Trivid',
         'PRTER': 'Perry Rhodan-Terminus',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Miniserien
-        'PRW': 'Perry Rhodan-Wega (Miniserie)',
+        'PRW': 'Perry Rhodan-Wega',
         'PRWA': 'Weltraumatlas',
         'PRWSB': 'Werkstattband',
         'PUMIA': 'Perry - Unser Mann im All',  # https://www.perrypedia.de/wiki/Perry_-_Unser_Mann_im_All
