@@ -90,7 +90,7 @@ class Perrypedia(Source):
     author = 'Michael Detambel'
     version = (1, 4, 1)  # MAJOR.MINOR.PATCH (https://semver.org/)
     # 1.4.1
-    # - Korrektur regex für Mini-Serien Atlantis und Wega
+    # - Extended Regular Expressions
     # 1.4.0
     # - Option to set ignore_ssl_errors
     # - New Mini serie: Atlantis
@@ -226,7 +226,8 @@ class Perrypedia(Source):
         'PRSB': r'(perry.{0,3}rhodan.{0,3}sonderbände)[^0-9]{1,5}(\d{1,2})'
                 r'|(perry.{0,3}rhodan.{0,3}sb)[^0-9]{1,5}(\d{1,2})'
                 r'|(perry.{0,3}rhodan.{0,3}sonderband)[^0-9]{1,5}(\d{1,2})|(pr.{0,3}sb)[^0-9]{1,5}(\d{1,2})',
-        'PRTB': r'(planetenroman)[^0-9]{1,5}(\d{1,3})|(pr.{1,5}tb)[^0-9]{1,5}(\d{1,3})'
+        'PRTB': r'(perry.*rhodan.*planetenromane) (\d{4}).*'  # [Perry Rhodan - Planetenromane 0093] • Das Tor zur Überwelt
+                r'|(planetenroman)[^0-9]{1,5}(\d{1,3})|(pr.{1,5}tb)[^0-9]{1,5}(\d{1,3})'
                 r'|(perry rhodan taschenbuch)[^0-9]{1,5}(\d{1,3})'
                 r'|(perry.{0,3}rhodan.{0,3}tasch.{0,3}buch.{0,3}nr)[^0-9]{0,3}(\d{1,3})'
                 r'|(perry.*rhodan.*tb)[^0-9]{1,5}(\d{1,3})'
