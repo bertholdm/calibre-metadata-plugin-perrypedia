@@ -208,7 +208,8 @@ class Perrypedia(Source):
                            r'|(pr.{0,3}die.{1,1}chronik)[^0-9]{0,5}(\d{1,2})',
         'PRA': r'(perry.{0,3}rhodan.{0,3}action)[^0-9]{0,5}(\d{1,2})',
         'PRAR': r'(perry.{0,3}rhodan.{0,3}arkon)[^0-9]{1,5}(\d{1,2})',
-        'PRATL': r'(atlantis)-(\d{2,2})|(pratlantis)(\d{2,2})',  # Atlantis-10-Das-Talagon.epub, pratlantis01_leseprobe_0.pdf,
+        # Atlantis-10-Das-Talagon.epub, pratlantis01_leseprobe_0.pdf, PR Atlantis 11 – Atlantis muss sterben!
+        'PRATL': r'(atlantis)-(\d{2,2})|(pr atlantis) (\d{2,2}).*|(pratlantis)(\d{2,2})|(prat)(\d{2,2}) leseprobe.indd',  # PRAT12 Leseprobe.indd
         'PRCL': r'(perry.{0,3}rhodan.{0,3}classics)[^0-9]{1,5}(\d{1,2})',
         'PRE': r'(perry.{1,3}rhodan.{1,5}extra)[^0-9]{1,5}(\d{1,2})',  # Extra
         'PRHC': r'(silberband)[^0-9]{1,5}(\d{1,4})|(silberbände)[^0-9]{1,5}(\d{1,4})'
@@ -226,6 +227,7 @@ class Perrypedia(Source):
         'PRSB': r'(perry.{0,3}rhodan.{0,3}sonderbände)[^0-9]{1,5}(\d{1,2})'
                 r'|(perry.{0,3}rhodan.{0,3}sb)[^0-9]{1,5}(\d{1,2})'
                 r'|(perry.{0,3}rhodan.{0,3}sonderband)[^0-9]{1,5}(\d{1,2})|(pr.{0,3}sb)[^0-9]{1,5}(\d{1,2})',
+        'PRSTO': r'pr-storys – (.*) band (\d{1,2}): .*',  # PR-Storys – Galacto City Band 6: Anschlag auf Galacto City
         'PRTB': r'(perry.*rhodan.*planetenromane) (\d{4}).*'  # [Perry Rhodan - Planetenromane 0093] • Das Tor zur Überwelt
                 r'|(planetenroman)[^0-9]{1,5}(\d{1,3})|(pr.{1,5}tb)[^0-9]{1,5}(\d{1,3})'
                 r'|(perry rhodan taschenbuch)[^0-9]{1,5}(\d{1,3})'
@@ -321,6 +323,11 @@ class Perrypedia(Source):
         ['Mission SOL 2', 'PRMS_', 1, r'(mission sol 2) (\d{1,})'],
         ['Wega', 'PRW', 1, r'(wega)(\d{2,2})Leseprobe.*|(prwe)_(\d{2,2}).*'],  # wega01leseprobe_0.pdf, PRWE 1221 Leseprobe.indd
         ['Atlantis', 'PRATL', 1, r'(atlantis)-(\d{2,2})|(pratlantis)(\d{2,2})'],  # Atlantis-10-Das-Talagon.epub, pratlantis01_leseprobe_0.pdf
+        # Perry Rhodan-Storys
+        ['Das Atopische Tribunal', 'PRSTO', 1, r'(das atopische tribunal)'],
+        ['Die Jenzeitigen Lande', 'PRSTO', 2, r'(die jenzeitigen lande)'],
+        ['Die verlorenen Jahrhunderte', 'PRSTO', 3, r'(die verlorenen jahrhunderte) - folge (\d{1,2})'],
+        ['Galacto City', 'PRSTO', 9, r'(galacto city) - folge (\d{1,2})'],
         # Atlan-Heftserie
         ['Im Auftrag der Menschheit', 'A', 1, r'(im auftrag der menschheit) (\d{1,})'],
         ['Der Held von Arkon', 'A', 88, r'(der held von arkon) (\d{1,})'],
@@ -834,6 +841,22 @@ class Perrypedia(Source):
 
     # Perrypedia specific identification methods
 
+    def issuenumber_from_subseries_offsets(self, series_code, issuenumber, preliminary_series_name, log, loglevel):
+
+        if loglevel in [self.loglevels['DEBUG']]:
+            log.info('Enter issuenumber_from_subseries_offsets()')
+            log.info('series_code=', series_code)
+            log.info('issuenumber=', issuenumber)
+            log.info('preliminary_series_name=', preliminary_series_name)
+
+        # ['Galacto City', 'PRSTO', 9, r'(galacto city - folge) (\d{1,2})'],
+        for subserie_list in self.subseries_offsets:
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('subserie_list=', subserie_list)
+            if series_code == subserie_list[1] and preliminary_series_name == subserie_list[0]:
+                return issuenumber + subserie_list[2] - 1
+        return issuenumber
+
     def parse_title_authors_for_series_code_and_issuenumber(self, title, authors_str, log, loglevel):
         # Combine def parse_title_author_for_series_code() and parse_title_author_for_issuenumber()
         if loglevel in [self.loglevels['DEBUG']]:
@@ -879,9 +902,11 @@ class Perrypedia(Source):
                     ("Number of groups now:", len(nonempty_groups))
                 # Check position of issuenumber in search string
                 if nonempty_groups[1].isnumeric():
+                    preliminary_series_name = nonempty_groups[0]
                     issuenumber = int(nonempty_groups[1])
                 else:
                     if nonempty_groups[0].isnumeric():
+                        preliminary_series_name = ''
                         issuenumber = int(nonempty_groups[0])
                 break
 
@@ -889,6 +914,10 @@ class Perrypedia(Source):
             # Besondere Behandlung für Buchpakete
             if series_code == 'STEBP':
                 issuenumber = issuenumber // 10 + 1
+            # ToDo: Perhaps better: Using of three groups: Series - subseries - relative issuenumber in sub-serie
+            if series_code == 'PRSTO':
+                # ['Galacto City', 'PRSTO', 9, r'(galacto city - folge) (\d{1,2})'],
+                issuenumber = self.issuenumber_from_subseries_offsets(series_code, issuenumber, preliminary_series_name, log, loglevel)
             return series_code, issuenumber
         else:
             log.warning(_('Series and/or issuenumber not found. Searching for subseries...'))
@@ -948,6 +977,8 @@ class Perrypedia(Source):
         
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter get_title_from_issuenumber()')
+            log.info('series_code=', series_code)
+            log.info('issuenumber=', issuenumber)
 
         if series_code in self.series_metadata_path:
             url = self.base_url + self.series_metadata_path[series_code] + series_code + str(issuenumber)
@@ -966,6 +997,7 @@ class Perrypedia(Source):
         return title
 
     def get_raw_metadata_from_series_and_issuenumber(self, path, series_code, issuenumber, browser, timeout, log, loglevel):
+
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter get_raw_metadata_from_series_and_issuenumber()')
             log.info('series_code=', series_code)
