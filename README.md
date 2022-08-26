@@ -1,16 +1,16 @@
-[Metadata Source Plugin] Perrypedia - Version 1.3.0 - 11-01-2021
+[Metadata Source Plugin] Perrypedia - Version 1.4.1 - 08-26-2022
 
-Dieses Plugin verwendet Perrypedia als Metadatenquelle. Es lädt Metadaten und Cover herunter.
-Perrypedia (https://www.perrypedia.de/) ist ein Fanprojekt zur Erstellung eines kostenlosen Nachschlagewerks für die Perry Rhodan SF-Serie.
+Dieses Plugin verwendet die Perrypedia als Metadatenquelle. Es lädt Metadaten und Cover herunter.
+Die Perrypedia (https://www.perrypedia.de/) ist ein Fanprojekt zur Erstellung eines kostenlosen Nachschlagewerks für die Perry Rhodan SF-Serie.
 Epubs aus dem offiziellen Verlagsshop enthalten wenig Informationen, das Titelfeld enthält nicht nur den Titel, sondern auch die Serien- und Ausgabenummer ("PR 3082 - Ein kalkuliertes Risiko").
-Hinweis: Alternativ / Parallel können Metadaten auch aus der "International Science Fiction Database" (isfdb.org) mit dem Plugin ISFDB3 oder anderen Metadaten-Plugins abgerufen werden.
+Hinweis: Alternativ / Parallel können Metadaten auch aus der "The Internet Speculative Fiction Database" (isfdb.org) mit dem Plugin ISFDB3 oder anderen Metadaten-Plugins abgerufen werden.
 
 Haupteigenschaften:
 -------------------
 Dieses Plugin unterstützt das Abrufen von Titeln, Autoren, Tags, Veröffentlichungsdatum, Verlag, Kommentaren, Serien, Serienindex und Cover.
 Titel, Autoren, Veröffentlichungsdatum, Herausgeber, Serie, Serienindex und Cover werden in den entsprechenden Metadatenfeldern gespeichert.
-Das Tag-Feld besteht aus "Zyklus", "Hauptpersonen", "Handlungszeitraum", "Handlungsort" und "Glossar".
-Die Übersichtstabelle der Perrypedia-Seite ist der erste Teil des Kommentarfeldes.
+Das Tag-Feld wird gefüllt mit dem Inhalt der Rubriken "Zyklus", "Hauptpersonen", "Handlungszeitraum", "Handlungsort" und "Glossar".
+Der erste Teil des Kommentarfeldes wird mit der Übersichtstabelle einer Standard-Perrypedia-Publikationsseite gefüllt.
 
 Da die meisten "Bücher" in der Perry Rhodan-Reihe keine Kennung wie ISBN oder ISSN haben, definiert das Plugin eine "PPID", die aus Perrypedia-Kennungen stammt (z. B. "PR1000" für Ausgabe 1000 der Perry Rhodan-Heftserie) ).
 Eine Liste der Produkte mit ihren Namen und IDs finden Sie hier: https://www.perrypedia.de/wiki/Produkte
@@ -38,6 +38,15 @@ Einschränkungen:
 
 Versionsgeschichte:
 -------------------
+v1.4.1 08-26-2022
+- Erweiterung der Regulären Ausdrücke (PR-Storys u. a.)
+
+v.1.4.0 07-12-2022
+- Option zum Setzen von ignore_ssl_errors
+- Neue Mini-Serie: Atlantis
+- Anpassungen für Stellaris Buch-Packete
+- Kompatibel mit Calibre 6.0
+
 v.1.3.0 11-01-2021
 - Erweiterte Konfiguration
 - Unterstützung weiterer der unter https://www.perrypedia.de/wiki/Produkte aufgeführten Produkte
@@ -73,29 +82,21 @@ v.1.0.0 11-30-2020
 v.0.1.0 11-14-2020
 Erstveröffentlichung.
 
-Installation:
--------------
-Laden Sie die angehängte Zip-Datei herunter und installieren Sie das Plugin wie im sticky thread "Introduction to plugins" beschrieben.
-
-So melden Sie Fehler und Vorschläge:
------------------------------------
-Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem Thread.
-
 ---
 
-[Metadata Source Plugin] Perrypedia -  Version 1.3.0 - 11-01-2021
+[Metadata Source Plugin] Perrypedia - Version 1.4.1 - 08-26-2022
 
 This plugin uses Perrypedia as metadata source. It downloads metadata and covers. 
 Perrypedia (https://www.perrypedia.de/) is a fan project for the creation of a free reference work for the Perry Rhodan SF series.
 Epubs from the official publisher's shop contains little information, the title field contains not only the title, but also the series and issue number ("PR 3082 - Ein kalkuliertes Risiko").
-Note: Alternatively / parallel, metadata can also be retrieved from the "International Science Fiction Database" (isfdb.org) using the ISFDB3 plug-in or other metadata plug-ins.
+Note: Alternatively / parallel, metadata can also be retrieved from the "The Internet Speculative Fiction Database" (isfdb.org) using the ISFDB3 plug-in or other metadata plug-ins.
 
 Main features:
 --------------
 This plugin supports retrieval of title, authors, tags, publication date, publisher, comments, series, series index and cover.
 Title, authors, publication date, publisher, series, series index and cover are saved in the appropriate metadata fields.
-The tags field is compiled from "Zyklus", "Hauptpersonen", "Handlungszeitraum", "Handlungsort" and "Glossar".
-The "overview" table ("Überblick") of the Perrypedia page is the first part of the comments field.
+The tag field is filled with the content of the categories "Cycle" (Zyklus), "Main Characters" (Hauptpersonen), "action time" (Handlungszeitraum), "scene of action" (Handlungsort) and "Glossary" (Glossar).
+The first part of the comment field is filled with the summary table of a standard Perrypedia publication page.
 
 Since most of the "books" in the Perry Rhodan series do not have an identifier such as ISBN or ISSN, the plugin defines a "PPID" which is taken from Perrypedia identifiers (e.g. "PR1000" for issue 1000 of the Perry Rhodan booklet series).
 A list of products with their names and IDs can be found here: https://www.perrypedia.de/wiki/Produkte
@@ -122,11 +123,21 @@ Limitations:
 
 Version History:
 ----------------
+v1.4.1 08-26-2022
+- Extended Regular Expressions (PR-Storys etc.)
+
+v.1.4.0 07-12-2022
+- Option to set ignore_ssl_errors
+- New Mini serie: Atlantis
+- Special page handling for Stellaris book packets
+- Compatible with Calibre 6.0
+
 v.1.3.0 11-01-2021
 - Advanced configuration
 - Support of other products listed under https://www.perrypedia.de/wiki/Produkte
 - Revision of regex strings
 - Updated translations
+
 v.1.2.0 05-17-2021
 - Configuration via calibre GUI
 - Improved handling of ambiguous titles
@@ -155,11 +166,3 @@ v.1.0.0 11-30-2020
 
 v.0.1.0 2020-11-14
 Initial release.
-
-Installation:
--------------
-Download the attached zip file and install the plugin as described in the Introduction to plugins thread.
-
-How to report Bugs and suggestions:
------------------------------------
-If you find any issues or have suggestions please report them in this thread.
