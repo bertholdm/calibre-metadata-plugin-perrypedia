@@ -90,7 +90,9 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 4, 1)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    version = (1, 5, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    # 1.5.0
+    # - Inklusion of comments from "kreis-archiv.de" (now from archive.org) (optional)
     # 1.4.1
     # - Extended Regular Expressions
     # 1.4.0
@@ -157,6 +159,14 @@ class Perrypedia(Source):
             _('comments field style - text or html'),
             _('Choose if comments should formatted with html/css or should contain pure text with line breaks.'),
             {'html_comment': 'html', 'text_comment': 'text'}
+        ),
+        # Inklusion of comments from "kreis-archiv.de"?
+        Option(
+            'include_comments',
+            'bool',
+            False,
+            _('Inklude comments from "kreis-archiv.de"'),
+            _('Make this choice if comments from former "kreis-archiv.de" should be included.'),
         ),
     )
 
@@ -843,6 +853,33 @@ class Perrypedia(Source):
 
     # Perrypedia specific identification methods
 
+    def comments_from_kreisarchiv(self, browser, series_code, issuenumber, log, loglevel):
+        if loglevel in [self.loglevels['DEBUG']]:
+            log.info('Enter comments_from_kreisarchiv()')
+            log.info('series_code=', series_code)
+            log.info('issuenumber=', issuenumber)
+        # at the moment PR-Heftromane only
+        if self.prefs['include_comments'] and issuenumber in range(2100, 2999):
+            # https://web.archive.org/web/20181231142211/http://www.kreis-archiv.de/pr.html
+            # https://web.archive.org/web/20181231141917/http://www.kreis-archiv.de/heftromane.html
+            # https://web.archive.org/web/20190514150049/http://www.kreis-archiv.de/zyklus2900/pr2900.html
+            zyklus = str(issuenumber)
+            zyklus = zyklus[:2]
+            url = 'https://web.archive.org/web/20190514150049/http://www.kreis-archiv.de/zyklus' + zyklus + '00/pr'+ str(issuenumber) + '.html'
+            page = browser.open_novisit(url, timeout=30).read().strip()
+            if page:
+                soup = BeautifulSoup(page, 'html.parser')
+                if 'Kringels Meinung:' in soup.text:
+                    # kringel_comment = 'Kringels Meinung:<br />' + soup.find(text='Kringels Meinung:').findNext('p').text
+                    kringel_comment = 'Kringels Meinung:<br />' + str(soup.find(text='Kringels Meinung:').find_next('p'))
+                    return kringel_comment
+                else:
+                    return None
+            else:
+                return None
+        else:
+            return None
+
     def issuenumber_from_subseries_offsets(self, series_code, issuenumber, preliminary_series_name, log, loglevel):
 
         if loglevel in [self.loglevels['DEBUG']]:
@@ -1460,6 +1497,15 @@ class Perrypedia(Source):
             mi.comments = mi.comments + '</p>'
             mi.comments = mi.comments + '<p>Inhalt:<br />' + plot + '</p>'
             mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
+
+            # Check if comments from "kreis-archiv.de" should be included
+            kringel_comment = self.comments_from_kreisarchiv(self.browser, series_code, issuenumber, log, loglevel)
+            if kringel_comment is not None:
+                mi.comments = mi.comments + '<p>'
+                mi.comments = mi.comments + kringel_comment
+                mi.comments = mi.comments + '</p>'
+
+
             mi.source_relevance = 0
             if loglevel in [self.loglevels['DEBUG']]:
                 log.info('*** Final formatted result (object mi): {0}'.format(mi))
@@ -1778,6 +1824,14 @@ class Perrypedia(Source):
         # an integer indicating the order in which the results were returned by the metadata source for this query.
         # This integer will be used by :meth:`compare_identify_results`. If the order is unimportant, set it to zero
         # for every result.
+
+        # Check if comments from "kreis-archiv.de" should be included
+        kringel_comment = self.comments_from_kreisarchiv(self.browser, series_code, issuenumber, log, loglevel)
+        if kringel_comment is not None:
+            mi.comments = mi.comments + '<p>'
+            mi.comments = mi.comments + kringel_comment
+            mi.comments = mi.comments + '</p>'
+
         mi.source_relevance = 0
 
         if loglevel in [self.loglevels['DEBUG']]:
