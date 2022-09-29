@@ -1,4 +1,4 @@
-[Metadata Source Plugin] Perrypedia - Version 1.4.1 - 08-26-2022
+[Metadata Source Plugin] Perrypedia - Version 1.5.0 - 09-28-2022
 
 Dieses Plugin verwendet die Perrypedia als Metadatenquelle. Es lädt Metadaten und Cover herunter.
 Die Perrypedia (https://www.perrypedia.de/) ist ein Fanprojekt zur Erstellung eines kostenlosen Nachschlagewerks für die Perry Rhodan SF-Serie.
@@ -38,6 +38,9 @@ Einschränkungen:
 
 Versionsgeschichte:
 -------------------
+v1.5.0 09-28-2022
+- Einbeziehung von Kommentaren aus dem "kreis-archiv.de" (jetzt in archive.org) (optional)
+
 v1.4.1 08-26-2022
 - Erweiterung der Regulären Ausdrücke (PR-Storys u. a.)
 
@@ -131,6 +134,9 @@ Limitations:
 
 Version History:
 ----------------
+v1.5.0 09-28-2022
+- Inklusion of comments from "kreis-archiv.de" (now from archive.org) (optional)
+
 v1.4.1 08-26-2022
 - Extended Regular Expressions (PR-Storys etc.)
 
