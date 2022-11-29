@@ -90,7 +90,9 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 5, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    version = (1, 6, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    # 1.6.0
+    # - Find PR-Jahrbuch
     # 1.5.0
     # - Inklusion of comments from "kreis-archiv.de" (now from archive.org) (optional)
     # 1.4.1
@@ -218,6 +220,8 @@ class Perrypedia(Source):
         # otherwise things like "perry rhodan tb" are unwanted matched
         'PR-Die_Chronik_': r'(perry.{0,3}rhodan.{0,3}die.{0,3}chronik)[^0-9]{0,5}(\d{1,2})'
                            r'|(pr.{0,3}die.{1,1}chronik)[^0-9]{0,5}(\d{1,2})',
+        'PR-Jahrbuch_': r'(perry.{0,3}rhodan.{0,3}jahrbuch)[^0-9]{0,5}(\d{4,4})'
+                           r'|(pr.{0,3}jahrbuch)[^0-9]{0,5}(\d{4,4})',
         'PRA': r'(perry.{0,3}rhodan.{0,3}action)[^0-9]{0,5}(\d{1,2})',
         'PRAR': r'(perry.{0,3}rhodan.{0,3}arkon)[^0-9]{1,5}(\d{1,2})',
         # Atlantis-10-Das-Talagon.epub, pratlantis01_leseprobe_0.pdf, PR Atlantis 11 – Atlantis muss sterben!
@@ -389,6 +393,7 @@ class Perrypedia(Source):
         'PERRYHC': 'Perry Comics Hardcover (Alligator-Farm)',
         'PR': 'Perry Rhodan-Heftserie',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Heftserie
         'PR-Die_Chronik_': 'Perry Rhodan - Die Chronik',
+        'PR-Jahrbuch_': 'PR-Jahrbuch',
         'PRA': 'Perry Rhodan-Action',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Action
         'PRAB': 'Perry Rhodan-Autorenbibliothek',
         'PRAH': 'Perry Rhodan-Andromeda Hörbücher',
@@ -478,6 +483,7 @@ class Perrypedia(Source):
         'Ara-Toxin_(Serie)': '/wiki/',
         'Perry_Rhodan_Die_Chronik': '/wiki/',
         'PR-Die_Chronik_': '/wiki/',
+        'PR-Jahrbuch_': '/wiki/',
         'RISSZEICHNUNGSBÄNDE': '/wiki/Risszeichnungsb%C3%A4nde',
         'Weltraumatlas': '/wiki/',
     }
@@ -1294,6 +1300,32 @@ class Perrypedia(Source):
                     log.info('cover_urls=', cover_urls)
 
                 return  overview, content, cover_urls, source_url
+
+            elif 'PR-Jahrbuch' in soup.text:
+                pass
+                # Ggf. Vorsüann und Inhalt
+
+                # #mw-content-text > div.mw-parser-output
+
+                # #firstHeading
+                # <h1 id="firstHeading" class="firstHeading" lang="de">PR-Jahrbuch 1992</h1>
+
+                # #mw-content-text > div.mw-parser-output > h2
+                # <h2><span class="mw-headline" id="Inhalt">Inhalt</span></h2>
+
+
+                table_selector = 'html body #content #bodyContent #mw-content-text .mw-parser-output table tbody'
+                table_body = soup.select_one(table_selector)
+                rows = table_body.find_all('tr')
+                for row in rows:
+                    cols = row.find_all(['th', 'td'])  # Strange header formatting
+                    cols = [ele.text.strip() for ele in cols]
+                    overview_data.append([ele for ele in cols if ele])  # Get rid of empty values
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('overview_data={0}'.format(overview_data))
+                for row in overview_data:
+                    if len(row) > 1:
+                        overview[row[0]] = ' | ' + row[1] + ' | ' + row[2] + ' | ' + row[3] + ' | ' + row[4]
 
         # ToDo: Other page types
 
