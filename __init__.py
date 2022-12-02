@@ -91,17 +91,53 @@ class Perrypedia(Source):
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
     version = (1, 6, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    # 1.6.0
-    # - Find PR-Jahrbuch
-    # 1.5.0
+    # Version 1.6.0 - 11-30-2022
+    # - Find data for PR-Jahrbuch
+    # - Updated translations
+    # Version 1.5.0 - 09-28-2022
     # - Inklusion of comments from "kreis-archiv.de" (now from archive.org) (optional)
-    # 1.4.1
+    # Version 1.4.1 - 08-26-2022
     # - Extended Regular Expressions
-    # 1.4.0
+    # Version 1.4.0 - 07-12-2022
     # - Option to set ignore_ssl_errors
     # - New Mini serie: Atlantis
     # - Special page handling for Stellaris book packets
     # - Compatible with Calibre 6.0
+    # Version 1.4.0 - 07-12-2022
+    # - Option to set ignore_ssl_errors
+    # - New Mini serie: Atlantis
+    # - Special page handling for Stellaris book packets
+    # - Compatible with Calibre 6.0
+    # Version 1.3.0 - 11-01-2021
+    # - Advanced configuration
+    # - Support of other products listed under https://www.perrypedia.de/wiki/Produkte
+    # - Revision of regex strings
+    # - Updated translations
+    # Version 1.2.0 - 05-17-2021
+    # - Configuration via calibre GUI
+    # - Improved handling of ambiguous titles
+    # - Support of other products listed under https://www.perrypedia.de/wiki/Produkte
+    # - Elimination of code duplication
+    # - Updated translations
+    # - Another series format: "Leihbuch"
+    # - Revision of regex strings
+    # - Action level added to overview
+    # - Refined determination of serial codes (Atlan Traversan, Obsidian)
+    # - Adjustment of the "publisher" field
+    # - Refined determination of the publishing date
+    # - Fixed bug when parsing the German date (dayfirst)
+    # - Treatment of books not related to series (Weltraumatlas, Risszeichnungen, ...)
+    # Version 1.1.0 - 01-19-2021
+    # - Search for title (with handling of ambiguous titles)
+    # - Using of Wikimedia API
+    # - support for most of the products listed on https://www.perrypedia.de/wiki/Produkte
+    # - Updated translations
+    # Version 1.0.0 11-30-2020
+    # - better cover search
+    # - HTML-Output for comments-Field
+    # - Minor bugfixes and enhancements
+    # Version 0.1.0 - 11-14-2020
+    # - Initial release
     history = True
     minimum_calibre_version = (0, 8, 5)
     platforms = ['windows', 'linux', 'osx']
@@ -329,6 +365,7 @@ class Perrypedia(Source):
         ['Genesis', 'PR', 2900, r'(genesis) (\d{1,})'],
         ['Mythos', 'PR', 3000, r'(mythos) (\d{1,})'],
         ['Chaotarchen', 'PR', 3100, r'(chaotarchen) (\d{1,})'],
+        ['Fragmente', 'PR', 3200, r'(fragmente) (\d{1,})'],
         # Perry Rhodan-Miniserien
         ['Stardust', 'PRS', 1, r'(stardust) (\d{1,})'],
         ['Arkon', 'PRAR', 1, r'(arkon) (\d{1,})'],
@@ -577,9 +614,10 @@ class Perrypedia(Source):
         # Note 2: The id may contains other characters than only alphabetic characters and digits:
         # https://www.perrypedia.de/wiki/Quelle:PRMS2_1
         # If we have a PP id then we do not need to fire a "search" at Perrypedia.
-        # Instead we will go straight to the (redirect-) URL for that book.
+        # Instead we will go straight to the (redirect) URL for that book.
         if pp_id:
-            # Is there a underscore (to distinguish alphanumeric series codes from issue number) in ppid?
+            # Is there a underscore (to distinguish a series codes that endet with a digit from issue number) in ppid?
+            # https://www.perrypedia.de/wiki/Quelle:PRMS2_1
             if pp_id.find('_') != -1:
                 # Check this: Ara-Toxin_(Serie): https://www.perrypedia.de/wiki/Ara-Toxin_(Serie)
                 if pp_id.split('_')[1].isnumeric():
@@ -588,6 +626,18 @@ class Perrypedia(Source):
                     if loglevel == self.loglevels['DEBUG']:
                         log.info("series_code=", series_code)
                         log.info("issuenumber=", issuenumber)
+                    if series_code in self.series_metadata_path:
+                        path = self.series_metadata_path[series_code]
+                    else:
+                        path = self.series_metadata_path['DEFAULT']
+                    raw_metadata = self.get_raw_metadata_from_series_and_issuenumber(path, series_code, issuenumber,
+                                                                                     self.browser, 20, log, loglevel)
+                    if loglevel == self.loglevels['DEBUG']:
+                        log.info('raw_metadata={0}'.format(raw_metadata))
+                    mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
+                    result_queue.put(mi)  # Send the metadata found to calibre
+                else:
+                    log.error(_('Unexpected structure of field pp_id:'), pp_id)
             else:
                 match = re.match(r"([a-z]+)(\d+)", pp_id, re.I)
                 if match:
@@ -917,7 +967,7 @@ class Perrypedia(Source):
         # Find series and issuenumber in title and/or authors field
         # (in some cases title and authors are inadvertently reversed)
         if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-            log.info(_('Searching in title and authors field:')), title + ' ' + authors_str
+            log.info(_('Searching in title and authors fields: {0} / {1}'.format(title, authors_str)))
 
         for key in self.series_regex:
             if loglevel in [self.loglevels['DEBUG']]:
@@ -1239,6 +1289,8 @@ class Perrypedia(Source):
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_pp_book_page()')
 
+        # Cchecking first for a standad book page (Heftserie etc.)
+
         # Selector for standard book pages
         overview_selector = 'html body #content #bodyContent #mw-content-text .mw-parser-output ' \
                             '.perrypedia_std_rframe.overview table tbody'
@@ -1247,6 +1299,9 @@ class Perrypedia(Source):
         # ToDo: Handle other page structures
 
         if table_body is None:
+
+            # Check for non-standard page structure
+
             # Book packages
             # https://www.perrypedia.de/wiki/Stellaris_E-Book_Paket_1
             if 'Stellaris E-Book Paket' in soup.text:
@@ -1299,38 +1354,64 @@ class Perrypedia(Source):
                 if loglevel in [self.loglevels['DEBUG']]:
                     log.info('cover_urls=', cover_urls)
 
-                return  overview, content, cover_urls, source_url
+                return overview, content, cover_urls, source_url
 
             elif 'PR-Jahrbuch' in soup.text:
-                pass
-                # Ggf. Vorsüann und Inhalt
 
-                # #mw-content-text > div.mw-parser-output
-
-                # #firstHeading
-                # <h1 id="firstHeading" class="firstHeading" lang="de">PR-Jahrbuch 1992</h1>
-
-                # #mw-content-text > div.mw-parser-output > h2
-                # <h2><span class="mw-headline" id="Inhalt">Inhalt</span></h2>
-
-
-                table_selector = 'html body #content #bodyContent #mw-content-text .mw-parser-output table tbody'
-                table_body = soup.select_one(table_selector)
-                rows = table_body.find_all('tr')
-                for row in rows:
-                    cols = row.find_all(['th', 'td'])  # Strange header formatting
-                    cols = [ele.text.strip() for ele in cols]
-                    overview_data.append([ele for ele in cols if ele])  # Get rid of empty values
                 if loglevel in [self.loglevels['DEBUG']]:
-                    log.info('overview_data={0}'.format(overview_data))
-                for row in overview_data:
-                    if len(row) > 1:
-                        overview[row[0]] = ' | ' + row[1] + ' | ' + row[2] + ' | ' + row[3] + ' | ' + row[4]
+                    log.info('PR-Jahrbuch found.')
+
+                # <h1 id="firstHeading" class="firstHeading" lang="de">PR-Jahrbuch 1992</h1>
+                header_selector = '#firstHeading'
+                # <h2><span class="mw-headline" id="Inhalt">Inhalt</span></h2>
+                header_html = soup.select_one(header_selector)
+                header_text = header_html.text
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('header_text={0}'.format(header_text))
+
+                overview = {}
+                content_html = []
+                content_selector = '#mw-content-text > div.mw-parser-output'
+                content_soup = soup.select_one(content_selector)
+                for tag in content_soup.find_all(recursive=False):
+                    # but no cover preview or navigation
+                    # if tag.find('div', class_='perrypedia_navigation'):
+                    if tag.find('div'):
+                        continue
+                    content_html.append(tag)
+                content = content_html
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('content_html[:10]={0}'.format(content_html[:10]))
+
+                cover_urls = []
+                cover_selector = '#mw-content-text > div.mw-parser-output > div:nth-child(2)'
+                cover_body = soup.select_one(cover_selector)
+                for url in cover_body.find_all('a', class_="image"):
+                    if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                        log.info(_('Found a relative cover page URL:'), url['href'])  # /wiki/Datei:A500_1.JPG
+                    cover_page_url = self.base_url + url['href']
+                    page = browser.open_novisit(cover_page_url, timeout=timeout).read().strip()
+                    if page is not None:
+                        soup = BeautifulSoup(page, 'html.parser')
+                        cover_url = ''
+                        # ToDo: Error handling
+                        # for div_tag in soup.find_all('div', class_='fullMedia'):  # , id_='file'
+                        for div_tag in soup.find_all('div', class_='fullImageLink'):  # , id_='file'
+                            for a_tag in div_tag.find_all('a', href=True):
+                                url = a_tag.attrs.get("href")
+                                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                                    log.info(_('Relative cover url:'), url)
+                                cover_urls.append(self.base_url + url)  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('cover_urls=', cover_urls)
+
+                return overview, content, cover_urls, source_url
 
         # ToDo: Other page types
 
         # If page type is still not identified
         if table_body is None:
+            log.info(_('Page type could not be identified!'))
             log.info('table_body is None. source_url={0}'.format(source_url))
             log.info('soup.text={0}'.format(soup.text))
             exit(1)
@@ -1421,6 +1502,7 @@ class Perrypedia(Source):
 
         # ToDo: Find relevant text (Header none, "Inhalt", ...) for books with no plots
         # (e. g. https://www.perrypedia.de/wiki/PR-Die_Chronik_1)
+        # (e. g. https://www.perrypedia.de/wiki/PR-Jahrbuch_1976)
 
         # Find cover url
         # Beim Parsen der Überblick-Daten Link(s) zu Bildseite(n) merken (mehrere Titelbildvarianten möglich),
@@ -1537,11 +1619,71 @@ class Perrypedia(Source):
                 mi.comments = mi.comments + kringel_comment
                 mi.comments = mi.comments + '</p>'
 
+            mi.source_relevance = 0
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('*** Final formatted result (object mi): {0}'.format(mi))
+            return mi
+
+        elif 'PR-Jahrbuch_' in url:
+            series_code = 'PR-Jahrbuch_'
+            issuenumber = url.split('PR-Jahrbuch_')[1].strip()
+            title = series_names[series_code] + " " + str(issuenumber).strip()
+            authors = []
+            # Create Metadata instance
+            mi = Metadata(title=title, authors=authors)
+            mi.set_identifier('ppid', series_code + str(issuenumber).strip())
+            mi.series = series_names[series_code]
+            mi.series_index = issuenumber
+            if cover_urls is not []:
+                mi.has_cover = True
+                try:
+                    self.cache_identifier_to_cover_url('ppid:' + series_code + str(issuenumber).strip(), cover_urls)
+                    if loglevel in [self.loglevels['DEBUG'], 20]:
+                        log.info(_('Cover URLs cached with ppid:'), cover_urls)
+                except:
+                    self.cache_identifier_to_cover_url('ppid:' + title, cover_urls)
+                    if loglevel in [self.loglevels['DEBUG'], 20]:
+                        log.info(_('Cover URLs cached with title:'), cover_urls)
+            mi.language = 'deu'  # "Die Wikisprache ist Deutsch."
+            if series_code in self.series_metadata_path:
+                path = self.series_metadata_path[series_code]
+            else:
+                path = self.series_metadata_path['DEFAULT']
+            # Herausgeber: William Voltz
+            # Illustrationen: Manfred Schneider
+            # Erstveröffentlichung: Juli 1975[1]
+            # <li>Erstveröffentlichung:  Juli 1975
+            search_result = re.search(r'<li>Erstveröffentlichung:(.{1,10}\d\d\d\d)', plot)
+            if search_result:
+                search_result = re.sub('<.*?>', '', search_result.group(0)).strip()  # Get rid of html tags
+                search_result = search_result.replace('Erstveröffentlichung:', '').strip()
+                try:
+                    mi.pubdate = parser.parse(search_result, default=datetime(int(issuenumber), 1, 1, 2, 0, 0),
+                                              parserinfo=GermanParserInfo())
+                except:
+                    pass
+            else:
+                    mi.pubdate = datetime(int(issuenumber), 1, 1, 2, 0, 0)
+            # <li>Herausgeber: <a href="/wiki/William_Voltz" title="William Voltz">William Voltz</a></li>
+            search_result = re.search(r'<li>Herausgeber: (.*)</li>', plot)
+            if search_result:
+                mi.authors = [re.sub('<[^<]+?>', '', search_result).group(0).strip() + ' ' +  _('(Editor)')]
+            mi.comments = ''
+            mi.comments = mi.comments + '<p>' + plot + '</p>'
+            mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
+
+            # Check if comments from "kreis-archiv.de" should be included
+            kringel_comment = self.comments_from_kreisarchiv(self.browser, series_code, issuenumber, log, loglevel)
+            if kringel_comment is not None:
+                mi.comments = mi.comments + '<p>'
+                mi.comments = mi.comments + kringel_comment
+                mi.comments = mi.comments + '</p>'
 
             mi.source_relevance = 0
             if loglevel in [self.loglevels['DEBUG']]:
                 log.info('*** Final formatted result (object mi): {0}'.format(mi))
             return mi
+
 
         # Overview for standard pages
 

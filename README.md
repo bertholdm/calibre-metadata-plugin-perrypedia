@@ -1,4 +1,6 @@
-[Metadata Source Plugin] Perrypedia - Version 1.5.0 - 09-28-2022
+[Metadata Source Plugin] Perrypedia - Version 1.6.0 - 11-30-2022
+
+[English version follows]
 
 Dieses Plugin verwendet die Perrypedia als Metadatenquelle. Es lädt Metadaten und Cover herunter.
 Die Perrypedia (https://www.perrypedia.de/) ist ein Fanprojekt zur Erstellung eines kostenlosen Nachschlagewerks für die Perry Rhodan SF-Serie.
@@ -38,25 +40,23 @@ Einschränkungen:
 
 Versionsgeschichte:
 -------------------
-v1.5.0 09-28-2022
+Version 1.6.0 - 11-30-2022
+- Data für PR-Jahrbücher holen
+Version 1.5.0 - 09-28-2022
 - Einbeziehung von Kommentaren aus dem "kreis-archiv.de" (jetzt in archive.org) (optional)
-
-v1.4.1 08-26-2022
+Version 1.4.1 - 08-26-2022
 - Erweiterung der Regulären Ausdrücke (PR-Storys u. a.)
-
-v.1.4.0 07-12-2022
+Version 1.4.0 - 07-12-2022
 - Option zum Setzen von ignore_ssl_errors
 - Neue Mini-Serie: Atlantis
 - Anpassungen für Stellaris Buch-Packete
 - Kompatibel mit Calibre 6.0
-
-v.1.3.0 11-01-2021
+Version 1.3.0 11-01-2021
 - Erweiterte Konfiguration
 - Unterstützung weiterer der unter https://www.perrypedia.de/wiki/Produkte aufgeführten Produkte
 - Überarbeitung Regex-Zeichenketten
 - Aktualisierte Übersetzungen
-
-v.1.2.0 05-17-2021
+Version 1.2.0 05-17-2021
 - Konfiguration über Calibre-Oberfläche
 - Verbesserte Behandlung von mehrdeutigen Titeln
 - Unterstützung weiterer der unter https://www.perrypedia.de/wiki/Produkte aufgeführten Produkte
@@ -70,20 +70,17 @@ v.1.2.0 05-17-2021
 - Verfeinerte Ermittlung des Erscheinungsdatums
 - Fehler beim Parsen des deutschen Datums behoben (dayfirst)
 - Behandlung von nicht serienbezogenen Büchern (Weltraumatlas, Risszeichnungen, ...)
-
-v.1.1.0 01-19-2021
+Version 1.1.0 01-19-2021
 - Titelsuche (mit Behandlung von mehrdeutigen Titeln)
 - Nutzung der Wikimedia API
 - Unterstützung für die meisten der unter https://www.perrypedia.de/wiki/Produkte aufgeführten Produkte
 - Aktualisierte Übersetzungen 
-
-v.1.0.0 11-30-2020
+Version 1.0.0 11-30-2020
 - Optimierte Bildersuche
 - HTML-Ausgabe des Kommentars
 - Kleiner Fehlerkorrekturen und Verbesserungen
-
-v.0.1.0 11-14-2020
-Erstveröffentlichung.
+Version 0.1.0 11-14-2020
+- Erstveröffentlichung
 
 Installation:
 -------------
@@ -95,7 +92,7 @@ Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem 
 
 ---
 
-[Metadata Source Plugin] Perrypedia - Version 1.4.1 - 08-26-2022
+[Metadata Source Plugin] Perrypedia - Version 1.6.0 - 11-30-2022
 
 This plugin uses Perrypedia as metadata source. It downloads metadata and covers. 
 Perrypedia (https://www.perrypedia.de/) is a fan project for the creation of a free reference work for the Perry Rhodan SF series.
@@ -134,25 +131,24 @@ Limitations:
 
 Version History:
 ----------------
-v1.5.0 09-28-2022
+Version 1.6.0 - 11-30-2022
+- Find data for PR-Jahrbuch
+- Updated translations
+Version 1.5.0 - 09-28-2022
 - Inklusion of comments from "kreis-archiv.de" (now from archive.org) (optional)
-
-v1.4.1 08-26-2022
+Version 1.4.1 - 08-26-2022
 - Extended Regular Expressions (PR-Storys etc.)
-
-v.1.4.0 07-12-2022
+Version 1.4.0 - 07-12-2022
 - Option to set ignore_ssl_errors
 - New Mini serie: Atlantis
 - Special page handling for Stellaris book packets
 - Compatible with Calibre 6.0
-
-v.1.3.0 11-01-2021
+Version 1.3.0 - 11-01-2021
 - Advanced configuration
 - Support of other products listed under https://www.perrypedia.de/wiki/Produkte
 - Revision of regex strings
 - Updated translations
-
-v.1.2.0 05-17-2021
+Version 1.2.0 - 05-17-2021
 - Configuration via calibre GUI
 - Improved handling of ambiguous titles
 - Support of other products listed under https://www.perrypedia.de/wiki/Produkte
@@ -166,20 +162,17 @@ v.1.2.0 05-17-2021
 - Refined determination of the publishing date
 - Fixed bug when parsing the German date (dayfirst)
 - Treatment of books not related to series (Weltraumatlas, Risszeichnungen, ...)
-
-v.1.1.0 01-19-2021
+Version 1.1.0 - 01-19-2021
 - Search for title (with handling of ambiguous titles)
 - Using of Wikimedia API
 - support for most of the products listed on https://www.perrypedia.de/wiki/Produkte
 - Updated translations
-
-v.1.0.0 11-30-2020
+Version 1.0.0 11-30-2020
 - better cover search
 - HTML-Output for comments-Field
 - Minor bugfixes and enhancements
-
-v.0.1.0 2020-11-14
-Initial release.
+Version 0.1.0 - 11-14-2020
+- Initial release
 
 Installation:
 -------------
