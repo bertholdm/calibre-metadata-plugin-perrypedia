@@ -1,4 +1,4 @@
-[Metadata Source Plugin] Perrypedia - Version 1.6.0 - 11-30-2022
+[Metadata Source Plugin] Perrypedia - Version 1.7.0 - 06-29-2023
 
 [English version follows]
 
@@ -40,8 +40,15 @@ Einschränkungen:
 
 Versionsgeschichte:
 -------------------
+Version 1.7.0 - 06-29-2023
+- Neuer Regex-String (neue Dateinamenstruktur von Bücher-Walther: 'Perry-Rhodan-3225-Der-Mann-aus-Glas.epub')
+- Optional: Bewertungen aus https://forum.perry-rhodan.net/ (siehe auch https://pr.mapfa.de/)
+Version 1.6.2 - 12-16-2022
+- Patch für 'Werkstattband'
+Version 1.6.1 - 12-05-2022
+- Patch für die Identifikation von Hörbüchern
 Version 1.6.0 - 11-30-2022
-- Data für PR-Jahrbücher holen
+- Daten für PR-Jahrbücher holen
 Version 1.5.0 - 09-28-2022
 - Einbeziehung von Kommentaren aus dem "kreis-archiv.de" (jetzt in archive.org) (optional)
 Version 1.4.1 - 08-26-2022
@@ -92,7 +99,7 @@ Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem 
 
 ---
 
-[Metadata Source Plugin] Perrypedia - Version 1.6.0 - 11-30-2022
+[Metadata Source Plugin] Perrypedia - Version 1.7.0 - 06-29-2023
 
 This plugin uses Perrypedia as metadata source. It downloads metadata and covers. 
 Perrypedia (https://www.perrypedia.de/) is a fan project for the creation of a free reference work for the Perry Rhodan SF series.
@@ -131,6 +138,13 @@ Limitations:
 
 Version History:
 ----------------
+Version 1.7.0 - 06-29-2023
+- New regex string (new file name structure of Walther publishing: 'Perry-Rhodan-3225-Der-Mann-aus-Glas.epub')
+- Optional rating from https://forum.perry-rhodan.net/ (see also https://pr.mapfa.de/)
+Version 1.6.2 - 12-16-2022
+- Patch for 'Werkstattband'
+Version 1.6.1 - 12-05-2022
+- Patch for identifying audio books
 Version 1.6.0 - 11-30-2022
 - Find data for PR-Jahrbuch
 - Updated translations

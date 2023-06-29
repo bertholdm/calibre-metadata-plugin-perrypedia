@@ -18,7 +18,7 @@ from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.gui2.book_details import *
 
 __license__ = 'GPL v3'
-__copyright__ = '2020 - 2022, Michael Detambel <info@michael-detambel.de>'
+__copyright__ = '2020 - 2023, Michael Detambel <info@michael-detambel.de>'
 __docformat__ = 'restructuredtext en'
 
 _ = gettext.gettext
@@ -90,7 +90,15 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 6, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    version = (1, 7, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    # ToDo: Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
+    # Version 1.7.0 - 06-29-2023
+    # - New regex string (new file name structure of Walther publishing: 'Perry-Rhodan-3225-Der-Mann-aus-Glas.epub')
+    # - Optional rating from https://forum.perry-rhodan.net/ (see also https://pr.mapfa.de/)
+    # Version 1.6.2 - 12-16-2022
+    # - Patch for 'Werkstattband'
+    # Version 1.6.1 - 12-05-2022
+    # - Patch for identifying audio books
     # Version 1.6.0 - 11-30-2022
     # - Find data for PR-Jahrbuch
     # - Updated translations
@@ -147,7 +155,7 @@ class Perrypedia(Source):
     cached_cover_url_is_reliable = True
 
     capabilities = frozenset(['identify', 'cover'])
-    touched_fields = frozenset(['title', 'authors', 'series', 'series_index', 'tags', 'publisher', 'pubdate',
+    touched_fields = frozenset(['title', 'authors', 'series', 'series_index', 'rating', 'tags', 'publisher', 'pubdate',
                                 'languages', 'comments', 'identifier:ppid', 'identifier:isbn'], )
     # ignore_ssl_errors = True
 
@@ -206,6 +214,45 @@ class Perrypedia(Source):
             _('Inklude comments from "kreis-archiv.de"'),
             _('Make this choice if comments from former "kreis-archiv.de" should be included.'),
         ),
+        # Inklusion of ratings from "https://forum.perry-rhodan.net/"?
+        Option(
+            'include_ratings',
+            'bool',
+            False,
+            _('Inklude ratings from "https://forum.perry-rhodan.net/"'),
+            _('Make this choice if ratings from "https://forum.perry-rhodan.net/" should be included.'),
+        ),
+        Option(
+            'story_weight_for_rating',
+            'number',
+            1,
+            _('Rating weight for the story'),  # Gewichtung für die Story des Romans
+            _('Set a weight number for the story rating. Default value is 1. '
+              'Set to 0 if this rating facette should be ignored.'),
+        ),
+        Option(
+            'writing_style_weight_for_rating',
+            'number',
+            1,
+            _('Rating weight for the author\'s writing style'),  # Gewichtung für den Schreibstil des Autors
+            _('Set a weight number for the author\'s writing style rating. Default value is 1. '
+              'Set to 0 if this rating facette should be ignored.'),
+        ),
+        Option(
+            'cycle_weight_for_rating',
+            'number',
+            1,
+            _('Rating weight for the the development of the cycle'),  # Gewichtung für die aktuelle Entwicklung des Zyklus
+            _('Set a weight number for the the development of the cycle rating. Default value is 1. '
+              'Set to 0 if this rating facette should be ignored.'),
+        ),
+        Option(
+            'rating_rounding',
+            'bool',
+            True,
+            _('Rounding ratings to integer'),
+            _('Make this choice if ratings should be round to zero decimal values.'),
+        ),
     )
 
     # There are six log levels in Python; each level is associated with an integer that indicates the log severity.
@@ -256,6 +303,7 @@ class Perrypedia(Source):
         # otherwise things like "perry rhodan tb" are unwanted matched
         'PR-Die_Chronik_': r'(perry.{0,3}rhodan.{0,3}die.{0,3}chronik)[^0-9]{0,5}(\d{1,2})'
                            r'|(pr.{0,3}die.{1,1}chronik)[^0-9]{0,5}(\d{1,2})',
+        # 'PR-Hörbuch': r'(Hörbuch)',
         'PR-Jahrbuch_': r'(perry.{0,3}rhodan.{0,3}jahrbuch)[^0-9]{0,5}(\d{4,4})'
                            r'|(pr.{0,3}jahrbuch)[^0-9]{0,5}(\d{4,4})',
         'PRA': r'(perry.{0,3}rhodan.{0,3}action)[^0-9]{0,5}(\d{1,2})',
@@ -315,7 +363,7 @@ class Perrypedia(Source):
         'PR': r'(perry-rhodan-heft)[^0-9]{0,5}(\d{1,})|(perry%20rhodan)[^0-9]{0,5}(\d{1,})'
               r'|(\d{1,4})[^0-9]{0,3}(perry.{0,3}rhodan)|(\d{1,4})[^0-9]{0,3}(pr)'
               r'|(perry.{0,3}rhodan)[^0-9]{0,5}(\d{1,})|(perry rhodan)[^0-9]{0,5}(\d{1,})'
-              r'|(pr)[^0-9]{0,5}(\d{1,})|(pr) (\d{1,})',
+              r'|(pr)[^0-9]{0,5}(\d{1,})|(pr) (\d{1,})|(perry-rhodan)-(\d{4,4})',
     }
 
     # Zyklen
@@ -430,6 +478,7 @@ class Perrypedia(Source):
         'PERRYHC': 'Perry Comics Hardcover (Alligator-Farm)',
         'PR': 'Perry Rhodan-Heftserie',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Heftserie
         'PR-Die_Chronik_': 'Perry Rhodan - Die Chronik',
+        # 'PR-Hörbuch': 'Hörbuch',
         'PR-Jahrbuch_': 'PR-Jahrbuch',
         'PRA': 'Perry Rhodan-Action',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Action
         'PRAB': 'Perry Rhodan-Autorenbibliothek',
@@ -488,7 +537,8 @@ class Perrypedia(Source):
         'PRTER': 'Perry Rhodan-Terminus',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Miniserien
         'PRW': 'Perry Rhodan-Wega',
         'PRWA': 'Weltraumatlas',
-        'PRWSB': 'Werkstattband',
+        # 'PRWSB': 'Werkstattband',
+        'Werkstattband': 'Werkstattband',
         'PUMIA': 'Perry - Unser Mann im All',  # https://www.perrypedia.de/wiki/Perry_-_Unser_Mann_im_All
         # https://www.perrypedia.de/wiki/Risszeichnungsb%C3%A4nde
         'RISSZEICHNUNGSBÄNDE': 'Risszeichnungsbände',
@@ -520,9 +570,11 @@ class Perrypedia(Source):
         'Ara-Toxin_(Serie)': '/wiki/',
         'Perry_Rhodan_Die_Chronik': '/wiki/',
         'PR-Die_Chronik_': '/wiki/',
+        'PR-Hörbuch': '/wiki/',
         'PR-Jahrbuch_': '/wiki/',
         'RISSZEICHNUNGSBÄNDE': '/wiki/Risszeichnungsb%C3%A4nde',
         'Weltraumatlas': '/wiki/',
+        'Werkstattband': '/wiki/',
     }
 
     # Strings we found in page titles (in parentheses). Void = Other book source (in most cases PR series),
@@ -732,6 +784,7 @@ class Perrypedia(Source):
                     log.info(''.join([char * 20 for char in '-']))
                     log.info(_('Next soup, Page title:'), soup.title.string)
                     log.info(_('Next soup, url:'), url)
+                title = soup.title.string
                 raw_metadata = self.parse_pp_book_page(soup, self.browser, timeout, url, log, loglevel)
                 if loglevel == self.loglevels['DEBUG']:
                     log.info('raw_metadata={0}'.format(raw_metadata))
@@ -915,7 +968,7 @@ class Perrypedia(Source):
             log.info('series_code=', series_code)
             log.info('issuenumber=', issuenumber)
         # at the moment PR-Heftromane only
-        if self.prefs['include_comments'] and issuenumber in range(2100, 2999):
+        if self.prefs['include_comments'] and issuenumber in range(2100, 2999 + 1):
             # https://web.archive.org/web/20181231142211/http://www.kreis-archiv.de/pr.html
             # https://web.archive.org/web/20181231141917/http://www.kreis-archiv.de/heftromane.html
             # https://web.archive.org/web/20190514150049/http://www.kreis-archiv.de/zyklus2900/pr2900.html
@@ -935,6 +988,271 @@ class Perrypedia(Source):
                 return None
         else:
             return None
+
+    def rating_from_forum_pr_net(self, browser, series_code, issuenumber, log, loglevel):
+        if loglevel in [self.loglevels['DEBUG']]:
+            log.info('Enter rating_from_forum_pr_net()')
+            log.info('series_code=', series_code)
+            log.info('issuenumber=', issuenumber)
+        # at the moment PR-Heftromane only
+        if self.prefs['include_ratings'] and series_code == 'PR' and issuenumber > 2600:
+            cycle_spoiler_link = ''
+            # Check 'Foren-Übersicht -> Archiv Spoiler EA' first
+            if loglevel == self.loglevels['DEBUG']:
+                log.info("Checking spoiler archive on https://forum.perry-rhodan.net/viewforum.php?f=110")
+            url = 'https://forum.perry-rhodan.net/viewforum.php?f=110'
+            old_cycles_page = browser.open_novisit(url, timeout=30).read().strip()
+            if old_cycles_page:
+                soup = BeautifulSoup(old_cycles_page, 'html.parser')
+                if soup:
+                    # #page-body > div.forabg > div > ul.topiclist.forums > li:nth-child(1)
+                    cycle_forums = soup.select('html > body#phpbb > div#wrap > div#inner-grunge > div#inner-wrap > '
+                                                 'div#page-body > div.forabg > div.inner > ul.topiclist.forums > li')
+                    if loglevel == self.loglevels['DEBUG']:
+                        log.info("cycle_forums list elements={0}".format(len(cycle_forums)))
+                        log.info("cycle_forums={0}".format(cycle_forums))
+                    if cycle_forums:
+                        for cycle_forum in cycle_forums:
+                            # <a href="./viewforum.php?f=152" class="forumtitle">Zyklus "Chaotarchen" 3100-3199</a>
+                            cycle_text = cycle_forum.find(attrs={'class': 'forumtitle'}).text.strip()
+                            if loglevel == self.loglevels['DEBUG']:
+                                log.info("cyle_text={0}".format(cycle_text))
+                            match = re.match(r"Zyklus .*([0-9]{4}).*-.*([0-9]{4})", cycle_text, re.I)
+                            if match:
+                                items = match.groups()
+                                if len(items) == 2:
+                                    issuenumber_from = int(items[0])
+                                    issuenumber_to = int(items[1])
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("issuenumber_from={0}, issuenumber_to={1}"
+                                                 .format(issuenumber_from, issuenumber_to))
+                                    # Notabene: Python's range(3100, 3199) goes from 3100 to 3198!!!
+                                    if issuenumber in range(issuenumber_from, issuenumber_to + 1):
+                                        # <a href="./viewforum.php?f=153&amp;sid=737ea4b4433b03eaafe228036f73cda8"
+                                        # class="subforum read" title="Keine ungelesenen Beiträge">
+                                        # <i class="icon fa-file-o fa-fw  icon-blue icon-md" aria-hidden="true"></i>
+                                        # Spoiler</a>
+                                        # Get all <a> tags from this cycle
+                                        cycle_links = cycle_forum.find_all('a')
+                                        if loglevel == self.loglevels['DEBUG']:
+                                            log.info("{0} cycle_links found.".format(len(cycle_links)))
+                                        for cycle_link in cycle_links:
+                                            if 'Spoiler' in cycle_link.text.strip():
+                                                cycle_spoiler_link = cycle_link.get('href')
+                                                if loglevel == self.loglevels['DEBUG']:
+                                                    log.info("cycle_spoiler_link={0}".format(cycle_spoiler_link))
+                                                if cycle_spoiler_link:
+                                                    cycle_spoiler_link = cycle_spoiler_link[1:]
+                                                    parm_idx = cycle_spoiler_link.find('&')
+                                                    if parm_idx > -1:
+                                                        cycle_spoiler_link = cycle_spoiler_link[:parm_idx]
+                                                    cycle_spoiler_link = 'https://forum.perry-rhodan.net' + cycle_spoiler_link
+                                                    if loglevel == self.loglevels['DEBUG']:
+                                                        log.info("Full cycle_spoiler_link={0}".format(cycle_spoiler_link))
+                                                    break
+                            else:
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("No match!")
+            if cycle_spoiler_link == '':
+                # Check 'Foren-Übersicht -> PERRY RHODAN -> PERRY RHODAN - Spoilerbereich zur Heftserie -> Spoiler EA'
+                if loglevel == self.loglevels['DEBUG']:
+                    log.info("Checking current spoiler page")
+                cycle_spoiler_link = 'https://forum.perry-rhodan.net/viewforum.php?f=4'
+            if loglevel == self.loglevels['DEBUG']:
+                log.info("cycle_spoiler_link={0}".format(cycle_spoiler_link))
+            cycle_spoiler_page = browser.open_novisit(cycle_spoiler_link, timeout=30).read().strip()
+            if cycle_spoiler_page:
+                soup = BeautifulSoup(cycle_spoiler_page, 'html.parser')
+                if soup:
+                    # Has the topic page a pagination? (more than 25 topics)?
+                    # <div class="pagination">47 Themen</div> or:
+                    # <div class="pagination">1 Thema</div>
+                    topic_page = 0
+                    pagination_string = soup.find('div', class_='pagination').get_text()
+                    if pagination_string:
+                        if 'Thema' in pagination_string:
+                            topic_counter = 1
+                        elif 'Themen' in pagination_string:
+                            topic_counter = int(pagination_string.split(' Themen')[0])
+                        else:
+                            topic_counter = 0
+                        if loglevel == self.loglevels['DEBUG']:
+                            log.info("topic_counter={0}".format(topic_counter))
+                        # The forum max. topics per page is set to 25 and hopefully never changed
+                        topic_page_max = topic_counter // 25
+                        if loglevel == self.loglevels['DEBUG']:
+                            log.info("topic_page_max={0}".format(topic_page_max))
+
+                    # Check if the spoiler for this issue is on this page
+                    spoiler_text = spoiler_link = ''
+                    spoiler_titles = soup.find_all('a', {'class':'topictitle'})
+                    if loglevel == self.loglevels['DEBUG']:
+                        log.info("spoiler_titles={0}".format(spoiler_titles))
+                        # [<a class="topictitle" href="./viewtopic.php?t=3699">Spoiler 2692: Winters Ende von Leo Lukas</a>, (...)}
+                    # Search the result for the desired spoiler
+                    # Text may be "Spoiler Band 3000: Mythos Erde, von Vandemaan/Montillon"
+                    for spoiler_title in spoiler_titles:
+                        if loglevel == self.loglevels['DEBUG']:
+                            log.info("spoiler_title.get_text()={0}".format(spoiler_title.get_text()))
+                        match = re.match(r".*(spoiler).*([0-9]{4}).*", spoiler_title.get_text(), re.I)
+                        if match:
+                            items = match.groups()
+                            if loglevel == self.loglevels['DEBUG']:
+                                log.info("items={0}".format(items))
+                            if len(items) == 2:
+                                if items[0].lower() == 'spoiler' and int(items[1]) == issuenumber:
+                                    spoiler_text = spoiler_title.get_text()
+                                    spoiler_link = spoiler_title.get('href')
+                                    break
+                    if spoiler_text == '':
+                        if loglevel == self.loglevels['DEBUG']:
+                            log.info("No Spoiler for issuenumber {0} found at page {1}".format(issuenumber, topic_page))
+                        # Check the follow up page, if any
+                        while topic_page < topic_page_max:
+                            topic_page = topic_page + 1
+                            cycle_spoiler_link = cycle_spoiler_link + '&start=' + str(topic_page * 25)
+                            if loglevel == self.loglevels['DEBUG']:
+                                log.info("cycle_spoiler_link={0}".format(cycle_spoiler_link))
+                            cycle_spoiler_page = browser.open_novisit(cycle_spoiler_link, timeout=30).read().strip()
+                            if cycle_spoiler_page:
+                                soup = BeautifulSoup(cycle_spoiler_page, 'html.parser')
+                                if soup:
+                                    spoiler_titles = soup.find_all('a', {'class':'topictitle'})
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("spoiler_titles={0}".format(spoiler_titles))
+                                    # Check if the spoiler for this issue is on this page
+                                    # Search the result for the desired spoiler
+                                    for spoiler_title in spoiler_titles:
+                                        if loglevel == self.loglevels['DEBUG']:
+                                            log.info("spoiler_title.get_text()[0:12]={0}".format(
+                                                spoiler_title.get_text()[0:12]))
+                                        if spoiler_title.get_text()[0:12] == 'Spoiler ' + str(issuenumber).strip():
+                                            spoiler_text = spoiler_title.get_text()
+                                            spoiler_link = spoiler_title.get('href')
+                                            break
+                                    if spoiler_text != '':
+                                        if loglevel == self.loglevels['DEBUG']:
+                                            log.info("Spoiler for issuenumber {0} found at page {1}".format(issuenumber, topic_page))
+                                        break
+                                    else:
+                                        if loglevel == self.loglevels['DEBUG']:
+                                            log.info("No spoiler found at page {0}".format(topic_page))
+                                else:
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("No cycle spoiler found")
+                    else:
+                        if loglevel == self.loglevels['DEBUG']:
+                            log.info("Spoiler for issuenumber found at paget {0}".format(topic_page))
+                    if spoiler_link != '':
+                        # ./viewtopic.php?t=2903
+                        spoiler_link = spoiler_link[1:]
+                        parm_idx = spoiler_link.find('&')
+                        if parm_idx > -1:
+                            spoiler_link = spoiler_link[:parm_idx]
+                        spoiler_link = 'https://forum.perry-rhodan.net' + spoiler_link
+                        if loglevel == self.loglevels['DEBUG']:
+                            log.info("spoiler_link={0}".format(spoiler_link))
+                        # Open the issue spoiler page
+                        spoiler_page = browser.open_novisit(spoiler_link, timeout=30).read().strip()
+                        if spoiler_page:
+                            soup = BeautifulSoup(spoiler_page, 'html.parser')
+                            if soup:
+                                spoiler_title = soup.find('h2', {'class':'topic-title'}).text
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("spoiler_title={0}".format(spoiler_title))
+                                # Get the rating results
+                                story_ratings = writing_style_ratings = cycle_ratings = rating_result_list = []
+                                rating_results = soup.find_all('div', class_=['pollbar1', 'pollbar2'])
+                                # Beautifulsoup ResultSet class is a subclass of a list and not a Tag class
+                                # which has the find* methods defined.
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("rating_results={0}".format(rating_results))
+                                    # [<div class="pollbar1" style="width:77%;">43</div>, (...)]
+                                for rating_result in rating_results:
+                                    # Each rating category has 6 ratings + 1 no raqting (to be ignored)
+                                    rating_result_list.append(rating_result.get_text())
+                                # ['43', '23', '10', '1', '0', '0', '1', (...)]
+                                story_ratings = list(rating_result_list[0:6])
+                                writing_style_ratings = list(rating_result_list[7:13])
+                                cycle_ratings = list(rating_result_list[14:20])
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("story_ratings={0}".format(story_ratings))
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("writing_style_ratings={0}".format(writing_style_ratings))
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("cycle_ratings={0}".format(cycle_ratings))
+                                # Calculate overall rating
+                                # results - 3 topics x 7 voting choices (grades (German "Schulnoten)"1 - 6 and no rating)
+                                story_ratings_counter = writing_style_ratings_counter  = cycle_ratings_counter = 0
+                                # Convert the PR forum grades (1 (best) to 6 (worst) to
+                                # the five star system (0 star (worst) to 5 stars (best))
+                                story_stars = writing_style_stars = cycle_stars = 0
+                                for idx in range(0,6):
+                                    story_stars = story_stars + int(story_ratings[idx]) * (5 - idx)
+                                    story_ratings_counter = story_ratings_counter + int(story_ratings[idx])
+                                    writing_style_stars = writing_style_stars + int(writing_style_ratings[idx]) * (5 - idx)
+                                    writing_style_ratings_counter = writing_style_ratings_counter + int(writing_style_ratings[idx])
+                                    cycle_stars = cycle_stars + int(cycle_ratings[idx]) * (5 - idx)
+                                    cycle_ratings_counter = cycle_ratings_counter + int(cycle_ratings[idx])
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("story_ratings_counter={0}".format(story_ratings_counter))
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("writing_style_ratings_counter={0}".format(writing_style_ratings_counter))
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("cycle_ratings_counter={0}".format(cycle_ratings_counter))
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("story_stars={0}".format(story_stars))
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("writing_style_stars={0}".format(writing_style_stars))
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("cycle_stars={0}".format(cycle_stars))
+                                overall_stars = story_stars * self.prefs['story_weight_for_rating'] + \
+                                                writing_style_stars * self.prefs['writing_style_weight_for_rating'] + \
+                                                cycle_stars * self.prefs['cycle_weight_for_rating']
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("overall_stars={0}".format(overall_stars))
+                                overall_ratings_counter = story_ratings_counter * self.prefs['story_weight_for_rating'] + \
+                                                writing_style_ratings_counter * self.prefs['writing_style_weight_for_rating'] + \
+                                                cycle_ratings_counter * self.prefs['cycle_weight_for_rating']
+                                weight_sum = self.prefs['story_weight_for_rating'] + \
+                                                self.prefs['writing_style_weight_for_rating'] + \
+                                                self.prefs['cycle_weight_for_rating']
+                                rating = float(overall_stars / overall_ratings_counter)
+                                # rating = rating * 2.0  # From Calibre manual: 'rating',  # A floating point number between 0 and 10
+                                if loglevel == self.loglevels['DEBUG']:
+                                    log.info("rating={0}".format(rating))
+                                if self.prefs['rating_rounding']:
+                                    rating = round(rating, 0)
+                                else:
+                                    rating = round(rating, 1)
+                                return rating, spoiler_link
+        if loglevel == self.loglevels['DEBUG']:
+            log.info("No ratings found!")
+        return None, ''
+
+        # # From calibre\utils\formatter_functions.py
+        # class BuiltinRatingToStars(BuiltinFormatterFunction):
+        #     name = 'rating_to_stars'
+        #     arg_count = 2
+        #     category = 'Formatting values'
+        #     __doc__ = doc = _('rating_to_stars(value, use_half_stars) '
+        #                       '-- Returns the rating as string of star characters. '
+        #                       'The value is a number between 0 and 5. Set use_half_stars '
+        #                       'to 1 if you want half star characters for custom ratings '
+        #                       'columns that support non-integer ratings, for example 2.5.')
+        #
+        #     def evaluate(self, formatter, kwargs, mi, locals, value, use_half_stars):
+        #         if not value:
+        #             return ''
+        #         err_msg = _('The rating must be a number between 0 and 5')
+        #         try:
+        #             v = float(value) * 2
+        #         except:
+        #             raise ValueError(err_msg)
+        #         if v < 0 or v > 10:
+        #             raise ValueError(err_msg)
+        #         from calibre.ebooks.metadata import rating_to_stars
+        #         return rating_to_stars(v, use_half_stars == '1')
 
     def issuenumber_from_subseries_offsets(self, series_code, issuenumber, preliminary_series_name, log, loglevel):
 
@@ -1129,14 +1447,19 @@ class Perrypedia(Source):
         is_book_page = False
 
         for search_text in search_texts:
+
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('search_text="{0}"'.format(search_text))
+
             if search_text == '':
                 break
+
             # Find all pages with searchstring in title
             url = self.api_url + 'action=opensearch&namespace=0&search=' + search_text + '&limit=10&format=json'
             # url = search_base_url + urllib.parse.quote(search_text) + '&title=Spezial%3ASuche'
             if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-                log.info(_('API search with:'), search_text)
-                log.info(_('GET url:'), url)
+                log.info(_('API search with: "{0}"...').format(search_text))
+                log.info(_('GET url: "{0}"').format(url))
             response = browser.open_novisit(url, timeout=timeout)
             response_text = response.read().strip()
             response_list = json.loads(response_text)
@@ -1214,25 +1537,39 @@ class Perrypedia(Source):
             is_ambiguous_title = False
             books = {}
             list_index = 0
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('search_text={0}'.format(search_text))
+                log.info('title_list={0}'.format(title_list))
             for title in title_list:
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('Checking title="{0}" for search_text...'.format(title))
                 # ['Ordoban', 'Ordoban (Begriffsklärung)', 'Ordoban (Hörbuch)', 'Ordoban (Roman)', 'Ordoban (Silberband)',
                 # 'Ordoban-Materie', 'Ordoban-Substanz', 'ORDOBANS ERBE', 'Ordobans Erbe (Hörbuch)',
                 # 'Ordobans Erbe (Silberband)']
-                # if exact_match ...
-                if search_text.lower() == title.lower():  # exact search
-                    books['(unknown)'] = [title, url_list[list_index]]
+                # ToDo: use regex to match book type
+                if search_text.lower() == title.lower() and '(' not in search_text:  # exact search
+                    # books['(unknown)'] = [title, url_list[list_index]]
+                    books[str(list_index)] = [title, url_list[list_index]]
                     if loglevel in [self.loglevels['DEBUG']]:
-                        log.info('Match:', search_text + '==' + title)
+                        log.info('Match 1:', search_text + '==' + title)
+                    break  # first match wins
                 else:
+                    if loglevel in [self.loglevels['DEBUG']]:
+                        log.info(_('title has book_variant in parentheses.'))
                     for book_variant in self.book_variants:
                         # ['Blauband', 'Buch', 'Comic', 'Heftroman', 'Hörbuch', 'Leihbuch', 'Planetenroman', 'PR Neo',
                         # 'Roman', 'Silberband']
                         # search_text = 'Ordoban'
                         # if str(search_text + ' (' + book_variant + ')').lower() == title.lower():  # exact search
-                        if str(search_text + ' (' + book_variant + ')').lower() in title.lower():  # exact search
-                            books[book_variant] = [title, url_list[list_index]]
-                            if loglevel in [self.loglevels['DEBUG']]:
-                                log.info('Match:', str(search_text + ' (' + book_variant + ')') + '!=' + title)
+                        if loglevel in [self.loglevels['DEBUG']]:
+                            log.info('book_variant="{0}".'.format(book_variant))
+                            # if str(search_text + ' (' + book_variant + ')').lower() in title.lower():  # exact search
+                            if str(' (' + book_variant + ')').lower() in title.lower():  # book variant match
+                                books[book_variant] = [title, url_list[list_index]]
+                                if loglevel in [self.loglevels['DEBUG']]:
+                                    # log.info('Match:', str(search_text + ' (' + book_variant + ')') + '==' + title)
+                                    log.info('Match 2:', search_text + '==' + title)
+                                break  # first match wins
                         else:
                             # if loglevel in [self.loglevels['DEBUG']]:
                             #   log.info('No match:', str(search_text + ' (' + book_variant + ')') + '!=' + title)
@@ -1266,7 +1603,10 @@ class Perrypedia(Source):
                     soup = BeautifulSoup(page, 'html.parser')
                     if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                         log.info(_('Page title:'), soup.title.string)
-                    overview_div = soup.find('div', {'class': 'perrypedia_std_rframe overview'})
+                    if book_variant == 'Hörbuch' or book_variant.isnumeric():
+                        overview_div = soup.find('div', {'id': 'mw-content-text'})
+                    else:
+                        overview_div = soup.find('div', {'class': 'perrypedia_std_rframe overview'})
                     if overview_div is not None:
                         is_book_page = True
                         soups.append(soup)
@@ -1301,6 +1641,14 @@ class Perrypedia(Source):
         if table_body is None:
 
             # Check for non-standard page structure
+            # <h1 id="firstHeading" class="firstHeading" lang="de">PR-Jahrbuch 1992</h1>
+            header_selector = '#firstHeading'
+            # <h2><span class="mw-headline" id="Inhalt">Inhalt</span></h2>
+            header_html = soup.select_one(header_selector)
+            if header_html is not None:
+                header_text = header_html.text
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('header_text={0}'.format(header_text))
 
             # Book packages
             # https://www.perrypedia.de/wiki/Stellaris_E-Book_Paket_1
@@ -1356,18 +1704,54 @@ class Perrypedia(Source):
 
                 return overview, content, cover_urls, source_url
 
-            elif 'PR-Jahrbuch' in soup.text:
+            elif 'PR-Jahrbuch' in header_text:  # soup.text:
 
                 if loglevel in [self.loglevels['DEBUG']]:
                     log.info('PR-Jahrbuch found.')
 
-                # <h1 id="firstHeading" class="firstHeading" lang="de">PR-Jahrbuch 1992</h1>
-                header_selector = '#firstHeading'
-                # <h2><span class="mw-headline" id="Inhalt">Inhalt</span></h2>
-                header_html = soup.select_one(header_selector)
-                header_text = header_html.text
+                overview = {}
+                content_html = []
+                content_selector = '#mw-content-text > div.mw-parser-output'
+                content_soup = soup.select_one(content_selector)
+                for tag in content_soup.find_all(recursive=False):
+                    # but no cover preview or navigation
+                    # if tag.find('div', class_='perrypedia_navigation'):
+                    if tag.find('div'):
+                        continue
+                    content_html.append(tag)
+                content = content_html
                 if loglevel in [self.loglevels['DEBUG']]:
-                    log.info('header_text={0}'.format(header_text))
+                    log.info('content_html[:10]={0}'.format(content_html[:10]))
+
+                cover_urls = []
+                cover_selector = '#mw-content-text > div.mw-parser-output > div:nth-child(2)'
+                cover_body = soup.select_one(cover_selector)
+                for url in cover_body.find_all('a', class_="image"):
+                    if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                        log.info(_('Found a relative cover page URL:'), url['href'])  # /wiki/Datei:A500_1.JPG
+                    cover_page_url = self.base_url + url['href']
+                    page = browser.open_novisit(cover_page_url, timeout=timeout).read().strip()
+                    if page is not None:
+                        soup = BeautifulSoup(page, 'html.parser')
+                        cover_url = ''
+                        # ToDo: Error handling
+                        # for div_tag in soup.find_all('div', class_='fullMedia'):  # , id_='file'
+                        for div_tag in soup.find_all('div', class_='fullImageLink'):  # , id_='file'
+                            for a_tag in div_tag.find_all('a', href=True):
+                                url = a_tag.attrs.get("href")
+                                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                                    log.info(_('Relative cover url:'), url)
+                                cover_urls.append(self.base_url + url)  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('cover_urls=', cover_urls)
+
+                return overview, content, cover_urls, source_url
+
+            elif any(element in header_text for element in
+                     [' (Hörbuch) – Perrypedia', 'Die ersten 25 Jahre - Der große Werkstattband']):
+
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('Hörbuch or Werkstattband found.')
 
                 overview = {}
                 content_html = []
@@ -1503,6 +1887,7 @@ class Perrypedia(Source):
         # ToDo: Find relevant text (Header none, "Inhalt", ...) for books with no plots
         # (e. g. https://www.perrypedia.de/wiki/PR-Die_Chronik_1)
         # (e. g. https://www.perrypedia.de/wiki/PR-Jahrbuch_1976)
+        # (e. g. https://www.perrypedia.de/wiki/Werkstattband)
 
         # Find cover url
         # Beim Parsen der Überblick-Daten Link(s) zu Bildseite(n) merken (mehrere Titelbildvarianten möglich),
@@ -1561,7 +1946,7 @@ class Perrypedia(Source):
         
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_raw_metadata()')
-            log.info('raw_metadata={0}'.format(raw_metadata))
+            # log.info('raw_metadata={0}'.format(raw_metadata))
             log.info('series_names={0}'.format(series_names))
 
         overview = dict(raw_metadata[0])
@@ -1570,7 +1955,7 @@ class Perrypedia(Source):
         url = str(raw_metadata[3])
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('overview=', overview)
-            log.info('plot (abbr.)=', plot[:200])
+            log.info('plot (abbr.)=', plot[:1000])
             log.info('cover_urls=', cover_urls)
             log.info('url=', url)
 
@@ -1618,6 +2003,14 @@ class Perrypedia(Source):
                 mi.comments = mi.comments + '<p>'
                 mi.comments = mi.comments + kringel_comment
                 mi.comments = mi.comments + '</p>'
+
+            # Rating from 'https://forum.perry-rhodan.net/'
+            if self.prefs['include_ratings'] and issuenumber > 2600:
+                mi.rating, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
+                if mi.rating is not None:
+                    mi.comments = mi.comments + '<p>'
+                    mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}).').format(rating_link)
+                    mi.comments = mi.comments + '</p>'
 
             mi.source_relevance = 0
             if loglevel in [self.loglevels['DEBUG']]:
@@ -1678,6 +2071,120 @@ class Perrypedia(Source):
                 mi.comments = mi.comments + '<p>'
                 mi.comments = mi.comments + kringel_comment
                 mi.comments = mi.comments + '</p>'
+
+            # Rating from 'https://forum.perry-rhodan.net/'
+            if self.prefs['include_ratings'] and series_code == 'PR' and issuenumber > 2600:
+                mi.rating, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
+                if mi.rating is not None:
+                    mi.comments = mi.comments + '<p>'
+                    mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}).').format(rating_link)
+                    mi.comments = mi.comments + '</p>'
+
+            mi.source_relevance = 0
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('*** Final formatted result (object mi): {0}'.format(mi))
+            return mi
+
+        elif '_(H%C3%B6rbuch)' in url or 'Werkstattband' in url:
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info(_('Audio book or Werkstattband found.'))
+            if '_(H%C3%B6rbuch)' in url:
+                # series_code = 'PR-Hörbuch_'
+                series_code = 'Hörbuch'
+                original_series_code = ''
+                issuenumber = 0
+                # <a href="/wiki/Quelle:PR2400" class="mw-redirect" title="Quelle:PR2400">PR&nbsp;2400</a>
+                match = re.search('title="Quelle:(.*)(\d{1,10)"', plot[0], re.MULTILINE)
+                if match:
+                    if match.group(0):
+                        original_series_code = match.group(0).strip()
+                    if match.group(1):
+                        issuenumber = match.group(1).strip()
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('series_code={0}'.format(series_code))
+                    log.info('original_series_code={0}'.format(original_series_code))
+                    log.info('issuenumber={0}'.format(issuenumber))
+            if 'Werkstattband' in url:
+                series_code = 'Werkstattband'
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('series_code={0}'.format(series_code))
+
+            # <h1 id="firstHeading" class="firstHeading" lang="de">Zielzeit (Hörbuch)</h1>
+            if '_(H%C3%B6rbuch)' in url:
+                match = re.search('<h1 id="firstHeading" class="firstHeading" lang="de">(.*) (Hörbuch)</h1>',
+                                  raw_metadata)  # plot[0], re.MULTILINE
+            if 'Werkstattband' in url:
+                match = re.search('<h1 id="firstHeading" class="firstHeading" lang="de">(.* Werkstattband)</h1>',
+                                  raw_metadata)  # , re.MULTILINE
+            if match:
+                title = match.group(0).strip()
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('Title found: "{0"}'.format(title))
+            else:
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('No title found.')
+
+            authors = []
+
+            # ToDo: Get contet from original book page (ovrview, plot, ...)
+
+            # Create Metadata instance
+            mi = Metadata(title=title, authors=authors)
+            mi.set_identifier('ppid', series_code + str(issuenumber).strip())
+            mi.series = series_names[series_code]
+            mi.series_index = issuenumber
+            if cover_urls is not []:
+                mi.has_cover = True
+                try:
+                    self.cache_identifier_to_cover_url('ppid:' + series_code + str(issuenumber).strip(), cover_urls)
+                    if loglevel in [self.loglevels['DEBUG'], 20]:
+                        log.info(_('Cover URLs cached with ppid:'), cover_urls)
+                except:
+                    self.cache_identifier_to_cover_url('ppid:' + title, cover_urls)
+                    if loglevel in [self.loglevels['DEBUG'], 20]:
+                        log.info(_('Cover URLs cached with title:'), cover_urls)
+            mi.language = 'deu'  # "Die Wikisprache ist Deutsch."
+            if series_code in self.series_metadata_path:
+                path = self.series_metadata_path[series_code]
+            else:
+                path = self.series_metadata_path['DEFAULT']
+            # Herausgeber: William Voltz
+            # Illustrationen: Manfred Schneider
+            # Erstveröffentlichung: Juli 1975[1]
+            # <li>Erstveröffentlichung:  Juli 1975
+            search_result = re.search(r'<li>Erstveröffentlichung:(.{1,10}\d\d\d\d)', plot)
+            if search_result:
+                search_result = re.sub('<.*?>', '', search_result.group(0)).strip()  # Get rid of html tags
+                search_result = search_result.replace('Erstveröffentlichung:', '').strip()
+                try:
+                    mi.pubdate = parser.parse(search_result, default=datetime(int(issuenumber), 1, 1, 2, 0, 0),
+                                              parserinfo=GermanParserInfo())
+                except:
+                    pass
+            else:
+                    mi.pubdate = datetime(int(issuenumber), 1, 1, 2, 0, 0)
+            # <li>Herausgeber: <a href="/wiki/William_Voltz" title="William Voltz">William Voltz</a></li>
+            search_result = re.search(r'<li>Herausgeber: (.*)</li>', plot)
+            if search_result:
+                mi.authors = [re.sub('<[^<]+?>', '', search_result).group(0).strip() + ' ' +  _('(Editor)')]
+            mi.comments = ''
+            mi.comments = mi.comments + '<p>' + plot + '</p>'
+            mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
+
+            # Check if comments from "kreis-archiv.de" should be included
+            kringel_comment = self.comments_from_kreisarchiv(self.browser, series_code, issuenumber, log, loglevel)
+            if kringel_comment is not None:
+                mi.comments = mi.comments + '<p>'
+                mi.comments = mi.comments + kringel_comment
+                mi.comments = mi.comments + '</p>'
+
+            # Rating from 'https://forum.perry-rhodan.net/'
+            if self.prefs['include_ratings'] and series_code == 'PR' and issuenumber > 2600:
+                mi.rating, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
+                if mi.rating is not None:
+                    mi.comments = mi.comments + '<p>'
+                    mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}).').format(rating_link)
+                    mi.comments = mi.comments + '</p>'
 
             mi.source_relevance = 0
             if loglevel in [self.loglevels['DEBUG']]:
@@ -2005,6 +2512,14 @@ class Perrypedia(Source):
             mi.comments = mi.comments + '<p>'
             mi.comments = mi.comments + kringel_comment
             mi.comments = mi.comments + '</p>'
+
+        # Rating from 'https://forum.perry-rhodan.net/'
+        if self.prefs['include_ratings'] and series_code == 'PR' and issuenumber > 2600:
+            mi.rating, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
+            if mi.rating is not None:
+                mi.comments = mi.comments + '<p>'
+                mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}).').format(rating_link)
+                mi.comments = mi.comments + '</p>'
 
         mi.source_relevance = 0
 
