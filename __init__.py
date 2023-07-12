@@ -9,7 +9,8 @@ from __future__ import (unicode_literals, division, absolute_import, print_funct
 import gettext
 import json
 import datetime
-from datetime import datetime
+from urllib.parse import urlencode
+from datetime import datetime, timedelta
 from dateutil import parser
 from queue import Empty, Queue
 from bs4 import BeautifulSoup
@@ -90,8 +91,10 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 7, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    version = (1, 8, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
     # ToDo: Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
+    # Version 1.8.0 - 07-12-2023
+    # - If Perrypedia has only the publishing year, get the complete date from isfdb.org, if configured
     # Version 1.7.0 - 06-29-2023
     # - New regex string (new file name structure of Walther publishing: 'Perry-Rhodan-3225-Der-Mann-aus-Glas.epub')
     # - Optional rating from https://forum.perry-rhodan.net/ (see also https://pr.mapfa.de/)
@@ -252,6 +255,13 @@ class Perrypedia(Source):
             True,
             _('Rounding ratings to integer'),
             _('Make this choice if ratings should be round to zero decimal values.'),
+        ),
+        Option(
+            'pubdate_from_isfdb',
+            'bool',
+            True,
+            _('Fallback to publishing date from isfdb'),
+            _('Use publishing date from isfdb.org, if Perrypedia ha only the publishing year.'),
         ),
     )
 
@@ -2435,6 +2445,12 @@ class Perrypedia(Source):
                 mi.pubdate = None
         except KeyError:
             mi.pubdate = None
+        # If pubdate is set to "january, 1st", the Perrypedia has probably only the publishing year.
+        # So get the date from isfdb.org, if configured
+        # https://www.isfdb.org/cgi-bin/se.cgi?arg=Der+Kampf+um+die+IRONDUKE&type=All+Titles
+        if self.prefs['pubdate_from_isfdb'] and (mi.pubdate == None or mi.pubdate.day == 1 and mi.pubdate.month == 1):
+            mi.pubdate = datetime.strptime(self.get_pubdate_from_isfdb(title, authors_str, self.browser, 30, log, loglevel)
+                                           + ' 00:00:00', "%Y-%m-%d %H:%M:%S") + timedelta(hours=2)
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('mi.pubdate=', mi.pubdate)
 
@@ -2642,6 +2658,64 @@ class Perrypedia(Source):
         # This must only be called once we have the cache lock
         url = self._identifier_to_cover_url_cache.get(id_, None)
         return url
+
+    def get_pubdate_from_isfdb(self, title, authors_str, browser, timeout, log, loglevel):
+
+        if loglevel in [self.loglevels['DEBUG']]:
+            log.info('Enter get_pubdate_from_isfdb()')
+            log.info('title="{0}"'.format(title))
+
+        title = title.strip()
+        if title == '':
+            return None
+        authors_str = authors_str.strip()
+        soup = None
+        soups = []
+        urls = []
+        soup_title = None
+        overview_div = None
+
+        # Find all pages with searchstring in title
+        # https://www.isfdb.org/cgi-bin/se.cgi?arg=Der+Kampf+um+die+IRONDUKE&type=All+Titles
+
+        # return cls.url + urlencode(params)  # Default encoding is utf-8, but ISFDB site is on iso-8859-1 (Latin-1)
+        # Example original title with german umlaut: "Überfall vom achten Planeten"
+        # Default urlencode() encodes:
+        # https://www.isfdb.org/cgi-bin/adv_search_results.cgi?ORDERBY=title_title&START=0&TYPE=Title&USE_1=title_title&OPERATOR_1=contains&TERM_1=%C3%9Cberfall+vom+achten+Planeten&USE_2=author_canonical&OPERATOR_2=contains&TERM_2=Staff+Caine&CONJUNCTION_1=AND
+        # and leads to "No records found"
+        # website has <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+        # search link should be (encoded by isfdb.org search form itself):
+        # isfdb.org: https://www.isfdb.org/cgi-bin/adv_search_results.cgi?USE_1=title_title&O_1=contains&TERM_1=%DCberfall+vom+achten+Planeten&C=AND&USE_2=title_title&O_2=exact&TERM_2=&USE_3=title_title&O_3=exact&TERM_3=&USE_4=title_title&O_4=exact&TERM_4=&USE_5=title_title&O_5=exact&TERM_5=&USE_6=title_title&O_6=exact&TERM_6=&USE_7=title_title&O_7=exact&TERM_7=&USE_8=title_title&O_8=exact&TERM_8=&USE_9=title_title&O_9=exact&TERM_9=&USE_10=title_title&O_10=exact&TERM_10=&ORDERBY=title_title&ACTION=query&START=0&TYPE=Title
+        # log.info("urlencode(params, encoding='iso-8859-1')={0}".format(urlencode(params, encoding='iso-8859-1')))
+        param = {'arg' : title, 'type' : 'All Titles'}
+        try:
+            param = urlencode(param, encoding='iso-8859-1')
+        except UnicodeEncodeError as e:
+            # unicode character in search string. Example: Unicode-Zeichen „’“ (U+2019, Right Single Quotation Mark)
+            log.error(_('Error while encoding {0}: {1}.').format(title, e))
+            param = urlencode(param, encoding='iso-8859-1', errors='replace')
+            # cut the search string before the non-iso-8859-1 character (? is the encoding replae char)
+            param = param.split('%3F')[0]
+            log.info(_('Truncate the search string at the error position and search with the substring: {0}.').format(
+                param))
+        url = 'https://www.isfdb.org/cgi-bin/se.cgi?' + param
+        if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+            log.info(_('Title search with: "{0}"...').format(title))
+            log.info(_('GET url: "{0}"').format(url))
+        response = browser.open_novisit(url, timeout=timeout)
+        soup = BeautifulSoup(response, 'html.parser')
+        if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+            log.info(_('Page title:'), soup.title.string)
+        if 'found 0 matches' in soup.text:
+            return None
+        table = soup.find_all('tr', {'class': ["table1", "table2"]})
+        for row in table:
+            cols = row.find_all('td')
+            if cols:
+                if cols[3].text == title and cols[4].text == authors_str:
+                    pubdate = cols[0].text
+                    return pubdate  # 1977-05-31
+        return None
 
 
 if __name__ == '__main__':  # tests
