@@ -97,6 +97,7 @@ class Perrypedia(Source):
     # - If Perrypedia has only the publishing year, get the complete date from isfdb.org, if configured
     # - Work around mechanize.py error in comments from "kreis-archiv.de".
     # - Handling for ambiguous titles pages in title search.
+    # - Handling for Weltraumatlas.
     # Version 1.7.0 - 06-29-2023
     # - New regex string (new file name structure of Walther publishing: 'Perry-Rhodan-3225-Der-Mann-aus-Glas.epub')
     # - Optional rating from https://forum.perry-rhodan.net/ (see also https://pr.mapfa.de/)
@@ -1646,7 +1647,7 @@ class Perrypedia(Source):
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_pp_book_page()')
 
-        # Cchecking first for a standad book page (Heftserie etc.)
+        # Cchecking first for a standard book page (Heftserie etc.)
 
         # Selector for standard book pages
         overview_selector = 'html body #content #bodyContent #mw-content-text .mw-parser-output ' \
@@ -1806,6 +1807,52 @@ class Perrypedia(Source):
                 if loglevel in [self.loglevels['DEBUG']]:
                     log.info('cover_urls=', cover_urls)
 
+                return overview, content, cover_urls, source_url
+
+
+            elif 'Weltraumatlas' in header_text:
+
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('Weltraumatlas found.')
+
+                overview = {}
+                content_html = []
+                content_selector = '#mw-content-text > div.mw-parser-output'
+                content_soup = soup.select_one(content_selector)
+                for tag in content_soup.find_all(recursive=False):
+                    # but no cover preview or navigation
+                    # if tag.find('div', class_='perrypedia_navigation'):
+                    if tag.find('div'):
+                        continue
+                    content_html.append(tag)
+                content = content_html
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('content_html[:10]={0}'.format(content_html[:10]))
+
+                cover_urls = []
+                cover_selector = '#mw-content-text > div.mw-parser-output > div > div'
+                cover_body = soup.select_one(cover_selector)
+                for url in cover_body.find_all('a', class_="image"):
+                    if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                        log.info(_('Found a relative cover page URL:'), url['href'])  # /wiki/Datei:A500_1.JPG
+                    cover_page_url = self.base_url + url['href']
+                    page = browser.open_novisit(cover_page_url, timeout=timeout).read().strip()
+                    if page is not None:
+                        soup = BeautifulSoup(page, 'html.parser')
+                        cover_url = ''
+                        # ToDo: Error handling
+                        # for div_tag in soup.find_all('div', class_='fullMedia'):  # , id_='file'
+                        for div_tag in soup.find_all('div', class_='fullImageLink'):  # , id_='file'
+                            for a_tag in div_tag.find_all('a', href=True):
+                                url = a_tag.attrs.get("href")
+                                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+                                    log.info(_('Relative cover url:'), url)
+                                cover_urls.append(self.base_url + url)  # <a href="/mediawiki/images/8/ 8d/A024_1.JPG">
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('cover_urls=', cover_urls)
+
+                # ToDo: Formatting (No Überblick, no Handlung
+                overview = {'Titel:': 'Weltraumatlas', 'Autor:': 'Peter Griese', 'Erstmals erschienen:': '28. Oktober 1980'}
                 return overview, content, cover_urls, source_url
 
             elif 'Diese Seite ist eine Begriffsklärung' in soup.text:
