@@ -41,6 +41,9 @@ Versionsgeschichte:
 -------------------
 Version 1.8.0 - 07-12-2023
 - Wenn in der Perrypedia nur das Veröffentlichungsjahr angegeben ist, kann das genaue Veröffentlichungsdatum aus der ISFDB bezogen werden.
+- Work around für mechanize.py error beim Laden von Kommentaren aus dem "kreis-archiv.de" via archive.org.
+- Handling für mehrdeutige Titel bei der Titelsuche.
+- Handling für den Weltraumatlas.
 Version 1.7.0 - 06-29-2023
 - Neuer Regex-String (neue Dateinamenstruktur von Bücher-Walther: 'Perry-Rhodan-3225-Der-Mann-aus-Glas.epub')
 - Optional: Bewertungen aus https://forum.perry-rhodan.net/ (siehe auch https://pr.mapfa.de/)
@@ -140,6 +143,9 @@ Version History:
 ----------------
 Version 1.8.0 - 07-12-2023
 - If Perrypedia has only the publishing year, get the complete date from isfdb.org, if configured
+- Work around mechanize.py error in comments from "kreis-archiv.de".
+- Handling for ambiguous titles pages in title search.
+- Handling for Weltraumatlas.
 Version 1.7.0 - 06-29-2023
 - New regex string (new file name structure of Walther publishing: 'Perry-Rhodan-3225-Der-Mann-aus-Glas.epub')
 - Optional rating from https://forum.perry-rhodan.net/ (see also https://pr.mapfa.de/)

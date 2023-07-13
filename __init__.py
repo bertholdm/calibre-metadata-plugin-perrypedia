@@ -2763,6 +2763,7 @@ class Perrypedia(Source):
             log.info(('Page title:'), soup.title.text)
         if 'found 0 matches' in soup.text:
             return None
+        pubdates = []
         table = soup.find_all('tr', {'class': ["table1", "table2"]})
         for row in table:
             cols = row.find_all('td')
@@ -2790,16 +2791,20 @@ class Perrypedia(Source):
                     log.info(('cols[3].text={0}').format(cols[3].text))
                 if cols[3].text == title and cols[4].text == authors_str:
                     # ValueError: time data '2007-03-00 00:00:00' does not match format '%Y-%m-%d %H:%M:%S'
-                    pubdate_str = cols[0].text
+                    pubdate_str = cols[0].text  # 1977-05-31
                     pubdate_str = pubdate_str.replace('-00', '-01')
                     pubdate_str = pubdate_str.replace('0000-', '1901-')
                     pubdate = datetime.strptime(
                         pubdate_str + ' 00:00:00', "%Y-%m-%d %H:%M:%S") + timedelta(hours=2)
                     if loglevel in [self.loglevels['DEBUG']]:
                         log.info(('pubdate={0}').format(pubdate))
-                    return pubdate  # 1977-05-31
+                    # The pubdates in isfdb table are not ordered! So add to list to check later.
+                    pubdates.append(pubdate)
+        # Select the oldest pubdate
+        if len(pubdates) > 0:
+            pubdates = sorted(pubdates)
+            return pubdates[0]
         return None
-
 
 if __name__ == '__main__':  # tests
 
