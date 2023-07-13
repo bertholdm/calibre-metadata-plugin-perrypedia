@@ -2789,21 +2789,20 @@ class Perrypedia(Source):
                 if loglevel in [self.loglevels['DEBUG']]:
                     log.info(('cols[3]={0}').format(cols[3]))
                     log.info(('cols[3].text={0}').format(cols[3].text))
-                if cols[3].text == title and cols[4].text == authors_str:
-                    # ValueError: time data '2007-03-00 00:00:00' does not match format '%Y-%m-%d %H:%M:%S'
-                    pubdate_str = cols[0].text  # 1977-05-31
-                    pubdate_str = pubdate_str.replace('-00', '-01')
-                    pubdate_str = pubdate_str.replace('0000-', '1901-')
-                    pubdate = datetime.strptime(
-                        pubdate_str + ' 00:00:00', "%Y-%m-%d %H:%M:%S") + timedelta(hours=2)
-                    if loglevel in [self.loglevels['DEBUG']]:
-                        log.info(('pubdate={0}').format(pubdate))
+                if cols[3].text.lower() == title.lower() and cols[4].text == authors_str:
                     # The pubdates in isfdb table are not ordered! So add to list to check later.
-                    pubdates.append(pubdate)
+                    pubdates.append(cols[0].text)  # 1977-05-31
         # Select the oldest pubdate
         if len(pubdates) > 0:
             pubdates = sorted(pubdates)
-            return pubdates[0]
+            # ValueError: time data '2007-03-00 00:00:00' does not match format '%Y-%m-%d %H:%M:%S'
+            pubdates[0] = pubdates[0].replace('-00', '-01')
+            pubdates[0] = pubdates[0].replace('0000-', '1901-')
+            pubdate = datetime.strptime(
+                pubdates[0] + ' 00:00:00', "%Y-%m-%d %H:%M:%S") + timedelta(hours=2)
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info(('pubdate={0}').format(pubdate))
+            return pubdate
         return None
 
 if __name__ == '__main__':  # tests
