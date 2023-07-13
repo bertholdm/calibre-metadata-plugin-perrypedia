@@ -2449,7 +2449,9 @@ class Perrypedia(Source):
         # So get the date from isfdb.org, if configured
         # https://www.isfdb.org/cgi-bin/se.cgi?arg=Der+Kampf+um+die+IRONDUKE&type=All+Titles
         if self.prefs['pubdate_from_isfdb'] and (mi.pubdate == None or mi.pubdate.day == 1 and mi.pubdate.month == 1):
-            mi.pubdate = self.get_pubdate_from_isfdb(title, authors_str, self.browser, 30, log, loglevel)
+            pubdate = self.get_pubdate_from_isfdb(title, authors_str, self.browser, 30, log, loglevel)
+            if pubdate is not None:
+                mi.pubdate = pubdate
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('mi.pubdate=', mi.pubdate)
 
@@ -2669,10 +2671,6 @@ class Perrypedia(Source):
             return None
         authors_str = authors_str.strip()
         soup = None
-        soups = []
-        urls = []
-        soup_title = None
-        overview_div = None
 
         # Find all pages with searchstring in title
         # https://www.isfdb.org/cgi-bin/se.cgi?arg=Der+Kampf+um+die+IRONDUKE&type=All+Titles
@@ -2703,19 +2701,40 @@ class Perrypedia(Source):
             log.info(_('GET url: "{0}"').format(url))
         response = browser.open_novisit(url, timeout=timeout)
         soup = BeautifulSoup(response, 'html.parser')
-        if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-            log.info(_('Page title:'), soup.title.string)
+        if loglevel in [self.loglevels['DEBUG']]:
+            log.info(('Page title:'), soup.title.text)
         if 'found 0 matches' in soup.text:
             return None
         table = soup.find_all('tr', {'class': ["table1", "table2"]})
         for row in table:
             cols = row.find_all('td')
             if cols:
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info(('cols[3]={0}').format(cols[3]))
+                    log.info(('cols[3].text={0}').format(cols[3].text))
+                    # Der Smiler und die Attentäter?Der Smiler und die Attentaeter
+                # Get rid of tooltips
+                # <td dir="ltr">
+                # <div class="tooltip tooltipright">
+                # <a dir="ltr" href="https://www.isfdb.org/cgi-bin/title.cgi?2790569">Atlan #36: Der Smiler und die Attentäter</a>
+                # <sup class="mouseover">?</sup>
+                # <span class="tooltiptext tooltipnarrow tooltipright">Der Smiler und die Attentaeter (cover)</span>
+                # </div>
+                # </td>
+                for tag in cols:
+                    try:
+                        tag.sup.decompose()
+                        tag.span.decompose()
+                    except:
+                        pass
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info(('cols[3]={0}').format(cols[3]))
+                    log.info(('cols[3].text={0}').format(cols[3].text))
                 if cols[3].text == title and cols[4].text == authors_str:
                     pubdate = datetime.strptime(
                         cols[0].text + ' 00:00:00', "%Y-%m-%d %H:%M:%S") + timedelta(hours=2)
                     if loglevel in [self.loglevels['DEBUG']]:
-                        log.info(_('pubdate={0}').format(pubdate))
+                        log.info(('pubdate={0}').format(pubdate))
                     return pubdate  # 1977-05-31
         return None
 
