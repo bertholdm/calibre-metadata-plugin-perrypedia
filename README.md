@@ -1,11 +1,10 @@
-[Metadata Source Plugin] Perrypedia - Version 1.7.0 - 06-29-2023
+[Metadata Source Plugin] Perrypedia - Version 1.8.0 - 07-12-2023
 
 [English version follows]
 
 Dieses Plugin verwendet die Perrypedia als Metadatenquelle. Es lädt Metadaten und Cover herunter.
 Die Perrypedia (https://www.perrypedia.de/) ist ein Fanprojekt zur Erstellung eines kostenlosen Nachschlagewerks für die Perry Rhodan SF-Serie.
 Epubs aus dem offiziellen Verlagsshop enthalten wenig Informationen, das Titelfeld enthält nicht nur den Titel, sondern auch die Serien- und Ausgabenummer ("PR 3082 - Ein kalkuliertes Risiko").
-Hinweis: Alternativ / Parallel können Metadaten auch aus der "The Internet Speculative Fiction Database" (isfdb.org) mit dem Plugin ISFDB3 oder anderen Metadaten-Plugins abgerufen werden.
 
 Haupteigenschaften:
 -------------------
@@ -32,7 +31,7 @@ Geplante Funktionen:
 
 Einschränkungen:
 ----------------
-- Wenn das Veröffentlichungsdatum nur das Jahr enthält, wird das Veröffentlichungsdatum auf den 1. Januar dieses Jahres festgelegt. Wenn nur Monat und Jahr angegeben sind, wird es auf den 1. des Monats festgelegt. Wenn ein Link auf die Seite "Veröffentlichu7ngen" (https://www.perrypedia.de/wiki/Ver%C3%B6ffentlichungen_<jahr>) gesetzt ist, wird als Erscheinungsdatum das dort angegebene letztmögliche eingesetzt. Hinweis: Das genaue Erscheinungsdatum kann eventuell mit dem Plugin ISFDB3 ermittelt werden.
+- Wenn das Veröffentlichungsdatum nur das Jahr enthält, wird das Veröffentlichungsdatum auf den 1. Januar dieses Jahres festgelegt. Wenn nur Monat und Jahr angegeben sind, wird es auf den 1. des Monats festgelegt. Wenn ein Link auf die Seite "Veröffentlichu7ngen" (https://www.perrypedia.de/wiki/Ver%C3%B6ffentlichungen_<jahr>) gesetzt ist, wird als Erscheinungsdatum das dort angegebene letztmögliche eingesetzt. Hinweis: Das genaue Erscheinungsdatum kann optional aus der ISFDB ermittelt werden.
 - Da ein Metadaten-Plugin keine benutzerdefinierten Felder füllen kann, werden die Kandidaten für diese Felder, z. B. Unterreihen ("Zyklus"), zeilenweise im Feld "Kommentare" gespeichert.
 - Die Handlung ist der zweite Teil des Kommentarfeldes.
 - Im Moment führt die Titelsuche nur eine exakte Zeichenfolgenübereinstimmung durch.
@@ -40,6 +39,8 @@ Einschränkungen:
 
 Versionsgeschichte:
 -------------------
+Version 1.8.0 - 07-12-2023
+- Wenn in der Perrypedia nur das Veröffentlichungsjahr angegeben ist, kann das genaue Veröffentlichungsdatum aus der ISFDB bezogen werden.
 Version 1.7.0 - 06-29-2023
 - Neuer Regex-String (neue Dateinamenstruktur von Bücher-Walther: 'Perry-Rhodan-3225-Der-Mann-aus-Glas.epub')
 - Optional: Bewertungen aus https://forum.perry-rhodan.net/ (siehe auch https://pr.mapfa.de/)
@@ -99,12 +100,11 @@ Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem 
 
 ---
 
-[Metadata Source Plugin] Perrypedia - Version 1.7.0 - 06-29-2023
+[Metadata Source Plugin] Perrypedia - Version 1.8.0 - 07-12-2023
 
 This plugin uses Perrypedia as metadata source. It downloads metadata and covers. 
 Perrypedia (https://www.perrypedia.de/) is a fan project for the creation of a free reference work for the Perry Rhodan SF series.
 Epubs from the official publisher's shop contains little information, the title field contains not only the title, but also the series and issue number ("PR 3082 - Ein kalkuliertes Risiko").
-Note: Alternatively / parallel, metadata can also be retrieved from the "The Internet Speculative Fiction Database" (isfdb.org) using the ISFDB3 plug-in or other metadata plug-ins.
 
 Main features:
 --------------
@@ -130,7 +130,7 @@ Planned Features:
 
 Limitations:
 ------------
-- If the returned publication date contains only the year, the publish date is set to january, 1 of that year. If only month and year are given, it will be set to the 1st of the month. If there is a link to the "Publications" page (https://www.perrypedia.de/wiki/Ver%C3%B6ffentlichungen_<jahr>), the latest possible publication date is used as the publication date. Note: The exact date of publication can possibly be determined with the ISFDB3 plug-in.
+- If the returned publication date contains only the year, the publish date is set to january, 1 of that year. If only month and year are given, it will be set to the 1st of the month. If there is a link to the "Publications" page (https://www.perrypedia.de/wiki/Ver%C3%B6ffentlichungen_<jahr>), the latest possible publication date is used as the publication date. Note: The exact release date can optionally be determined from the ISFDB.
 - Since a metadata plugin cannot fill userdefined fields, the candidates for those fields, for example subseries ("Zyklus"), are saved in the Comments field, line by line.
 - The plot ("Handlung") will be the second part of the comments field.
 - At the moment the title search does only a exact string matching
@@ -138,6 +138,8 @@ Limitations:
 
 Version History:
 ----------------
+Version 1.8.0 - 07-12-2023
+- If Perrypedia has only the publishing year, get the complete date from isfdb.org, if configured
 Version 1.7.0 - 06-29-2023
 - New regex string (new file name structure of Walther publishing: 'Perry-Rhodan-3225-Der-Mann-aus-Glas.epub')
 - Optional rating from https://forum.perry-rhodan.net/ (see also https://pr.mapfa.de/)

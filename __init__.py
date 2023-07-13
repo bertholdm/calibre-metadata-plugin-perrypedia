@@ -2449,8 +2449,7 @@ class Perrypedia(Source):
         # So get the date from isfdb.org, if configured
         # https://www.isfdb.org/cgi-bin/se.cgi?arg=Der+Kampf+um+die+IRONDUKE&type=All+Titles
         if self.prefs['pubdate_from_isfdb'] and (mi.pubdate == None or mi.pubdate.day == 1 and mi.pubdate.month == 1):
-            mi.pubdate = datetime.strptime(self.get_pubdate_from_isfdb(title, authors_str, self.browser, 30, log, loglevel)
-                                           + ' 00:00:00', "%Y-%m-%d %H:%M:%S") + timedelta(hours=2)
+            mi.pubdate = self.get_pubdate_from_isfdb(title, authors_str, self.browser, 30, log, loglevel)
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('mi.pubdate=', mi.pubdate)
 
@@ -2713,7 +2712,10 @@ class Perrypedia(Source):
             cols = row.find_all('td')
             if cols:
                 if cols[3].text == title and cols[4].text == authors_str:
-                    pubdate = cols[0].text
+                    pubdate = datetime.strptime(
+                        cols[0].text + ' 00:00:00', "%Y-%m-%d %H:%M:%S") + timedelta(hours=2)
+                    if loglevel in [self.loglevels['DEBUG']]:
+                        log.info(_('pubdate={0}').format(pubdate))
                     return pubdate  # 1977-05-31
         return None
 
