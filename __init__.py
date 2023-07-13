@@ -95,6 +95,8 @@ class Perrypedia(Source):
     # ToDo: Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
     # Version 1.8.0 - 07-12-2023
     # - If Perrypedia has only the publishing year, get the complete date from isfdb.org, if configured
+    # - Work around mechanize.py error in comments from "kreis-archiv.de".
+    # - Handling for ambiguous titles pages in title search.
     # Version 1.7.0 - 06-29-2023
     # - New regex string (new file name structure of Walther publishing: 'Perry-Rhodan-3225-Der-Mann-aus-Glas.epub')
     # - Optional rating from https://forum.perry-rhodan.net/ (see also https://pr.mapfa.de/)
@@ -985,16 +987,21 @@ class Perrypedia(Source):
             zyklus = str(issuenumber)
             zyklus = zyklus[:2]
             url = 'https://web.archive.org/web/20190514150049/http://www.kreis-archiv.de/zyklus' + zyklus + '00/pr'+ str(issuenumber) + '.html'
-            page = browser.open_novisit(url, timeout=30).read().strip()
-            if page:
-                soup = BeautifulSoup(page, 'html.parser')
-                if 'Kringels Meinung:' in soup.text:
-                    # kringel_comment = 'Kringels Meinung:<br />' + soup.find(text='Kringels Meinung:').findNext('p').text
-                    kringel_comment = 'Kringels Meinung:<br />' + str(soup.find(text='Kringels Meinung:').find_next('p'))
-                    return kringel_comment
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('url=', url)
+            try:
+                page = browser.open_novisit(url, timeout=30).read().strip()
+                if page:
+                    soup = BeautifulSoup(page, 'html.parser')
+                    if 'Kringels Meinung:' in soup.text:
+                        # kringel_comment = 'Kringels Meinung:<br />' + soup.find(text='Kringels Meinung:').findNext('p').text
+                        kringel_comment = 'Kringels Meinung:<br />' + str(soup.find(text='Kringels Meinung:').find_next('p'))
+                        return kringel_comment
+                    else:
+                        return None
                 else:
                     return None
-            else:
+            except:
                 return None
         else:
             return None
@@ -1800,6 +1807,10 @@ class Perrypedia(Source):
                     log.info('cover_urls=', cover_urls)
 
                 return overview, content, cover_urls, source_url
+
+            elif 'Diese Seite ist eine Begriffsklärung' in soup.text:
+                log.info(_('<p>*** Ambiguous Title - Abort!<br /><br />Please give a PPID.</p>'))
+                return {}, _('<p>*** Ambiguous Title - Abort!<br /><br />Please give a PPID.</p>'), [], source_url
 
         # ToDo: Other page types
 
@@ -2731,8 +2742,12 @@ class Perrypedia(Source):
                     log.info(('cols[3]={0}').format(cols[3]))
                     log.info(('cols[3].text={0}').format(cols[3].text))
                 if cols[3].text == title and cols[4].text == authors_str:
+                    # ValueError: time data '2007-03-00 00:00:00' does not match format '%Y-%m-%d %H:%M:%S'
+                    pubdate_str = cols[0].text
+                    pubdate_str = pubdate_str.replace('-00', '-01')
+                    pubdate_str = pubdate_str.replace('0000-', '1901-')
                     pubdate = datetime.strptime(
-                        cols[0].text + ' 00:00:00', "%Y-%m-%d %H:%M:%S") + timedelta(hours=2)
+                        pubdate_str + ' 00:00:00', "%Y-%m-%d %H:%M:%S") + timedelta(hours=2)
                     if loglevel in [self.loglevels['DEBUG']]:
                         log.info(('pubdate={0}').format(pubdate))
                     return pubdate  # 1977-05-31

@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Perrypedia\n"
-"POT-Creation-Date: 2023-07-12 14:29+0200\n"
-"PO-Revision-Date: 2023-07-12 14:29+0200\n"
+"POT-Creation-Date: 2023-07-13 12:01+0200\n"
+"PO-Revision-Date: 2023-07-13 12:01+0200\n"
 "Last-Translator: Michael Detambel <info@michael-detambel.de>\n"
 "Language-Team: Michael Detambel\n"
 "Language: de_DE@formal\n"
@@ -18,318 +18,322 @@ msgstr ""
 msgid "Downloads metadata and covers from Perrypedia (perrypedia.de)"
 msgstr ""
 
-#: __init__.py:181
+#: __init__.py:183
 msgid "Title / Author search mode"
 msgstr ""
 
-#: __init__.py:182
+#: __init__.py:184
 msgid "Exact match in Title / Author search mode, otherwise fuzzy search."
 msgstr ""
 
-#: __init__.py:190
+#: __init__.py:192
 msgid "log level"
 msgstr ""
 
-#: __init__.py:191
+#: __init__.py:193
 msgid ""
 "Log detail level. NOTSET: no logging, only global info and error messages, "
 "DEBUG: all processing messages, INFO: essential procesing messages"
 msgstr ""
 
-#: __init__.py:200
+#: __init__.py:202
 msgid "Ignore SSL errors"
 msgstr ""
 
-#: __init__.py:201
+#: __init__.py:203
 msgid ""
 "Make this choice if client and/or server site certificate makes trouble."
 msgstr ""
 
-#: __init__.py:208
+#: __init__.py:210
 msgid "comments field style - text or html"
 msgstr ""
 
-#: __init__.py:209
+#: __init__.py:211
 msgid ""
 "Choose if comments should formatted with html/css or should contain pure "
 "text with line breaks."
 msgstr ""
 
-#: __init__.py:217
+#: __init__.py:219
 msgid "Inklude comments from \"kreis-archiv.de\""
 msgstr ""
 
-#: __init__.py:218
+#: __init__.py:220
 msgid ""
 "Make this choice if comments from former \"kreis-archiv.de\" should be "
 "included."
 msgstr ""
 
-#: __init__.py:225
+#: __init__.py:227
 msgid "Inklude ratings from \"https://forum.perry-rhodan.net/\""
 msgstr ""
 
-#: __init__.py:226
+#: __init__.py:228
 msgid ""
 "Make this choice if ratings from \"https://forum.perry-rhodan.net/\" should "
 "be included."
 msgstr ""
 
-#: __init__.py:232
+#: __init__.py:234
 msgid "Rating weight for the story"
 msgstr ""
 
-#: __init__.py:233
+#: __init__.py:235
 msgid ""
 "Set a weight number for the story rating. Default value is 1. Set to 0 if "
 "this rating facette should be ignored."
 msgstr ""
 
-#: __init__.py:240
+#: __init__.py:242
 msgid "Rating weight for the author's writing style"
 msgstr ""
 
-#: __init__.py:241
+#: __init__.py:243
 msgid ""
 "Set a weight number for the author's writing style rating. Default value is "
 "1. Set to 0 if this rating facette should be ignored."
 msgstr ""
 
-#: __init__.py:248
+#: __init__.py:250
 msgid "Rating weight for the the development of the cycle"
 msgstr ""
 
-#: __init__.py:249
+#: __init__.py:251
 msgid ""
 "Set a weight number for the the development of the cycle rating. Default "
 "value is 1. Set to 0 if this rating facette should be ignored."
 msgstr ""
 
-#: __init__.py:256
+#: __init__.py:258
 msgid "Rounding ratings to integer"
 msgstr ""
 
-#: __init__.py:257
+#: __init__.py:259
 msgid "Make this choice if ratings should be round to zero decimal values."
 msgstr ""
 
-#: __init__.py:263
+#: __init__.py:265
 msgid "Fallback to publishing date from isfdb"
 msgstr ""
 
-#: __init__.py:264
+#: __init__.py:266
 msgid ""
 "Use publishing date from isfdb.org, if Perrypedia ha only the publishing "
 "year."
 msgstr ""
 
-#: __init__.py:702 __init__.py:714
+#: __init__.py:704 __init__.py:716
 msgid "Unexpected structure of field pp_id:"
 msgstr ""
 
-#: __init__.py:739
+#: __init__.py:741
 #, python-brace-format
 msgid ""
 "Malformed PPID: {0}. Parse title and authors fields for series and "
 "issuenumber."
 msgstr ""
 
-#: __init__.py:779
+#: __init__.py:781
 msgid ""
 "No metadata found with series code and/or issuenumber not found. Trying a "
 "book title search."
 msgstr ""
 
-#: __init__.py:782
+#: __init__.py:784
 msgid "Series code and/or issuenumber not found. Trying a book title search."
 msgstr ""
 
-#: __init__.py:795
+#: __init__.py:797
 msgid "Next soup, Page title:"
 msgstr ""
 
-#: __init__.py:796
+#: __init__.py:798
 msgid "Next soup, url:"
 msgstr ""
 
-#: __init__.py:802
+#: __init__.py:804
 msgid "Result found with title search."
 msgstr ""
 
-#: __init__.py:810 __init__.py:2212
+#: __init__.py:812 __init__.py:2223
 msgid "Trying to get series code and issuenumber from result."
 msgstr ""
 
-#: __init__.py:828
+#: __init__.py:830
 msgid ""
 "No book found with text provided in title and authors fields - giving up."
 msgstr ""
 
-#: __init__.py:829
+#: __init__.py:831
 msgid ""
 "Since metadata plugins cannot read book files for identification purposes, "
 "you must the manually put in identification data."
 msgstr ""
 
-#: __init__.py:831
+#: __init__.py:833
 msgid "Error: No metadata result. Abort."
 msgstr ""
 
-#: __init__.py:883
+#: __init__.py:885
 msgid "No cached cover found, running identify."
 msgstr ""
 
-#: __init__.py:909
+#: __init__.py:911
 msgid "No luck to find cover with identify."
 msgstr ""
 
-#: __init__.py:927
+#: __init__.py:929
 msgid "Going to download cover from url"
 msgstr ""
 
-#: __init__.py:933
+#: __init__.py:935
 msgid "Have downloaded cover from"
 msgstr ""
 
-#: __init__.py:935
+#: __init__.py:937
 msgid "Failed to download cover from"
 msgstr ""
 
-#: __init__.py:1298
+#: __init__.py:1305
 #, python-brace-format
 msgid "Searching in title and authors fields: {0} / {1}"
 msgstr ""
 
-#: __init__.py:1307
+#: __init__.py:1314
 msgid "Match found for series code:"
 msgstr ""
 
-#: __init__.py:1346
+#: __init__.py:1353
 msgid "Series and/or issuenumber not found. Searching for subseries..."
 msgstr ""
 
-#: __init__.py:1356
+#: __init__.py:1363
 msgid "Searching subseries in title and authors:"
 msgstr ""
 
-#: __init__.py:1364
+#: __init__.py:1371
 msgid "Match found for "
 msgstr ""
 
-#: __init__.py:1387
+#: __init__.py:1394
 msgid "Subseries and/or subseries issuenumber not found."
 msgstr ""
 
-#: __init__.py:1471
+#: __init__.py:1478
 #, python-brace-format
 msgid "API search with: \"{0}\"..."
 msgstr ""
 
-#: __init__.py:1472 __init__.py:2704
+#: __init__.py:1479 __init__.py:2712
 #, python-brace-format
 msgid "GET url: \"{0}\""
 msgstr ""
 
-#: __init__.py:1477
+#: __init__.py:1484
 msgid "Response list="
 msgstr ""
 
-#: __init__.py:1568
+#: __init__.py:1575
 msgid "title has book_variant in parentheses."
 msgstr ""
 
-#: __init__.py:1601
+#: __init__.py:1608
 #, python-brace-format
 msgid "{0} book source(s) found."
 msgstr ""
 
-#: __init__.py:1615 __init__.py:2708
+#: __init__.py:1622
 msgid "Page title:"
 msgstr ""
 
-#: __init__.py:1626
+#: __init__.py:1633
 msgid "No possible book source found with"
 msgstr ""
 
-#: __init__.py:1634
+#: __init__.py:1641
 msgid "Failed to download book metadata with title search. Giving up."
 msgstr ""
 
-#: __init__.py:1698 __init__.py:1741 __init__.py:1785 __init__.py:1915
+#: __init__.py:1705 __init__.py:1748 __init__.py:1792 __init__.py:1926
 msgid "Found a relative cover page URL:"
 msgstr ""
 
-#: __init__.py:1710 __init__.py:1753 __init__.py:1797 __init__.py:1944
+#: __init__.py:1717 __init__.py:1760 __init__.py:1804 __init__.py:1955
 msgid "Relative cover url:"
 msgstr ""
 
-#: __init__.py:1808
+#: __init__.py:1812 __init__.py:1813
+msgid "<p>*** Ambiguous Title - Abort!<br /><br />Please give a PPID.</p>"
+msgstr ""
+
+#: __init__.py:1819
 msgid "Page type could not be identified!"
 msgstr ""
 
-#: __init__.py:1990 __init__.py:2045 __init__.py:2151 __init__.py:2326
+#: __init__.py:2001 __init__.py:2056 __init__.py:2162 __init__.py:2337
 msgid "Cover URLs cached with ppid:"
 msgstr ""
 
-#: __init__.py:1994 __init__.py:2049 __init__.py:2155 __init__.py:2330
+#: __init__.py:2005 __init__.py:2060 __init__.py:2166 __init__.py:2341
 msgid "Cover URLs cached with title:"
 msgstr ""
 
-#: __init__.py:2022 __init__.py:2090 __init__.py:2196 __init__.py:2537
+#: __init__.py:2033 __init__.py:2101 __init__.py:2207 __init__.py:2549
 #, python-brace-format
 msgid "Rating came from Perry Rhodan forum ({0})."
 msgstr ""
 
-#: __init__.py:2073 __init__.py:2179
+#: __init__.py:2084 __init__.py:2190
 msgid "(Editor)"
 msgstr ""
 
-#: __init__.py:2100
+#: __init__.py:2111
 msgid "Audio book or Werkstattband found."
 msgstr ""
 
-#: __init__.py:2274
+#: __init__.py:2285
 msgid "Key error while building authors field!"
 msgstr ""
 
-#: __init__.py:2280
+#: __init__.py:2291
 msgid "Unknown"
 msgstr ""
 
-#: __init__.py:2577
+#: __init__.py:2589
 msgid "Found the relative cover page URL:"
 msgstr ""
 
-#: __init__.py:2580 __init__.py:2612
+#: __init__.py:2592 __init__.py:2624
 msgid "Effective URL:"
 msgstr ""
 
-#: __init__.py:2594
+#: __init__.py:2606
 msgid "Cover page not found."
 msgstr ""
 
-#: __init__.py:2608
+#: __init__.py:2620
 msgid "Found the relative cover URL:"
 msgstr ""
 
-#: __init__.py:2695
+#: __init__.py:2703
 #, python-brace-format
 msgid "Error while encoding {0}: {1}."
 msgstr ""
 
-#: __init__.py:2699
+#: __init__.py:2707
 #, python-brace-format
 msgid ""
 "Truncate the search string at the error position and search with the "
 "substring: {0}."
 msgstr ""
 
-#: __init__.py:2703
+#: __init__.py:2711
 #, python-brace-format
 msgid "Title search with: \"{0}\"..."
 msgstr ""
 
-#: __init__.py:2737
+#: __init__.py:2769
 #, python-format
 msgid "Cover test failed. Expected: '%s' found: "
 msgstr ""
