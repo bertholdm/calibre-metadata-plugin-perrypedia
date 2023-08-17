@@ -1,4 +1,4 @@
-[Metadata Source Plugin] Perrypedia - Version 1.8.0 - 07-12-2023
+[Metadata Source Plugin] Perrypedia - Version 1.8.1 - 08-17-2023
 
 [English version follows]
 
@@ -39,6 +39,8 @@ Einschränkungen:
 
 Versionsgeschichte:
 -------------------
+Version 1.8.1 - 08-08-2023
+- Abfangen eines Indexfehlers, wenn keine Bewertungen gefunden.
 Version 1.8.0 - 07-12-2023
 - Wenn in der Perrypedia nur das Veröffentlichungsjahr angegeben ist, kann das genaue Veröffentlichungsdatum aus der ISFDB bezogen werden.
 - Work around für mechanize.py error beim Laden von Kommentaren aus dem "kreis-archiv.de" via archive.org.
@@ -103,7 +105,7 @@ Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem 
 
 ---
 
-[Metadata Source Plugin] Perrypedia - Version 1.8.0 - 07-12-2023
+[Metadata Source Plugin] Perrypedia - Version 1.8.1 - 08-17-2023
 
 This plugin uses Perrypedia as metadata source. It downloads metadata and covers. 
 Perrypedia (https://www.perrypedia.de/) is a fan project for the creation of a free reference work for the Perry Rhodan SF series.
@@ -141,6 +143,8 @@ Limitations:
 
 Version History:
 ----------------
+Version 1.8.1 - 08-17-2023
+- Avoiding index error if no ratings found. 
 Version 1.8.0 - 07-12-2023
 - If Perrypedia has only the publishing year, get the complete date from isfdb.org, if configured
 - Work around mechanize.py error in comments from "kreis-archiv.de".

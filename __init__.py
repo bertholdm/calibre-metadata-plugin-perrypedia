@@ -91,8 +91,10 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 8, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    version = (1, 8, 1)  # MAJOR.MINOR.PATCH (https://semver.org/)
     # ToDo: Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
+    # Version 1.8.1 - 08-17-2023
+    # - Avoiding index error if no ratings found.
     # Version 1.8.0 - 07-12-2023
     # - If Perrypedia has only the publishing year, get the complete date from isfdb.org, if configured
     # - Work around mechanize.py error in comments from "kreis-archiv.de".
@@ -1186,64 +1188,65 @@ class Perrypedia(Source):
                                 if loglevel == self.loglevels['DEBUG']:
                                     log.info("rating_results={0}".format(rating_results))
                                     # [<div class="pollbar1" style="width:77%;">43</div>, (...)]
-                                for rating_result in rating_results:
-                                    # Each rating category has 6 ratings + 1 no raqting (to be ignored)
-                                    rating_result_list.append(rating_result.get_text())
-                                # ['43', '23', '10', '1', '0', '0', '1', (...)]
-                                story_ratings = list(rating_result_list[0:6])
-                                writing_style_ratings = list(rating_result_list[7:13])
-                                cycle_ratings = list(rating_result_list[14:20])
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("story_ratings={0}".format(story_ratings))
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("writing_style_ratings={0}".format(writing_style_ratings))
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("cycle_ratings={0}".format(cycle_ratings))
-                                # Calculate overall rating
-                                # results - 3 topics x 7 voting choices (grades (German "Schulnoten)"1 - 6 and no rating)
-                                story_ratings_counter = writing_style_ratings_counter  = cycle_ratings_counter = 0
-                                # Convert the PR forum grades (1 (best) to 6 (worst) to
-                                # the five star system (0 star (worst) to 5 stars (best))
-                                story_stars = writing_style_stars = cycle_stars = 0
-                                for idx in range(0,6):
-                                    story_stars = story_stars + int(story_ratings[idx]) * (5 - idx)
-                                    story_ratings_counter = story_ratings_counter + int(story_ratings[idx])
-                                    writing_style_stars = writing_style_stars + int(writing_style_ratings[idx]) * (5 - idx)
-                                    writing_style_ratings_counter = writing_style_ratings_counter + int(writing_style_ratings[idx])
-                                    cycle_stars = cycle_stars + int(cycle_ratings[idx]) * (5 - idx)
-                                    cycle_ratings_counter = cycle_ratings_counter + int(cycle_ratings[idx])
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("story_ratings_counter={0}".format(story_ratings_counter))
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("writing_style_ratings_counter={0}".format(writing_style_ratings_counter))
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("cycle_ratings_counter={0}".format(cycle_ratings_counter))
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("story_stars={0}".format(story_stars))
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("writing_style_stars={0}".format(writing_style_stars))
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("cycle_stars={0}".format(cycle_stars))
-                                overall_stars = story_stars * self.prefs['story_weight_for_rating'] + \
-                                                writing_style_stars * self.prefs['writing_style_weight_for_rating'] + \
-                                                cycle_stars * self.prefs['cycle_weight_for_rating']
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("overall_stars={0}".format(overall_stars))
-                                overall_ratings_counter = story_ratings_counter * self.prefs['story_weight_for_rating'] + \
-                                                writing_style_ratings_counter * self.prefs['writing_style_weight_for_rating'] + \
-                                                cycle_ratings_counter * self.prefs['cycle_weight_for_rating']
-                                weight_sum = self.prefs['story_weight_for_rating'] + \
-                                                self.prefs['writing_style_weight_for_rating'] + \
-                                                self.prefs['cycle_weight_for_rating']
-                                rating = float(overall_stars / overall_ratings_counter)
-                                # rating = rating * 2.0  # From Calibre manual: 'rating',  # A floating point number between 0 and 10
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("rating={0}".format(rating))
-                                if self.prefs['rating_rounding']:
-                                    rating = round(rating, 0)
-                                else:
-                                    rating = round(rating, 1)
-                                return rating, spoiler_link
+                                if len(rating_results) > 0:
+                                    for rating_result in rating_results:
+                                        # Each rating category has 6 ratings + 1 no raqting (to be ignored)
+                                        rating_result_list.append(rating_result.get_text())
+                                    # ['43', '23', '10', '1', '0', '0', '1', (...)]
+                                    story_ratings = list(rating_result_list[0:6])
+                                    writing_style_ratings = list(rating_result_list[7:13])
+                                    cycle_ratings = list(rating_result_list[14:20])
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("story_ratings={0}".format(story_ratings))
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("writing_style_ratings={0}".format(writing_style_ratings))
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("cycle_ratings={0}".format(cycle_ratings))
+                                    # Calculate overall rating
+                                    # results - 3 topics x 7 voting choices (grades (German "Schulnoten)"1 - 6 and no rating)
+                                    story_ratings_counter = writing_style_ratings_counter  = cycle_ratings_counter = 0
+                                    # Convert the PR forum grades (1 (best) to 6 (worst) to
+                                    # the five star system (0 star (worst) to 5 stars (best))
+                                    story_stars = writing_style_stars = cycle_stars = 0
+                                    for idx in range(0,6):
+                                        story_stars = story_stars + int(story_ratings[idx]) * (5 - idx)
+                                        story_ratings_counter = story_ratings_counter + int(story_ratings[idx])
+                                        writing_style_stars = writing_style_stars + int(writing_style_ratings[idx]) * (5 - idx)
+                                        writing_style_ratings_counter = writing_style_ratings_counter + int(writing_style_ratings[idx])
+                                        cycle_stars = cycle_stars + int(cycle_ratings[idx]) * (5 - idx)
+                                        cycle_ratings_counter = cycle_ratings_counter + int(cycle_ratings[idx])
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("story_ratings_counter={0}".format(story_ratings_counter))
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("writing_style_ratings_counter={0}".format(writing_style_ratings_counter))
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("cycle_ratings_counter={0}".format(cycle_ratings_counter))
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("story_stars={0}".format(story_stars))
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("writing_style_stars={0}".format(writing_style_stars))
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("cycle_stars={0}".format(cycle_stars))
+                                    overall_stars = story_stars * self.prefs['story_weight_for_rating'] + \
+                                                    writing_style_stars * self.prefs['writing_style_weight_for_rating'] + \
+                                                    cycle_stars * self.prefs['cycle_weight_for_rating']
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("overall_stars={0}".format(overall_stars))
+                                    overall_ratings_counter = story_ratings_counter * self.prefs['story_weight_for_rating'] + \
+                                                    writing_style_ratings_counter * self.prefs['writing_style_weight_for_rating'] + \
+                                                    cycle_ratings_counter * self.prefs['cycle_weight_for_rating']
+                                    weight_sum = self.prefs['story_weight_for_rating'] + \
+                                                    self.prefs['writing_style_weight_for_rating'] + \
+                                                    self.prefs['cycle_weight_for_rating']
+                                    rating = float(overall_stars / overall_ratings_counter)
+                                    # rating = rating * 2.0  # From Calibre manual: 'rating',  # A floating point number between 0 and 10
+                                    if loglevel == self.loglevels['DEBUG']:
+                                        log.info("rating={0}".format(rating))
+                                    if self.prefs['rating_rounding']:
+                                        rating = round(rating, 0)
+                                    else:
+                                        rating = round(rating, 1)
+                                    return rating, spoiler_link
         if loglevel == self.loglevels['DEBUG']:
             log.info("No ratings found!")
         return None, ''
