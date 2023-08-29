@@ -91,8 +91,14 @@ class Perrypedia(Source):
     name = 'Perrypedia'
     description = _('Downloads metadata and covers from Perrypedia (perrypedia.de)')
     author = 'Michael Detambel'
-    version = (1, 8, 1)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    platforms = ['windows', 'linux', 'osx']
+    minimum_calibre_version = (0, 8, 5)
+    version = (1, 8, 2)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    released = ('08-22-2023')
+    history = True
     # ToDo: Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
+    # Version 1.8.2 - 08-22-2023
+    # - Alternate rating with modal values. More statistical values (number of vote(r)s, partial ratings, ...)
     # Version 1.8.1 - 08-17-2023
     # - Avoiding index error if no ratings found.
     # Version 1.8.0 - 07-12-2023
@@ -154,9 +160,6 @@ class Perrypedia(Source):
     # - Minor bugfixes and enhancements
     # Version 0.1.0 - 11-14-2020
     # - Initial release
-    history = True
-    minimum_calibre_version = (0, 8, 5)
-    platforms = ['windows', 'linux', 'osx']
 
     has_html_comments = True
     can_get_multiple_covers = True
@@ -194,7 +197,7 @@ class Perrypedia(Source):
             # loglevels = {'NOTSET': 0, 'DEBUG': 10, 'INFO': 20, 'WARN': 30, 'ERROR': 40, 'CRITICAL': 50}
             _('log level'),
             _('Log detail level. NOTSET: no logging, only global info and error messages, '
-              'DEBUG: all processing messages, INFO: essential procesing messages'),
+              'DEBUG: all processing messages, INFO: essential procesing messages.'),
             {'NOTSET': 'NOTSET', 'DEBUG': 'DEBUG', 'INFO': 'INFO'}
         ),
         # ignore SSL errors?
@@ -210,7 +213,7 @@ class Perrypedia(Source):
             'comment_style',
             'choices',
             'html_comment',
-            _('comments field style - text or html'),
+            _('Comments field style - text or html'),
             _('Choose if comments should formatted with html/css or should contain pure text with line breaks.'),
             {'html_comment': 'html', 'text_comment': 'text'}
         ),
@@ -229,6 +232,15 @@ class Perrypedia(Source):
             False,
             _('Inklude ratings from "https://forum.perry-rhodan.net/"'),
             _('Make this choice if ratings from "https://forum.perry-rhodan.net/" should be included.'),
+        ),
+        # Type of middle value
+        Option(
+            'average_type',
+            'choices',
+            'arithmetic',
+            _('Calculation method for ratings'),
+            _('Choose the calculation method for average ratings. "arithmetic" uses all ratings, "modal" only the highest ratings.'),
+            {'arithmetic': _('arithmetic'), 'modal': _('modal')}
         ),
         Option(
             'story_weight_for_rating',
@@ -260,6 +272,14 @@ class Perrypedia(Source):
             True,
             _('Rounding ratings to integer'),
             _('Make this choice if ratings should be round to zero decimal values.'),
+        ),
+        Option(
+            'rating_output',
+            'choices',
+            'detailed',
+            _('Output mode for ratings'),
+            _('Choose "result only", if only overall rating should appear in the ratings field, choose "detailed", if also intermediate values are to displayed.'),
+            {'detailed': _('detailed'), 'result_only': _('result only')}
         ),
         Option(
             'pubdate_from_isfdb',
@@ -1102,7 +1122,6 @@ class Perrypedia(Source):
                         topic_page_max = topic_counter // 25
                         if loglevel == self.loglevels['DEBUG']:
                             log.info("topic_page_max={0}".format(topic_page_max))
-
                     # Check if the spoiler for this issue is on this page
                     spoiler_text = spoiler_link = ''
                     spoiler_titles = soup.find_all('a', {'class':'topictitle'})
@@ -1180,76 +1199,103 @@ class Perrypedia(Source):
                                 spoiler_title = soup.find('h2', {'class':'topic-title'}).text
                                 if loglevel == self.loglevels['DEBUG']:
                                     log.info("spoiler_title={0}".format(spoiler_title))
-                                # Get the rating results
-                                story_ratings = writing_style_ratings = cycle_ratings = rating_result_list = []
-                                rating_results = soup.find_all('div', class_=['pollbar1', 'pollbar2'])
-                                # Beautifulsoup ResultSet class is a subclass of a list and not a Tag class
-                                # which has the find* methods defined.
-                                if loglevel == self.loglevels['DEBUG']:
-                                    log.info("rating_results={0}".format(rating_results))
-                                    # [<div class="pollbar1" style="width:77%;">43</div>, (...)]
-                                if len(rating_results) > 0:
-                                    for rating_result in rating_results:
-                                        # Each rating category has 6 ratings + 1 no raqting (to be ignored)
-                                        rating_result_list.append(rating_result.get_text())
-                                    # ['43', '23', '10', '1', '0', '0', '1', (...)]
-                                    story_ratings = list(rating_result_list[0:6])
-                                    writing_style_ratings = list(rating_result_list[7:13])
-                                    cycle_ratings = list(rating_result_list[14:20])
+                                total_votes_line = soup.find('span', {'class':'poll_total_vote_cnt'})
+                                if total_votes_line:
+                                    total_votes = int(total_votes_line.text)
                                     if loglevel == self.loglevels['DEBUG']:
-                                        log.info("story_ratings={0}".format(story_ratings))
+                                        log.info("total_votes={0}".format(total_votes))
+                                    # Get the rating results
+                                    story_ratings = writing_style_ratings = cycle_ratings = rating_result_list = []
+                                    rating_results = soup.find_all('div', class_=['pollbar1', 'pollbar2'])
+                                    # Beautifulsoup ResultSet class is a subclass of a list and not a Tag class
+                                    # which has the find* methods defined.
                                     if loglevel == self.loglevels['DEBUG']:
-                                        log.info("writing_style_ratings={0}".format(writing_style_ratings))
-                                    if loglevel == self.loglevels['DEBUG']:
-                                        log.info("cycle_ratings={0}".format(cycle_ratings))
-                                    # Calculate overall rating
-                                    # results - 3 topics x 7 voting choices (grades (German "Schulnoten)"1 - 6 and no rating)
-                                    story_ratings_counter = writing_style_ratings_counter  = cycle_ratings_counter = 0
-                                    # Convert the PR forum grades (1 (best) to 6 (worst) to
-                                    # the five star system (0 star (worst) to 5 stars (best))
-                                    story_stars = writing_style_stars = cycle_stars = 0
-                                    for idx in range(0,6):
-                                        story_stars = story_stars + int(story_ratings[idx]) * (5 - idx)
-                                        story_ratings_counter = story_ratings_counter + int(story_ratings[idx])
-                                        writing_style_stars = writing_style_stars + int(writing_style_ratings[idx]) * (5 - idx)
-                                        writing_style_ratings_counter = writing_style_ratings_counter + int(writing_style_ratings[idx])
-                                        cycle_stars = cycle_stars + int(cycle_ratings[idx]) * (5 - idx)
-                                        cycle_ratings_counter = cycle_ratings_counter + int(cycle_ratings[idx])
-                                    if loglevel == self.loglevels['DEBUG']:
-                                        log.info("story_ratings_counter={0}".format(story_ratings_counter))
-                                    if loglevel == self.loglevels['DEBUG']:
-                                        log.info("writing_style_ratings_counter={0}".format(writing_style_ratings_counter))
-                                    if loglevel == self.loglevels['DEBUG']:
-                                        log.info("cycle_ratings_counter={0}".format(cycle_ratings_counter))
-                                    if loglevel == self.loglevels['DEBUG']:
-                                        log.info("story_stars={0}".format(story_stars))
-                                    if loglevel == self.loglevels['DEBUG']:
-                                        log.info("writing_style_stars={0}".format(writing_style_stars))
-                                    if loglevel == self.loglevels['DEBUG']:
-                                        log.info("cycle_stars={0}".format(cycle_stars))
-                                    overall_stars = story_stars * self.prefs['story_weight_for_rating'] + \
-                                                    writing_style_stars * self.prefs['writing_style_weight_for_rating'] + \
-                                                    cycle_stars * self.prefs['cycle_weight_for_rating']
-                                    if loglevel == self.loglevels['DEBUG']:
-                                        log.info("overall_stars={0}".format(overall_stars))
-                                    overall_ratings_counter = story_ratings_counter * self.prefs['story_weight_for_rating'] + \
-                                                    writing_style_ratings_counter * self.prefs['writing_style_weight_for_rating'] + \
-                                                    cycle_ratings_counter * self.prefs['cycle_weight_for_rating']
-                                    weight_sum = self.prefs['story_weight_for_rating'] + \
-                                                    self.prefs['writing_style_weight_for_rating'] + \
-                                                    self.prefs['cycle_weight_for_rating']
-                                    rating = float(overall_stars / overall_ratings_counter)
-                                    # rating = rating * 2.0  # From Calibre manual: 'rating',  # A floating point number between 0 and 10
-                                    if loglevel == self.loglevels['DEBUG']:
-                                        log.info("rating={0}".format(rating))
-                                    if self.prefs['rating_rounding']:
-                                        rating = round(rating, 0)
-                                    else:
-                                        rating = round(rating, 1)
-                                    return rating, spoiler_link
+                                        log.info("rating_results={0}".format(rating_results))
+                                        # [<div class="pollbar1" style="width:77%;">43</div>, (...)]
+                                    if len(rating_results) > 0:
+                                        for rating_result in rating_results:
+                                            # Each rating category has 6 ratings + 1 no rating (to be ignored)
+                                            rating_result_list.append(rating_result.get_text())
+                                        # ['43', '23', '10', '1', '0', '0', '1', (...)]
+                                        story_ratings = list(rating_result_list[0:6])
+                                        writing_style_ratings = list(rating_result_list[7:13])
+                                        cycle_ratings = list(rating_result_list[14:20])
+                                        if loglevel == self.loglevels['DEBUG']:
+                                            log.info("story_ratings={0}".format(story_ratings))
+                                            log.info("writing_style_ratings={0}".format(writing_style_ratings))
+                                            log.info("cycle_ratings={0}".format(cycle_ratings))
+
+                                        if self.prefs['average_type'] == 'modal':
+                                            # Find the index of the maximum values, if modal calculation is set
+                                            # modal grade = index + 1
+                                            modal_story_rating = story_ratings.index(str(max([int(i) for i in story_ratings]))) + 1
+                                            modal_writing_style_rating = writing_style_ratings.index(str(max([int(i) for i in writing_style_ratings]))) + 1
+                                            modal_cycle_rating = cycle_ratings.index(str(max([int(i) for i in cycle_ratings]))) + 1
+                                            if loglevel == self.loglevels['DEBUG']:
+                                                log.info("modal_story_rating={0}".format(modal_story_rating))
+                                                log.info("modal_writing_style_rating={0}".format(modal_writing_style_rating))
+                                                log.info("modal_cycle_rating={0}".format(modal_cycle_rating))
+                                            modal_story_stars = 6 - int(modal_story_rating)
+                                            modal_writing_style_stars = 6 - int(modal_writing_style_rating)
+                                            modal_cycle_stars = 6 - int(modal_cycle_rating)
+                                            modal_overall_stars = modal_story_stars * self.prefs['story_weight_for_rating'] + \
+                                                            modal_writing_style_stars * self.prefs[
+                                                                'writing_style_weight_for_rating'] + \
+                                                            modal_cycle_stars * self.prefs['cycle_weight_for_rating']
+                                            weight_sum = self.prefs['story_weight_for_rating'] + \
+                                                         self.prefs['writing_style_weight_for_rating'] + \
+                                                         self.prefs['cycle_weight_for_rating']
+                                            if self.prefs['rating_rounding']:
+                                                rating = round(modal_overall_stars / weight_sum, 0)
+                                            else:
+                                                rating = round(modal_overall_stars / weight_sum, 1)
+                                        elif self.prefs['average_type'] == 'arithmetic':
+                                            # results - 3 topics x 7 voting choices (grades (German "Schulnoten)"1 - 6 and no rating)
+                                            story_ratings_counter = writing_style_ratings_counter = cycle_ratings_counter = 0
+                                            # Convert the PR forum grades (1 (best) to 6 (worst) to
+                                            # the five star system (0 star (worst) to 5 stars (best))
+                                            story_stars = writing_style_stars = cycle_stars = 0
+                                            for idx in range(0,6):
+                                                story_stars = story_stars + int(story_ratings[idx]) * (5 - idx)
+                                                story_ratings_counter = story_ratings_counter + int(story_ratings[idx])
+                                                writing_style_stars = writing_style_stars + int(writing_style_ratings[idx]) * (5 - idx)
+                                                writing_style_ratings_counter = writing_style_ratings_counter + int(writing_style_ratings[idx])
+                                                cycle_stars = cycle_stars + int(cycle_ratings[idx]) * (5 - idx)
+                                                cycle_ratings_counter = cycle_ratings_counter + int(cycle_ratings[idx])
+                                            if loglevel == self.loglevels['DEBUG']:
+                                                log.info("story_ratings_counter={0}".format(story_ratings_counter))
+                                                log.info("writing_style_ratings_counter={0}".format(writing_style_ratings_counter))
+                                                log.info("cycle_ratings_counter={0}".format(cycle_ratings_counter))
+                                                log.info("story_stars={0}".format(story_stars))
+                                                log.info("writing_style_stars={0}".format(writing_style_stars))
+                                                log.info("cycle_stars={0}".format(cycle_stars))
+                                            # Build the weighted ratings
+                                            overall_stars = story_stars * self.prefs['story_weight_for_rating'] + \
+                                                            writing_style_stars * self.prefs['writing_style_weight_for_rating'] + \
+                                                            cycle_stars * self.prefs['cycle_weight_for_rating']
+                                            if loglevel == self.loglevels['DEBUG']:
+                                                log.info("overall_stars={0}".format(overall_stars))
+                                            # Calculate overall rating
+                                            overall_ratings_counter = story_ratings_counter * self.prefs['story_weight_for_rating'] + \
+                                                            writing_style_ratings_counter * self.prefs['writing_style_weight_for_rating'] + \
+                                                            cycle_ratings_counter * self.prefs['cycle_weight_for_rating']
+                                            weight_sum = self.prefs['story_weight_for_rating'] + \
+                                                            self.prefs['writing_style_weight_for_rating'] + \
+                                                            self.prefs['cycle_weight_for_rating']
+                                            rating = float(overall_stars / overall_ratings_counter)
+                                            # rating = rating * 2.0  # From Calibre manual: 'rating',  # A floating point number between 0 and 10
+                                            if loglevel == self.loglevels['DEBUG']:
+                                                log.info("rating={0}".format(rating))
+                                            if self.prefs['rating_rounding']:
+                                                rating = round(rating, 0)
+                                            else:
+                                                rating = round(rating, 1)
+                                        else:
+                                            pass
+                                        return rating, total_votes, spoiler_link
         if loglevel == self.loglevels['DEBUG']:
             log.info("No ratings found!")
-        return None, ''
+        return None, 0, ''
 
         # # From calibre\utils\formatter_functions.py
         # class BuiltinRatingToStars(BuiltinFormatterFunction):
@@ -2077,10 +2123,11 @@ class Perrypedia(Source):
 
             # Rating from 'https://forum.perry-rhodan.net/'
             if self.prefs['include_ratings'] and issuenumber > 2600:
-                mi.rating, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
+                mi.rating, votes, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
                 if mi.rating is not None:
                     mi.comments = mi.comments + '<p>'
                     mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}).').format(rating_link)
+                    mi.comments = mi.comments + _('based on {0} votes from {1} voters.').format(votes, int(votes / 3))
                     mi.comments = mi.comments + '</p>'
 
             mi.source_relevance = 0
@@ -2145,10 +2192,11 @@ class Perrypedia(Source):
 
             # Rating from 'https://forum.perry-rhodan.net/'
             if self.prefs['include_ratings'] and series_code == 'PR' and issuenumber > 2600:
-                mi.rating, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
+                mi.rating, votes, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
                 if mi.rating is not None:
                     mi.comments = mi.comments + '<p>'
                     mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}).').format(rating_link)
+                    mi.comments = mi.comments + _('based on {0} votes from {1} voters.').format(votes, int(votes / 3))
                     mi.comments = mi.comments + '</p>'
 
             mi.source_relevance = 0
@@ -2251,10 +2299,11 @@ class Perrypedia(Source):
 
             # Rating from 'https://forum.perry-rhodan.net/'
             if self.prefs['include_ratings'] and series_code == 'PR' and issuenumber > 2600:
-                mi.rating, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
+                mi.rating, votes, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
                 if mi.rating is not None:
                     mi.comments = mi.comments + '<p>'
                     mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}).').format(rating_link)
+                    mi.comments = mi.comments + _('based on {0} votes from {1} voters.').format(votes, int(votes / 3))
                     mi.comments = mi.comments + '</p>'
 
             mi.source_relevance = 0
@@ -2593,10 +2642,11 @@ class Perrypedia(Source):
 
         # Rating from 'https://forum.perry-rhodan.net/'
         if self.prefs['include_ratings'] and series_code == 'PR' and issuenumber > 2600:
-            mi.rating, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
+            mi.rating, votes, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
             if mi.rating is not None:
                 mi.comments = mi.comments + '<p>'
-                mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}).').format(rating_link)
+                mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}), ').format(rating_link)
+                mi.comments = mi.comments + _('based on {0} votes from {1} voters.').format(votes, int(votes/3))
                 mi.comments = mi.comments + '</p>'
 
         mi.source_relevance = 0
