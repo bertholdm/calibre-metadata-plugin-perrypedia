@@ -251,7 +251,7 @@ class Perrypedia(Source):
               'Set to 0 if this rating facette should be ignored.'),
         ),
         Option(
-            'writing_style_weight_for_rating',
+            'style_weight_for_rating',
             'number',
             1,
             _('Rating weight for the author\'s writing style'),  # Gewichtung für den Schreibstil des Autors
@@ -1205,7 +1205,7 @@ class Perrypedia(Source):
                                     if loglevel == self.loglevels['DEBUG']:
                                         log.info("total_votes={0}".format(total_votes))
                                     # Get the rating results
-                                    story_ratings = writing_style_ratings = cycle_ratings = rating_result_list = []
+                                    story_ratings = style_ratings = cycle_ratings = rating_result_list = []
                                     rating_results = soup.find_all('div', class_=['pollbar1', 'pollbar2'])
                                     # Beautifulsoup ResultSet class is a subclass of a list and not a Tag class
                                     # which has the find* methods defined.
@@ -1215,35 +1215,45 @@ class Perrypedia(Source):
                                     if len(rating_results) > 0:
                                         for rating_result in rating_results:
                                             # Each rating category has 6 ratings + 1 no rating (to be ignored)
-                                            rating_result_list.append(rating_result.get_text())
-                                        # ['43', '23', '10', '1', '0', '0', '1', (...)]
+                                            rating_result_list.append(int(rating_result.get_text()))
+                                        # [43, 23, 10, 1, 0, 0, 1, (...)]
                                         story_ratings = list(rating_result_list[0:6])
-                                        writing_style_ratings = list(rating_result_list[7:13])
+                                        style_ratings = list(rating_result_list[7:13])
                                         cycle_ratings = list(rating_result_list[14:20])
                                         if loglevel == self.loglevels['DEBUG']:
                                             log.info("story_ratings={0}".format(story_ratings))
-                                            log.info("writing_style_ratings={0}".format(writing_style_ratings))
+                                            log.info("style_ratings={0}".format(style_ratings))
                                             log.info("cycle_ratings={0}".format(cycle_ratings))
-
+                                        # Calculate german school gradings
+                                        school_gradings = [1, 2, 3, 4, 5, 6]
+                                        story_grading = sum(list(map(lambda x, y: x * y, story_ratings, school_gradings))) / sum(story_ratings)
+                                        style_grading = sum(list(map(lambda x, y: x * y, style_ratings, school_gradings))) / sum(style_ratings)
+                                        cycle_grading = sum(list(map(lambda x, y: x * y, cycle_ratings, school_gradings))) / sum(cycle_ratings)
+                                        overall_grading = (story_grading + style_grading + cycle_grading) / 3
+                                        if loglevel == self.loglevels['DEBUG']:
+                                            log.info("story_grading={0}".format(story_grading))
+                                            log.info("style_grading={0}".format(style_grading))
+                                            log.info("cycle_grading={0}".format(cycle_grading))
+                                            log.info("overall_grading={0}".format(overall_grading))
                                         if self.prefs['average_type'] == 'modal':
                                             # Find the index of the maximum values, if modal calculation is set
                                             # modal grade = index + 1
                                             modal_story_rating = story_ratings.index(str(max([int(i) for i in story_ratings]))) + 1
-                                            modal_writing_style_rating = writing_style_ratings.index(str(max([int(i) for i in writing_style_ratings]))) + 1
+                                            modal_style_rating = style_ratings.index(str(max([int(i) for i in style_ratings]))) + 1
                                             modal_cycle_rating = cycle_ratings.index(str(max([int(i) for i in cycle_ratings]))) + 1
                                             if loglevel == self.loglevels['DEBUG']:
                                                 log.info("modal_story_rating={0}".format(modal_story_rating))
-                                                log.info("modal_writing_style_rating={0}".format(modal_writing_style_rating))
+                                                log.info("modal_style_rating={0}".format(modal_style_rating))
                                                 log.info("modal_cycle_rating={0}".format(modal_cycle_rating))
                                             modal_story_stars = 6 - int(modal_story_rating)
-                                            modal_writing_style_stars = 6 - int(modal_writing_style_rating)
+                                            modal_style_stars = 6 - int(modal_style_rating)
                                             modal_cycle_stars = 6 - int(modal_cycle_rating)
                                             modal_overall_stars = modal_story_stars * self.prefs['story_weight_for_rating'] + \
-                                                            modal_writing_style_stars * self.prefs[
-                                                                'writing_style_weight_for_rating'] + \
+                                                            modal_style_stars * self.prefs[
+                                                                'style_weight_for_rating'] + \
                                                             modal_cycle_stars * self.prefs['cycle_weight_for_rating']
                                             weight_sum = self.prefs['story_weight_for_rating'] + \
-                                                         self.prefs['writing_style_weight_for_rating'] + \
+                                                         self.prefs['style_weight_for_rating'] + \
                                                          self.prefs['cycle_weight_for_rating']
                                             if self.prefs['rating_rounding']:
                                                 rating = round(modal_overall_stars / weight_sum, 0)
@@ -1251,41 +1261,46 @@ class Perrypedia(Source):
                                                 rating = round(modal_overall_stars / weight_sum, 1)
                                         elif self.prefs['average_type'] == 'arithmetic':
                                             # results - 3 topics x 7 voting choices (grades (German "Schulnoten)"1 - 6 and no rating)
-                                            story_ratings_counter = writing_style_ratings_counter = cycle_ratings_counter = 0
+                                            story_ratings_counter = style_ratings_counter = cycle_ratings_counter = 0
                                             # Convert the PR forum grades (1 (best) to 6 (worst) to
                                             # the five star system (0 star (worst) to 5 stars (best))
-                                            story_stars = writing_style_stars = cycle_stars = 0
+                                            story_stars = style_stars = cycle_stars = 0
                                             for idx in range(0,6):
                                                 story_stars = story_stars + int(story_ratings[idx]) * (5 - idx)
                                                 story_ratings_counter = story_ratings_counter + int(story_ratings[idx])
-                                                writing_style_stars = writing_style_stars + int(writing_style_ratings[idx]) * (5 - idx)
-                                                writing_style_ratings_counter = writing_style_ratings_counter + int(writing_style_ratings[idx])
+                                                style_stars = style_stars + int(style_ratings[idx]) * (5 - idx)
+                                                style_ratings_counter = style_ratings_counter + int(style_ratings[idx])
                                                 cycle_stars = cycle_stars + int(cycle_ratings[idx]) * (5 - idx)
                                                 cycle_ratings_counter = cycle_ratings_counter + int(cycle_ratings[idx])
                                             if loglevel == self.loglevels['DEBUG']:
                                                 log.info("story_ratings_counter={0}".format(story_ratings_counter))
-                                                log.info("writing_style_ratings_counter={0}".format(writing_style_ratings_counter))
+                                                log.info("style_ratings_counter={0}".format(style_ratings_counter))
                                                 log.info("cycle_ratings_counter={0}".format(cycle_ratings_counter))
                                                 log.info("story_stars={0}".format(story_stars))
-                                                log.info("writing_style_stars={0}".format(writing_style_stars))
+                                                log.info("style_stars={0}".format(style_stars))
                                                 log.info("cycle_stars={0}".format(cycle_stars))
                                             # Build the weighted ratings
                                             overall_stars = story_stars * self.prefs['story_weight_for_rating'] + \
-                                                            writing_style_stars * self.prefs['writing_style_weight_for_rating'] + \
+                                                            style_stars * self.prefs['style_weight_for_rating'] + \
                                                             cycle_stars * self.prefs['cycle_weight_for_rating']
                                             if loglevel == self.loglevels['DEBUG']:
                                                 log.info("overall_stars={0}".format(overall_stars))
                                             # Calculate overall rating
                                             overall_ratings_counter = story_ratings_counter * self.prefs['story_weight_for_rating'] + \
-                                                            writing_style_ratings_counter * self.prefs['writing_style_weight_for_rating'] + \
+                                                            style_ratings_counter * self.prefs['style_weight_for_rating'] + \
                                                             cycle_ratings_counter * self.prefs['cycle_weight_for_rating']
                                             weight_sum = self.prefs['story_weight_for_rating'] + \
-                                                            self.prefs['writing_style_weight_for_rating'] + \
+                                                            self.prefs['style_weight_for_rating'] + \
                                                             self.prefs['cycle_weight_for_rating']
                                             rating = float(overall_stars / overall_ratings_counter)
                                             # rating = rating * 2.0  # From Calibre manual: 'rating',  # A floating point number between 0 and 10
                                             if loglevel == self.loglevels['DEBUG']:
                                                 log.info("rating={0}".format(rating))
+                                            # Half-star rating
+                                            from calibre.ebooks.metadata import rating_to_stars
+                                            half_star_rating = rating_to_stars(rating * 2, '1')
+                                            if loglevel == self.loglevels['DEBUG']:
+                                                log.info("half_star_rating={0}".format(half_star_rating))
                                             if self.prefs['rating_rounding']:
                                                 rating = round(rating, 0)
                                             else:
