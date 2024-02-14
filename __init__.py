@@ -93,10 +93,14 @@ class Perrypedia(Source):
     author = 'Michael Detambel'
     platforms = ['windows', 'linux', 'osx']
     minimum_calibre_version = (0, 8, 5)
-    version = (1, 8, 2)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    released = ('08-22-2023')
+    version = (1, 8, 4)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    released = ('01-28-2024')
     history = True
     # ToDo: Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
+    # Version 1.8.4 - 01-28-2024
+    # - Another regex string for the Atlan series (Bücher Walther).
+    # Version 1.8.3 - 09-14-2023
+    # - Patch for Taschenheft series.
     # Version 1.8.2 - 08-22-2023
     # - Alternate rating with modal values. More statistical values (number of vote(r)s, partial ratings, ...)
     # Version 1.8.1 - 08-17-2023
@@ -318,8 +322,9 @@ class Perrypedia(Source):
     # action=opensearch&namespace=0&search=Die+Dritte+Macht&limit=5&format=json
 
     series_regex = {
-        'A': r'(atlan) \d{1,3}_(\d{1,3})_-|(atlan)\d{1,3}_(\d{1,3})_-'  # ATLAN 91_93_-Atlan und der Graue
-             r'(atlan-heftroman)[^0-9]{0,3}(\d{1,3})|(atlan.{1,3}heftserie)[^0-9]{0,3}(\d{1,3})'
+        'A': r'(Atlan) 0(\d{1,3}) – .*'  # Atlan 0629 – Der Geist der Positronik
+             r'|(atlan) \d{1,3}_(\d{1,3})_-|(atlan)\d{1,3}_(\d{1,3})_-'  # ATLAN 91_93_-Atlan und der Graue
+             r'|(atlan-heftroman)[^0-9]{0,3}(\d{1,3})|(atlan.{1,3}heftserie)[^0-9]{0,3}(\d{1,3})'
              r'|(atlan.{1,3}band)[^0-9]{1,3}(\d{1,3})|(atlan.{1,3}heft)[^0-9]{1,3}(\d{1,3})|(atlan )(\d{1,3})',
         'AHC': r'(atlan.{1,5}blauband)[^0-9]{0,5}(\d{1,2})|(atlan.{1,5}sb[^0-9]{0,5})(\d{1,2})'
                r'|(atlan.{1,3}bb)[^0-9]{0,5}(\d{1,2})'
@@ -388,6 +393,7 @@ class Perrypedia(Source):
         'PRTBT': r'(perry.{1,3}rhodan.{1,5}die tefroder)[^0-9]{1,5}(\d{1,2})'
                  r'|(die tefroder)[^0-9]{1,5}(\d{1,2})',  # Taschenbücher Die Tefroder
         'PRTER': r'(perry.{0,3}rhodan.{0,3}terminus)[^0-9]{1,5}(\d{1,2})',
+        'PRTH': r'(PRPL) 0(\d\d) – .*',
         'PRW': r'(wega)(\d{2,2})Leseprobe.*|(prwe)_(\d{2,2}).*', # wega01leseprobe_0.pdf, PRWE 1221 Leseprobe.indd
         'PUMIA': r'(perry.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})'
                  r'|(perry rhodan.{1,3}unser mann im all[^0-9]{1,5})(\d{1,3})',
@@ -478,7 +484,7 @@ class Perrypedia(Source):
         ['Flammenstaub', 'AM', 49, r'(flammenstaub)[^0-9]{0,8}(\d{1,})'],
         ['Centauri', 'AO', 1, r'(centauri)[^0-9]{0,8}(\d{1,})'],  # Atlan - Centauri-Zyklus 07 - Frank Borsch
         ['Traversan', 'AT', 1, r'(traversan)[^0-9]{0,8}(\d{1,})'],
-        # Atlan-Taschebuchserien
+        # Atlan-Taschenbuchserien
         ['Lepso', 'ATB', 1, r'(lepso)[^0-9]{1,3}(\d{1,})'],
         ['Rudyn', 'ATB', 4, r'(rudyn) (\d{1,})|(lordrichter)[^0-9]{1,3}(\d{1,})'],
     ]
@@ -566,10 +572,10 @@ class Perrypedia(Source):
         'PRTBRI': 'Taschenbücher Das Rote Imperium',  # https://www.perrypedia.de/wiki/Das_Rote_Imperium_(Serie)
         'PRTBT': 'Taschenbücher Die Tefroder',  # https://www.perrypedia.de/wiki/Die_Tefroder_(Serie)
         'PRTBZ': 'Perry Rhodan-Planetenromane Zaubermond Verlag (Doppelbände)',
-        'PRTH': 'Perry Rhodan-Taschenheft (nur für neue Romane wie z.B. Heft 14)',
         'PRTO': 'Perry Rhodan-Thoregon-Ausgabe',
         'PRTRI': 'Perry Rhodan-Trivid',
         'PRTER': 'Perry Rhodan-Terminus',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Miniserien
+        'PRTH': 'Taschenheft',  # https://www.perrypedia.de/wiki/Planetenromane_als_Taschenhefte
         'PRW': 'Perry Rhodan-Wega',
         'PRWA': 'Weltraumatlas',
         # 'PRWSB': 'Werkstattband',
@@ -797,6 +803,9 @@ class Perrypedia(Source):
                 if raw_metadata:
                     # Parse metadata source and put metadata in result queue
                     mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
+                    if series_code == 'PRTH':
+                        mi.comments = mi.comments + \
+                                      _('Version hint: This is publication {0} in Taschenheft series.').format(issuenumber)
                     result_queue.put(mi)
                 else:
                     pp_id = None
@@ -1308,8 +1317,7 @@ class Perrypedia(Source):
                                         else:
                                             pass
                                         return rating, total_votes, spoiler_link
-        if loglevel == self.loglevels['DEBUG']:
-            log.info("No ratings found!")
+        log.info("No ratings found!")
         return None, 0, ''
 
         # # From calibre\utils\formatter_functions.py
@@ -1413,6 +1421,8 @@ class Perrypedia(Source):
             if series_code == 'PRSTO':
                 # ['Galacto City', 'PRSTO', 9, r'(galacto city - folge) (\d{1,2})'],
                 issuenumber = self.issuenumber_from_subseries_offsets(series_code, issuenumber, preliminary_series_name, log, loglevel)
+            if series_code == 'PRTH':  # Planetenromane als Taschenhefte
+                log.info(_('Version hint: This is publication {0} in Taschenheft series.'.format(issuenumber)))
             return series_code, issuenumber
         else:
             log.warning(_('Series and/or issuenumber not found. Searching for subseries...'))
