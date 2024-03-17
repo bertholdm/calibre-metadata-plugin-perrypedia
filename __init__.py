@@ -93,10 +93,13 @@ class Perrypedia(Source):
     author = 'Michael Detambel'
     platforms = ['windows', 'linux', 'osx']
     minimum_calibre_version = (0, 8, 5)
-    version = (1, 8, 4)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    released = ('01-28-2024')
+    version = (1, 8, 5)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    released = ('03-17-2024')
     history = True
     # ToDo: Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
+    # Version 1.8.5 - 03-17-2024
+    # - Extended handling of disambiguous titles: If '(Roman)' is present in title list, the title without entry
+    #   in parentheses is not a book, so discard it. (Thanks to MaxRink.)
     # Version 1.8.4 - 01-28-2024
     # - Another regex string for the Atlan series (Bücher Walther).
     # Version 1.8.3 - 09-14-2023
@@ -1557,7 +1560,7 @@ class Perrypedia(Source):
             response_list = json.loads(response_text)
             if loglevel in [self.loglevels['DEBUG']]:
                 log.info(_('Response list='), response_list)
-            # Search response for book pages. If '(Roman') is not present, the title without parentheses is a book.
+            # Search response for book pages. If '(Roman)' is not present, the title without parentheses is a book.
             # ['Ordoban',
             #     ['Ordoban', 'Ordoban (Begriffsklärung)', 'Ordoban (Hörbuch)', 'Ordoban (Roman)', 'Ordoban (Silberband)'],
             #     ['', '', '', '', ''],
@@ -1576,11 +1579,18 @@ class Perrypedia(Source):
             #
 
             title_list = list(response_list[1])
-            if loglevel in [self.loglevels['DEBUG']]:
-                log.info('title_list=', title_list)
             url_list = list(response_list[3])
             if loglevel in [self.loglevels['DEBUG']]:
+                log.info('title_list=', title_list)
                 log.info('url_list=', url_list)
+
+            # If '(Roman)' is present, the title without parentheses is not a book, so discard it.
+            titles = '\t'.join(title_list)
+            if '(Roman)' in titles:
+                title_list, url_list = zip(*((t, u) for t, u in zip(title_list, url_list) if '(' in t))
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('title_list=', title_list)
+                    log.info('url_list=', url_list)
 
             # Search response for ambiguous page
             # Response list = ['SOS AUS DEM WELTALL', ['SOS aus dem Weltall (Begriffsklärung)'], [''],

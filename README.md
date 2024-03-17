@@ -1,4 +1,4 @@
-[Metadata Source Plugin] Perrypedia - Version 1.8.1 - 08-17-2023
+[Metadata Source Plugin] Perrypedia - 1.8.5 - 03-17-2024
 
 [English version follows]
 
@@ -39,6 +39,8 @@ Einschränkungen:
 
 Versionsgeschichte:
 -------------------
+Version 1.8.5 - 03-17-2024
+- Erweiterte Behandlung von mehrdeutigen Titeln:: Wenn der Zusatz '(Roman)' in der Titelliste aufgeführt ist, ist der Titel ohne Eintrag in Klammern kein Buch und kann daher aus der Liste entfernt werden. (Thanks to MaxRink.)
 Version 1.8.1 - 08-08-2023
 - Abfangen eines Indexfehlers, wenn keine Bewertungen gefunden.
 Version 1.8.0 - 07-12-2023
@@ -62,7 +64,7 @@ Version 1.4.1 - 08-26-2022
 Version 1.4.0 - 07-12-2022
 - Option zum Setzen von ignore_ssl_errors
 - Neue Mini-Serie: Atlantis
-- Anpassungen für Stellaris Buch-Packete
+- Anpassungen für Stellaris Buch-Pakete
 - Kompatibel mit Calibre 6.0
 Version 1.3.0 11-01-2021
 - Erweiterte Konfiguration
@@ -105,7 +107,7 @@ Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem 
 
 ---
 
-[Metadata Source Plugin] Perrypedia - Version 1.8.1 - 08-17-2023
+[Metadata Source Plugin] Perrypedia - Version 1.8.5 - 03-17-2024
 
 This plugin uses Perrypedia as metadata source. It downloads metadata and covers. 
 Perrypedia (https://www.perrypedia.de/) is a fan project for the creation of a free reference work for the Perry Rhodan SF series.
@@ -143,6 +145,8 @@ Limitations:
 
 Version History:
 ----------------
+Version 1.8.5 - 03-17-2024
+- Extended handling of disambiguous titles: If '(Roman)' is present in title list, the title without entry in parentheses is not a book, so discard it. (Thanks to MaxRink.)
 Version 1.8.1 - 08-17-2023
 - Avoiding index error if no ratings found. 
 Version 1.8.0 - 07-12-2023
