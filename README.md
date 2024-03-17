@@ -41,6 +41,12 @@ Versionsgeschichte:
 -------------------
 Version 1.8.5 - 03-17-2024
 - Erweiterte Behandlung von mehrdeutigen Titeln:: Wenn der Zusatz '(Roman)' in der Titelliste aufgeführt ist, ist der Titel ohne Eintrag in Klammern kein Buch und kann daher aus der Liste entfernt werden. (Thanks to MaxRink.)
+Version 1.8.4 - 01-28-2024
+- Weiterer regex string für die Atlan-Serie (Bücher Walther).
+Version 1.8.3 - 09-14-2023
+- Patch für Taschenhefte.
+Version 1.8.2 - 08-22-2023
+- Alternative Berechnung der Bewertung mit dem Modus. Weitere Statistikangaben (Anzahl Bewertungen, Teilbewertungen, ...)
 Version 1.8.1 - 08-08-2023
 - Abfangen eines Indexfehlers, wenn keine Bewertungen gefunden.
 Version 1.8.0 - 07-12-2023
@@ -147,6 +153,12 @@ Version History:
 ----------------
 Version 1.8.5 - 03-17-2024
 - Extended handling of disambiguous titles: If '(Roman)' is present in title list, the title without entry in parentheses is not a book, so discard it. (Thanks to MaxRink.)
+Version 1.8.4 - 01-28-2024
+- Another regex string for the Atlan series (Bücher Walther).
+Version 1.8.3 - 09-14-2023
+- Patch for Taschenheft series.
+Version 1.8.2 - 08-22-2023
+- Alternate rating with modal values. More statistical values (number of vote(r)s, partial ratings, ...)
 Version 1.8.1 - 08-17-2023
 - Avoiding index error if no ratings found. 
 Version 1.8.0 - 07-12-2023
