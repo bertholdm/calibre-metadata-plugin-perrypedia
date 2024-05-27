@@ -93,10 +93,15 @@ class Perrypedia(Source):
     author = 'Michael Detambel'
     platforms = ['windows', 'linux', 'osx']
     minimum_calibre_version = (0, 8, 5)
-    version = (1, 8, 5)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    released = ('03-17-2024')
+    version = (1, 8, 6)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    released = ('05-27-2024')
     history = True
     # ToDo: Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
+    # Version 1.8.6 - 05-27-2024
+    # - Better search with title or title fragment.
+    # - Correct spelling for series name "Taschenbücher Dunkelwelten".
+    # - Correct spelling for various Hörspiele / Hörbücher series.
+    # - Display results in ascending order by title.
     # Version 1.8.5 - 03-17-2024
     # - Extended handling of disambiguous titles: If '(Roman)' is present in title list, the title without entry
     #   in parentheses is not a book, so discard it. (Thanks to MaxRink.)
@@ -176,6 +181,10 @@ class Perrypedia(Source):
     touched_fields = frozenset(['title', 'authors', 'series', 'series_index', 'rating', 'tags', 'publisher', 'pubdate',
                                 'languages', 'comments', 'identifier:ppid', 'identifier:isbn'], )
     # ignore_ssl_errors = True
+
+    # Define a number for orderung search results in mi queue.
+    # See https://www.mobileread.com/forums/showthread.php?p=4425328
+    order_number = 0
 
     # from class 'option' in base.py:
     '''
@@ -458,6 +467,7 @@ class Perrypedia(Source):
         ['Mythos', 'PR', 3000, r'(mythos) (\d{1,})'],
         ['Chaotarchen', 'PR', 3100, r'(chaotarchen) (\d{1,})'],
         ['Fragmente', 'PR', 3200, r'(fragmente) (\d{1,})'],
+        ['PHOENIX', 'PR', 3300, r'(fragmente) (\d{1,})'],
         # Perry Rhodan-Miniserien
         ['Stardust', 'PRS', 1, r'(stardust) (\d{1,})'],
         ['Arkon', 'PRAR', 1, r'(arkon) (\d{1,})'],
@@ -509,15 +519,17 @@ class Perrypedia(Source):
         'AE': 'Atlan-Extra',
         'AGB': 'Atlan-Grünbände (Edition Perry Rhodan) - ab Nr. 35',
         'AHCO': 'Atlan-Hardcover (Omega)-Centauri',
-        'EAM': 'Eins-A Medien Hörbücher',
+        'EAM': 'Eins-A-Medien-Hörspiele',
         'FTOR': 'Fischer - TOR',
         'FTORH': 'Fischer - TOR Hörbuch',
         'HAZ': 'Hörbuch Atlan Zeitabenteuer',
-        'HES': 'Hörspiele Europa-Serie',
-        'HMG': 'Hörspiele Gucky Audiobooks (Die Abenteuer ...)',
-        'HSO': 'Hörspiele Sternenozean-Zyklus',
-        'HSR': 'Hörspiele "Solare Residenz"-Zyklus (Universal-Hörspiele)',
-        'HSP': 'Hörspiele Plejaden',
+        'HEE': 'Europa-Hörspiele (1970er)',
+        'HES': 'Europa-Hörspiele (1980er)',
+        'HMG': 'Die Abenteuer von Mausbiber Gucky',
+        'HSO': 'Sternenozean-Hörspiele',
+        'HSR': 'Universal-Hörspiele',
+        'HSP': 'Plejaden',
+        'LB': 'Leihbücher',
         'MF': 'Moewig Fantastic',
         'PERRYHC': 'Perry Comics Hardcover (Alligator-Farm)',
         'PR': 'Perry Rhodan-Heftserie',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Heftserie
@@ -566,7 +578,7 @@ class Perrypedia(Source):
         'PRTBA': 'Taschenbücher Andromeda',  # https://www.perrypedia.de/wiki/Andromeda_(Serie)
         'PRTBAT': 'Taschenbücher Ara-Toxin',  # https://www.perrypedia.de/wiki/Ara-Toxin_(Serie)
         'PRTBBL': 'Perry Rhodan-Taschenbuch Bastei-Lübbe',
-        'PRTBDW': 'Perry Rhodan-DUNKELWELTEN-Taschenbücher',
+        'PRTBDW': 'Taschenbücher Dunkelwelten',
         'PRTBJ': 'Perry Rhodan-Jupiter-Taschenbuch',
         'PRTBL': 'Taschenbücher Lemuria',  # https://www.perrypedia.de/wiki/Lemuria_(Serie)
         'PRTBO': 'Taschenbücher Odyssee',  # https://www.perrypedia.de/wiki/Odyssee_(Serie)
@@ -623,8 +635,8 @@ class Perrypedia(Source):
 
     # Strings we found in page titles (in parentheses). Void = Other book source (in most cases PR series),
     # if '(Roman)' not present.
-    book_variants = ['Blauband', 'Buch', 'Comic', 'Heftroman', 'Hörbuch', 'Leihbuch', 'Planetenroman', 'PR Neo',
-                     'Roman', 'Taschenheft', 'Silberband']
+    book_variants = ['Blauband', 'Buch', 'Comic', 'Heftroman', 'Hörbuch', 'Leihbuch', 'Leihbücher', 'Planetenroman',
+                     'PR Neo', 'Perry Rhodan-Heftromane', 'Roman', 'Taschenheft', 'Silberband']
 
     # (Begriffsklärung)
 
@@ -633,6 +645,10 @@ class Perrypedia(Source):
         This method must return True to enable customization via Preferences->Plugins
         """
         return True
+
+    def identify_results_keygen(self, title=None, authors=None, identifiers={}):
+        # return a function that will be used while sorting the identify results based on the source_relevance field of the Metadata object
+        return lambda x: x.source_relevance
 
     # def config_widget(self):
     #     """
@@ -820,21 +836,34 @@ class Perrypedia(Source):
 
         # Third case: Find metadata with Perrypedia title search
         # search appropriate page titles, build book page urls from them and scrape.
-        # Caveat: There are possible disambiguous titles, so we can have more than one result.
+        # Caveat: There are possible ambiguous titles or book types, so we can have more than one result.
         if not pp_id:
             # possible ambiguous title - more than one metadata soup possible
             result = self.get_raw_metadata_from_title(title, authors_str, self.browser, 20, log, loglevel)
-            soups = result[0]
-            urls = result[1]
-            for soup, url in zip(soups, urls):
+            # {
+            # 'Das Erbe der Yulocs': ['PR630', 'https://www.perrypedia.de/wiki/Quelle:PR630'],
+            # 'Das Erbe der Yulocs (Hörbuch)': ['SE71', 'https://www.perrypedia.de/wiki/Quelle:SE71'],
+            # 'Das Erbe der Yulocs (Silberband)': ['PRHC71', 'https://www.perrypedia.de/wiki/Quelle:PRHC71']
+            # }
+            books = result[0].items()  # items() returns a list of tuples (key, values)
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('books={0}'.format(books))
+            soups = result[1]
+            for book, soup in zip(books, soups):
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('book={0}'.format(book))
+                url = book[1][1]
+                title = soup.title.string
                 if loglevel in [self.loglevels['DEBUG']]:
                     log.info(''.join([char * 20 for char in '-']))
-                    log.info(_('Next soup, Page title:'), soup.title.string)
+                    log.info(_('Next soup, page title:'), title)
                     log.info(_('Next soup, url:'), url)
-                title = soup.title.string
                 raw_metadata = self.parse_pp_book_page(soup, self.browser, timeout, url, log, loglevel)
                 if loglevel == self.loglevels['DEBUG']:
                     log.info('raw_metadata={0}'.format(raw_metadata))
+                # raw_metadata = overview, content, cover_urls, source_url
+                if ' - ignored.' in raw_metadata[1]:
+                    continue
                 if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('Result found with title search.'))
                 mi = self.parse_raw_metadata(raw_metadata, self.series_names, log, loglevel)
@@ -1540,6 +1569,7 @@ class Perrypedia(Source):
         soup_title = None
         overview_div = None
         is_book_page = False
+        books = {}
 
         for search_text in search_texts:
 
@@ -1549,8 +1579,12 @@ class Perrypedia(Source):
             if search_text == '':
                 break
 
-            # Find all pages with searchstring in title
-            url = self.api_url + 'action=opensearch&namespace=0&search=' + search_text + '&limit=10&format=json'
+            # Find all pages with searchstring in title with mediawiki search
+            url = self.api_url + 'action=opensearch&namespace=0&search=' \
+                  + search_text + '&limit=100&profile=normal-subphrases&format=json'
+            # https://www.perrypedia.de/mediawiki/api.php?action=opensearch&namespace=0&search=Das Erbe der Yulocs&limit=10&format=json
+            # url encoding is doing by the browser object:
+            # https://www.perrypedia.de/mediawiki/api.php?action=opensearch&namespace=0&search=Das%20Erbe%20der%20Yulocs&limit=10&format=json
             # url = search_base_url + urllib.parse.quote(search_text) + '&title=Spezial%3ASuche'
             if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                 log.info(_('API search with: "{0}"...').format(search_text))
@@ -1560,12 +1594,18 @@ class Perrypedia(Source):
             response_list = json.loads(response_text)
             if loglevel in [self.loglevels['DEBUG']]:
                 log.info(_('Response list='), response_list)
-            # Search response for book pages. If '(Roman)' is not present, the title without parentheses is a book.
+            # Search response for book pages.
             # ['Ordoban',
             #     ['Ordoban', 'Ordoban (Begriffsklärung)', 'Ordoban (Hörbuch)', 'Ordoban (Roman)', 'Ordoban (Silberband)'],
             #     ['', '', '', '', ''],
             #     ['https://www.perrypedia.de/wiki/Ordoban', 'https://www.perrypedia.de/wiki/Ordoban_(Begriffskl%C3%A4rung)', 'https://www.perrypedia.de/wiki/Ordoban_(H%C3%B6rbuch)', 'https://www.perrypedia.de/wiki/Ordoban_(Roman)', 'https://www.perrypedia.de/wiki/Ordoban_(Silberband)']
             # ]
+            # <div class="mw-parser-output"><p>Der Begriff <b>Ordoban</b> wird mehrfach verwendet:
+            # <ul><li>für <i>die Person</i>, siehe: <b><a href="/wiki/Ordoban" title="Ordoban">Ordoban</a></b></li></ul>
+            # <ul><li>für <i>den <a href="/wiki/Perry_Rhodan-Heftromane" title="Perry Rhodan-Heftromane">Heftroman</a></i>, siehe: <b><a href="/wiki/Quelle:PR1200" class="mw-redirect" title="Quelle:PR1200">ORDOBAN (Roman)</a></b></li>
+            # <li>für <i>das <a href="/wiki/H%C3%B6rbuch" class="mw-redirect" title="Hörbuch">Hörbuch</a></i>, siehe: <b><a href="/wiki/Quelle:SE143" class="mw-redirect" title="Quelle:SE143">Ordoban (Hörbuch)</a></b></li>
+            # <li>für <i>den <a href="/wiki/Silberband" class="mw-redirect" title="Silberband">Silberband</a></i>, siehe: <b><a href="/wiki/Quelle:PRHC143" class="mw-redirect" title="Quelle:PRHC143">Ordoban (Silberband)</a></b></li></ul>
+            #
             # ['Die Dritte Macht',
             #     ['Die dritte Macht', 'Die Dritte Macht (Begriffsklärung)', 'Die dritte Macht (Comic)', 'Die Dritte Macht (Handlungsebenen)'],
             #     ['', '', '', ''],
@@ -1576,143 +1616,177 @@ class Perrypedia(Source):
             #     [''],
             #     ['https://www.perrypedia.de/wiki/Perry_Rhodan_Chronik']
             # ]
-            #
+            # ['Das Erbe der Yulocs',
+            #     ['Das Erbe der Yulocs', 'Das Erbe der Yulocs (Begriffsklärung)', 'Das Erbe der Yulocs (Hörbuch)', 'Das Erbe der Yulocs (Silberband)'],
+            #     ['', '', '', ''],
+            #     ['https://www.perrypedia.de/wiki/Das_Erbe_der_Yulocs', 'https://www.perrypedia.de/wiki/Das_Erbe_der_Yulocs_(Begriffskl%C3%A4rung)', 'https://www.perrypedia.de/wiki/Das_Erbe_der_Yulocs_(H%C3%B6rbuch)', 'https://www.perrypedia.de/wiki/Das_Erbe_der_Yulocs_(Silberband)']
+            # ]
+            # Search with substring
+            # https://www.perrypedia.de/mediawiki/api.php?action=opensearch&namespace=0&search=Gucky&limit=10&format=json
+            # ["Gucky",
+            # ["Gucky","Gucky (Begriffsklärung)","Gucky (PR Neo)","Gucky (Urucher)","Gucky auf AIKKAUD","Gucky II","Gucky kehrt zurück","Gucky und das Zeitraumschiff","Gucky und das Zeitraumschiff / Die Schwarze Macht","Gucky und der Golem"],
+            # ["","","","","","","","","",""],
+            # ["https://www.perrypedia.de/wiki/Gucky","https://www.perrypedia.de/wiki/Gucky_(Begriffskl%C3%A4rung)","https://www.perrypedia.de/wiki/Gucky_(PR_Neo)","https://www.perrypedia.de/wiki/Gucky_(Urucher)","https://www.perrypedia.de/wiki/Gucky_auf_AIKKAUD","https://www.perrypedia.de/wiki/Gucky_II","https://www.perrypedia.de/wiki/Gucky_kehrt_zur%C3%BCck","https://www.perrypedia.de/wiki/Gucky_und_das_Zeitraumschiff","https://www.perrypedia.de/wiki/Gucky_und_das_Zeitraumschiff_/_Die_Schwarze_Macht","https://www.perrypedia.de/wiki/Gucky_und_der_Golem"]]
+            # ]
+            # https://www.perrypedia.de/wiki/Gucky_(Begriffskl%C3%A4rung)
+            # <div class="mw-parser-output"><p>Der Begriff <b>Gucky</b> wird mehrfach verwendet:
+            # <ul><li>für <i>den <a href="/wiki/Mausbiber" class="mw-redirect" title="Mausbiber">Mausbiber</a></i>, siehe: <b><a href="/wiki/Gucky" title="Gucky">Gucky</a></b></li>
+            # <li>für <i>den <a href="/wiki/Urucher" title="Urucher">Urucher</a></i>, siehe: <b><a href="/wiki/Gucky_(Urucher)" class="mw-redirect" title="Gucky (Urucher)">Gucky (Urucher)</a></b></li></ul>
+            # <p>Ähnliche Begriffe:
+            # <ul><li>für <i>Guckys negatives Spiegelbild im <a href="/wiki/Anti-Universum" title="Anti-Universum">Anti-Universum</a></i>, siehe: <b><a href="/wiki/Gucky_II" title="Gucky II">Gucky&nbsp;II</a></b></li>
+            # <li>für <i>den <a href="/wiki/Planet" title="Planet">Planeten</a> in <a href="/wiki/M_82" class="mw-redirect" title="M 82">M&nbsp;82</a></i>, siehe: <b><a href="/wiki/Gucklon" class="mw-redirect" title="Gucklon">Gucklon</a></b></li>
+            # <li>für <i>die eidechsenartigen Tiere</i>, siehe: <b><a href="/wiki/Gucky-Olm" title="Gucky-Olm">Gucky-Olm</a></b></li>
+            # <li>für <i>den einzigen <a href="/wiki/Mond" title="Mond">Mond</a> des <a href="/wiki/Planet" title="Planet">Planeten</a> <a href="/wiki/Vurga" title="Vurga">Vurga</a></i>, siehe: <b><a href="/wiki/Guckys_Home" title="Guckys Home">Guckys Home</a></b></li>
+            # <li>für <i>den fünften <a href="/wiki/Planet" title="Planet">Planeten</a> der <a href="/wiki/Sonne" class="mw-redirect" title="Sonne">Sonne</a> <a href="/wiki/Drink" title="Drink">Drink</a></i>, siehe: <b><a href="/wiki/Guckys_Inn" title="Guckys Inn">Guckys Inn</a></b></li>
+            # <li>für <i>den <a href="/wiki/Planet" title="Planet">Planeten</a> in der <a href="/wiki/Galaxie" title="Galaxie">Galaxie</a> <a href="/wiki/Karo-1001" class="mw-redirect" title="Karo-1001">Karo-1001</a></i>, siehe: <b><a href="/mediawiki/index.php?title=Guckys_Rast&amp;action=edit&amp;redlink=1" class="new" title="Guckys Rast (Seite nicht vorhanden)">Guckys Rast</a></b></li>
+            # <li>für <i>die <a href="/wiki/Mikrobuch" title="Mikrobuch">Mikrobuch</a>-Serie</i>, siehe: <b>»<a href="/wiki/Gucky,_der_Retter_des_Universums" title="Gucky, der Retter des Universums">Gucky, der Retter des Universums</a>«</b></li>
+            # <li>für <i>die <a href="/wiki/Trivideo" title="Trivideo">Trivideo</a>-Sitcom</i>, siehe: <b>»<a href="/wiki/Guckys_Abenteuer_auf_der_Gem%C3%BCse-Ranch" class="mw-redirect" title="Guckys Abenteuer auf der Gemüse-Ranch">Guckys Abenteuer auf der Gemüse-Ranch</a>«</b></li>
+            # <li>für <i>das Stoff-Kuscheltier</i>, siehe: <b><a href="/wiki/Pl%C3%BCsch-Gucky" title="Plüsch-Gucky">Plüsch-Gucky</a></b></li></ul>
+            # <p><br>
+            # </p>
+            # <hr>
+            # <div style="border:1px solid #fff; padding:3px !important; background-color: #fff; overflow:hidden; clear:right; float:right; border-width:.3em 0 .3em 1.4em;"><div style="text-align:left;font-size:80%"><a href="/wiki/Datei:PRNeo_Schriftzug.jpg" class="image"><img alt="PRNeo Schriftzug.jpg" src="/mediawiki/images/thumb/3/36/PRNeo_Schriftzug.jpg/100px-PRNeo_Schriftzug.jpg" decoding="async" width="100" height="33" srcset="/mediawiki/images/thumb/3/36/PRNeo_Schriftzug.jpg/150px-PRNeo_Schriftzug.jpg 1.5x, /mediawiki/images/3/36/PRNeo_Schriftzug.jpg 2x"></a><br></div></div>
+            # <ul><li>für <i>den <a href="/wiki/Mausbiber_(PR_Neo)" class="mw-redirect" title="Mausbiber (PR Neo)">Mausbiber</a></i>, siehe: <b><a href="/wiki/Gucky_(PR_Neo)" title="Gucky (PR Neo)">Gucky (PR Neo)</a></b></li></ul>
+            # </div>
 
             title_list = list(response_list[1])
+            titles = '\t'.join(title_list)
             url_list = list(response_list[3])
             if loglevel in [self.loglevels['DEBUG']]:
                 log.info('title_list=', title_list)
                 log.info('url_list=', url_list)
 
-            # If '(Roman)' is present, the title without parentheses is not a book, so discard it.
-            titles = '\t'.join(title_list)
-            if '(Roman)' in titles:
-                title_list, url_list = zip(*((t, u) for t, u in zip(title_list, url_list) if '(' in t))
+            # If 'Begriffsklärung' in response list, get the Begriffsklärung page and extract the source links
+            # (contains series_code and issuenumber!)
+            if '(Begriffsklärung)' in titles:
+                ambigouus_title, ambigouus_url = zip(*((t, u) for t, u in zip(title_list, url_list) if '(Begriffsklärung)' in t))
                 if loglevel in [self.loglevels['DEBUG']]:
-                    log.info('title_list=', title_list)
-                    log.info('url_list=', url_list)
-
-            # Search response for ambiguous page
-            # Response list = ['SOS AUS DEM WELTALL', ['SOS aus dem Weltall (Begriffsklärung)'], [''],
-            #                 ['https://www.perrypedia.de/wiki/SOS_aus_dem_Weltall_(Begriffskl%C3%A4rung)']]
-            if len(title_list) == 1 and '(Begriffsklärung)' in title_list[0]:
+                    log.info('Ambigouus hint (Begriffsklärung) in wiki response found: {0}. Going to fetch that page'
+                             .format(ambigouus_url))
                 # Go to disambiguous page
-                page = browser.open_novisit(url_list[0], timeout=timeout).read().strip()
+                page = browser.open_novisit(ambigouus_url[0], timeout=timeout).read().strip()
                 soup = BeautifulSoup(page, 'html.parser')
                 # Check page for book links and put books in title list and url list
                 redirects = soup.select_one('html body #content #bodyContent #mw-content-text .mw-parser-output ul')
-                # redirect= für den Kinofilm, siehe: Perry Rhodan – SOS aus dem Weltall
-                # text= Perry Rhodan – SOS aus dem Weltall
-                # title= Perry Rhodan – SOS aus dem Weltall
-                # href= /wiki/Perry_Rhodan_%E2%80%93_SOS_aus_dem_Weltall
-                # redirect= für den Soundtrack zum Film, siehe: Perry Rhodan – SOS aus dem Weltall (Soundtrack)
-                # text= Perry Rhodan – SOS aus dem Weltall (Soundtrack)
-                # title= Perry Rhodan – SOS aus dem Weltall (Soundtrack)
-                # href= /wiki/Perry_Rhodan_%E2%80%93_SOS_aus_dem_Weltall_(Soundtrack)
-                # redirect= für das Buch zum Film, siehe: Perry Rhodan – SOS aus dem Weltall (Buch)
-                # text= Perry Rhodan – SOS aus dem Weltall (Buch)
-                # title= Perry Rhodan – SOS aus dem Weltall (Buch)
-                # href= /wiki/Perry_Rhodan_%E2%80%93_SOS_aus_dem_Weltall_(Buch)
-                # redirect= für die Neuveröffentlichung des Buches als Taschenheft, siehe: SOS aus dem Weltall
-                # text= Taschenheft
-                # title= Planetenromane als Taschenhefte
-                # href= /wiki/Planetenromane_als_Taschenhefte
-                title_list = []
-                url_list = []
+                # <ul>
+                # <li>für <i>den <a href="/wiki/Perry_Rhodan-Heftromane" title="Perry Rhodan-Heftromane">Heftroman</a></i>, siehe: <b><a href="/wiki/Quelle:PR630" class="mw-redirect" title="Quelle:PR630">Das Erbe der Yulocs</a></b></li>
+                # <li>für <i>das <a href="/wiki/H%C3%B6rbuch" class="mw-redirect" title="Hörbuch">Hörbuch</a></i>, siehe: <b><a href="/wiki/Quelle:SE71" class="mw-redirect" title="Quelle:SE71">Das Erbe der Yulocs (Hörbuch)</a></b></li>
+                # <li>für <i>den <a href="/wiki/Silberband" class="mw-redirect" title="Silberband">Silberband</a></i>, siehe: <b><a href="/wiki/Quelle:PRHC71" class="mw-redirect" title="Quelle:PRHC71">Das Erbe der Yulocs (Silberband)</a></b></li>
+                # </ul>
                 for redirect in redirects.find_all('li'):
-                    link = redirect.find('a', href=True)
-                    text = redirect.find('a').contents[0]
-                    title = link.get('title')
-                    href = link.get('href')
-                    if loglevel in [self.loglevels['DEBUG']]:
-                        log.info('redirect=', redirect.text)
-                        log.info('text=', text)
-                        log.info('title=', title)
-                        log.info('href=', href)
-                    if '(Buch)' in title:
-                        title_list.append(title)
-                        url_list.append(self.base_url + href)
-                if loglevel in [self.loglevels['DEBUG']]:
-                    log.info('title_list=', title_list)
-                    log.info('url_list=', url_list)
+                    # If there's a book link, it is the second link, so ignore other <li> line types
+                    try:
+                        if loglevel in [self.loglevels['DEBUG']]:
+                            log.info('redirect={0}'.format(str(redirect)))
+                        book_type_link = redirect.find_all('a', href=True)[0]
+                        book_type = book_type_link.get('title')
+                        link = redirect.find_all('a', href=True)[1]
+                        text = redirect.find_all('a')[1].contents[0]
+                        title = link.get('title')
+                        href = link.get('href')
+                        if loglevel in [self.loglevels['DEBUG']]:
+                            log.info('text=', text)
+                            log.info('title=', title)
+                            log.info('href=', href)
+                        # Check if redirect indicate a book page
+                        if book_type in self.book_variants:
+                            if loglevel in [self.loglevels['DEBUG']]:
+                                log.info('Valid book type found: ', book_type)
+                            # Get ppid from title (series_code and issuenumber)
+                            ppid = title.replace('Quelle:', '')
+                            if 'https://' in href:
+                                books[text] = [ppid, href]
+                            else:
+                                books[text] = [ppid, self.base_url + href]
+                    except:
+                        continue
 
-            is_ambiguous_title = False
-            books = {}
-            list_index = 0
-            if loglevel in [self.loglevels['DEBUG']]:
-                log.info('search_text={0}'.format(search_text))
-                log.info('title_list={0}'.format(title_list))
-            for title in title_list:
                 if loglevel in [self.loglevels['DEBUG']]:
-                    log.info('Checking title="{0}" for search_text...'.format(title))
-                # ['Ordoban', 'Ordoban (Begriffsklärung)', 'Ordoban (Hörbuch)', 'Ordoban (Roman)', 'Ordoban (Silberband)',
-                # 'Ordoban-Materie', 'Ordoban-Substanz', 'ORDOBANS ERBE', 'Ordobans Erbe (Hörbuch)',
-                # 'Ordobans Erbe (Silberband)']
-                # ToDo: use regex to match book type
-                if search_text.lower() == title.lower() and '(' not in search_text:  # exact search
-                    # books['(unknown)'] = [title, url_list[list_index]]
-                    books[str(list_index)] = [title, url_list[list_index]]
-                    if loglevel in [self.loglevels['DEBUG']]:
-                        log.info('Match 1:', search_text + '==' + title)
-                    break  # first match wins
-                else:
-                    if loglevel in [self.loglevels['DEBUG']]:
-                        log.info(_('title has book_variant in parentheses.'))
+                    log.info('books=', books)
+
+            # Check the landing page for books
+
+            # clean the url_list
+
+            # ToDo: This is not true in every case:
+            # If '(Roman)' is not in response list, the title without parentheses is a book.
+            # If '(Roman)' is in response list, the title without parentheses is not a book,
+            # but a definition or similar, so discard it.
+            # if '(Roman)' in titles:
+            #     title_list, url_list = zip(*((t, u) for t, u in zip(title_list, url_list) if '(' in t))
+            #     if loglevel in [self.loglevels['DEBUG']]:
+            #         log.info('title_list=', title_list)
+            #         log.info('url_list=', url_list)
+
+            # Discard all list elements with categories in parentheses, that are not books
+            # title_list = [x for x in title_list if x in self.book_variants]
+            title_list_new = []
+            url_list_new = []
+            for title, url in zip(title_list, url_list):
+                if '(' in title:
                     for book_variant in self.book_variants:
                         # ['Blauband', 'Buch', 'Comic', 'Heftroman', 'Hörbuch', 'Leihbuch', 'Planetenroman', 'PR Neo',
                         # 'Roman', 'Silberband']
-                        # search_text = 'Ordoban'
-                        # if str(search_text + ' (' + book_variant + ')').lower() == title.lower():  # exact search
-                        if loglevel in [self.loglevels['DEBUG']]:
-                            log.info('book_variant="{0}".'.format(book_variant))
-                            # if str(search_text + ' (' + book_variant + ')').lower() in title.lower():  # exact search
-                            if str(' (' + book_variant + ')').lower() in title.lower():  # book variant match
-                                books[book_variant] = [title, url_list[list_index]]
-                                if loglevel in [self.loglevels['DEBUG']]:
-                                    # log.info('Match:', str(search_text + ' (' + book_variant + ')') + '==' + title)
-                                    log.info('Match 2:', search_text + '==' + title)
-                                break  # first match wins
-                        else:
-                            # if loglevel in [self.loglevels['DEBUG']]:
-                            #   log.info('No match:', str(search_text + ' (' + book_variant + ')') + '!=' + title)
-                            pass
-                list_index = list_index + 1
+                        if book_variant in title:  # book variant match
+                            title_list_new.append(title)
+                            url_list_new.append(url)
+                else:
+                    title_list_new.append(title)
+                    url_list_new.append(url)
+
+            title_list = title_list_new
+            url_list = url_list_new
 
             if loglevel in [self.loglevels['DEBUG']]:
-                log.info('books=', books)
-            for book in books:
-                # If the title page contains '(Roman)', delete the entry without disambiguation marker
-                if 'Roman' in book[0]:
-                    books.pop('(unknown)')
-                    if loglevel in [self.loglevels['DEBUG']]:
-                        log.info('After pop(), books=', books)
-                    break
+                log.info('title_list=', title_list)
+                log.info('url_list=', url_list)
+
+            # Fill (or extend) the book dict
+            # title_list and url_list are now lists with with the following possible characteristics:
+            # 1. Exact one book:
+            # ["Scharaden"]
+            # ["https://www.perrypedia.de/wiki/Scharaden"]
+            # 2. Different book types of the same title:
+            # ['Ordoban (Hörbuch)', 'Ordoban (Roman)', 'Ordoban (Silberband)'],
+            # ['https://www.perrypedia.de/wiki/Ordoban_(H%C3%B6rbuch)', 'https://www.perrypedia.de/wiki/Ordoban_(Roman)', 'https://www.perrypedia.de/wiki/Ordoban_(Silberband)']
+            # 3. Different books with search string in title (no exact match):
+            # ["Gucky (PR Neo)", "Gucky auf AIKKAUD","Gucky II","Gucky kehrt zurück","Gucky und das Zeitraumschiff","Gucky und das Zeitraumschiff / Die Schwarze Macht","Gucky und der Golem"],
+            # ["https://www.perrypedia.de/wiki/Gucky_(PR_Neo)", "https://www.perrypedia.de/wiki/Gucky_auf_AIKKAUD","https://www.perrypedia.de/wiki/Gucky_II","https://www.perrypedia.de/wiki/Gucky_kehrt_zur%C3%BCck","https://www.perrypedia.de/wiki/Gucky_und_das_Zeitraumschiff","https://www.perrypedia.de/wiki/Gucky_und_das_Zeitraumschiff_/_Die_Schwarze_Macht","https://www.perrypedia.de/wiki/Gucky_und_der_Golem"]
+
+            for title, url in zip(title_list, url_list):
+                if 'https://' in url:
+                    books[title] = ['', url]
+                else:
+                    books[title] = ['', self.base_url + url]
+                # ToDo: How avoid duplicates?
+                # if title not in books:
+
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('books={0}'.format(books))
 
             if books:
                 if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-                    log.info(_('{0} book source(s) found.'.format(len(books))))
+                    log.info(_('{0} potential book source(s) found.'.format(len(books))))
+                for book_key, book_values in sorted(books.items()):
+                    # {
+                    # 'Das Erbe der Yulocs': ['PR630', 'https://www.perrypedia.de/wiki/Quelle:PR630'],
+                    # 'Das Erbe der Yulocs (Hörbuch)': ['SE71', 'https://www.perrypedia.de/wiki/Quelle:SE71'],
+                    # 'Das Erbe der Yulocs (Silberband)': ['PRHC71', 'https://www.perrypedia.de/wiki/Quelle:PRHC71']
+                    # }
                     if loglevel in [self.loglevels['DEBUG']]:
-                        log.info('books=', books)
-                        # {'(unknown)': ['Perry Rhodan Chronik', 'https://www.perrypedia.de/wiki/Perry_Rhodan_Chronik']}
-                        log.info('books.items()=', books.items())  # .items() returns a list of tuples
-                        # [('(unknown)', ['Perry Rhodan Chronik', 'https://www.perrypedia.de/wiki/Perry_Rhodan_Chronik'])]
-                for book_variant, book_info in books.items():
-                    if loglevel in [self.loglevels['DEBUG']]:
-                        log.info('book_variant=', book_variant)
-                        log.info('books[book_variant][0]=', book_info[0])
-                        log.info('books[book_variant][1]=', book_info[1])
-                    page = browser.open_novisit(book_info[1], timeout=timeout).read().strip()
+                        log.info('book_key=', book_key)
+                        log.info('book_values=', book_values)
+                    page = browser.open_novisit(book_values[1], timeout=timeout).read().strip()
                     soup = BeautifulSoup(page, 'html.parser')
                     if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                         log.info(_('Page title:'), soup.title.string)
-                    if book_variant == 'Hörbuch' or book_variant.isnumeric():
+                    if 'Hörbuch' in book_key or '(' not in book_key:
                         overview_div = soup.find('div', {'id': 'mw-content-text'})
                     else:
                         overview_div = soup.find('div', {'class': 'perrypedia_std_rframe overview'})
                     if overview_div is not None:
                         is_book_page = True
                         soups.append(soup)
-                        urls.append(book_info[1])
             else:
                 if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
                     log.info(_('No possible book source found with'), search_text)
@@ -1721,10 +1795,10 @@ class Perrypedia(Source):
                 break  # No search with authors field
 
         if is_book_page:
-            return soups, urls
+            return books, soups
         else:
             log.exception(_('Failed to download book metadata with title search. Giving up.'))
-            return [], []
+            return {}, []
 
     def parse_pp_book_page(self, soup, browser, timeout, source_url, log, loglevel):
         
@@ -1893,7 +1967,6 @@ class Perrypedia(Source):
 
                 return overview, content, cover_urls, source_url
 
-
             elif 'Weltraumatlas' in header_text:
 
                 if loglevel in [self.loglevels['DEBUG']]:
@@ -1940,8 +2013,8 @@ class Perrypedia(Source):
                 return overview, content, cover_urls, source_url
 
             elif 'Diese Seite ist eine Begriffsklärung' in soup.text:
-                log.info(_('<p>*** Ambiguous Title - Abort!<br /><br />Please give a PPID.</p>'))
-                return {}, _('<p>*** Ambiguous Title - Abort!<br /><br />Please give a PPID.</p>'), [], source_url
+                log.info(_('Nested ambiguous title page - ignored.'))
+                return {}, '*** Nested ambiguous title page - ignored.', [], source_url
 
         # ToDo: Other page types
 
@@ -1949,8 +2022,8 @@ class Perrypedia(Source):
         if table_body is None:
             log.info(_('Page type could not be identified!'))
             log.info('table_body is None. source_url={0}'.format(source_url))
-            log.info('soup.text={0}'.format(soup.text))
-            exit(1)
+            log.info('soup.text[:100]={0}'.format(soup.text[:100]))
+            return {}, '*** Unidentified book page - ignored.', [], source_url
 
         rows = table_body.find_all('tr')
         overview_data = []
@@ -2095,10 +2168,9 @@ class Perrypedia(Source):
 
     def parse_raw_metadata(self, raw_metadata, series_names, log, loglevel):
         # Parse metadata source and put metadata in result queue
-        
+
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter parse_raw_metadata()')
-            # log.info('raw_metadata={0}'.format(raw_metadata))
             log.info('series_names={0}'.format(series_names))
 
         overview = dict(raw_metadata[0])
@@ -2165,7 +2237,8 @@ class Perrypedia(Source):
                     mi.comments = mi.comments + _('based on {0} votes from {1} voters.').format(votes, int(votes / 3))
                     mi.comments = mi.comments + '</p>'
 
-            mi.source_relevance = 0
+            self.order_number = self.order_number + 1
+            mi.source_relevance = self.order_number
             if loglevel in [self.loglevels['DEBUG']]:
                 log.info('*** Final formatted result (object mi): {0}'.format(mi))
             return mi
@@ -2234,42 +2307,22 @@ class Perrypedia(Source):
                     mi.comments = mi.comments + _('based on {0} votes from {1} voters.').format(votes, int(votes / 3))
                     mi.comments = mi.comments + '</p>'
 
-            mi.source_relevance = 0
+            self.order_number = self.order_number + 1
+            mi.source_relevance = self.order_number
             if loglevel in [self.loglevels['DEBUG']]:
                 log.info('*** Final formatted result (object mi): {0}'.format(mi))
             return mi
 
-        elif '_(H%C3%B6rbuch)' in url or 'Werkstattband' in url:
+        elif 'Werkstattband' in url:
             if loglevel in [self.loglevels['DEBUG']]:
-                log.info(_('Audio book or Werkstattband found.'))
-            if '_(H%C3%B6rbuch)' in url:
-                # series_code = 'PR-Hörbuch_'
-                series_code = 'Hörbuch'
-                original_series_code = ''
-                issuenumber = 0
-                # <a href="/wiki/Quelle:PR2400" class="mw-redirect" title="Quelle:PR2400">PR&nbsp;2400</a>
-                match = re.search('title="Quelle:(.*)(\d{1,10)"', plot[0], re.MULTILINE)
-                if match:
-                    if match.group(0):
-                        original_series_code = match.group(0).strip()
-                    if match.group(1):
-                        issuenumber = match.group(1).strip()
-                if loglevel in [self.loglevels['DEBUG']]:
-                    log.info('series_code={0}'.format(series_code))
-                    log.info('original_series_code={0}'.format(original_series_code))
-                    log.info('issuenumber={0}'.format(issuenumber))
-            if 'Werkstattband' in url:
-                series_code = 'Werkstattband'
-                if loglevel in [self.loglevels['DEBUG']]:
-                    log.info('series_code={0}'.format(series_code))
+                log.info(_('Werkstattband found.'))
 
-            # <h1 id="firstHeading" class="firstHeading" lang="de">Zielzeit (Hörbuch)</h1>
-            if '_(H%C3%B6rbuch)' in url:
-                match = re.search('<h1 id="firstHeading" class="firstHeading" lang="de">(.*) (Hörbuch)</h1>',
-                                  raw_metadata)  # plot[0], re.MULTILINE
-            if 'Werkstattband' in url:
-                match = re.search('<h1 id="firstHeading" class="firstHeading" lang="de">(.* Werkstattband)</h1>',
-                                  raw_metadata)  # , re.MULTILINE
+            authors = []
+            series_code = 'Werkstattband'
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('series_code={0}'.format(series_code))
+            match = re.search('<h1 id="firstHeading" class="firstHeading" lang="de">(.* Werkstattband)</h1>',
+                              raw_metadata[3])  # , re.MULTILINE
             if match:
                 title = match.group(0).strip()
                 if loglevel in [self.loglevels['DEBUG']]:
@@ -2278,9 +2331,7 @@ class Perrypedia(Source):
                 if loglevel in [self.loglevels['DEBUG']]:
                     log.info('No title found.')
 
-            authors = []
-
-            # ToDo: Get contet from original book page (ovrview, plot, ...)
+            # ToDo: Get content from original book page (overview, plot, ...)
 
             # Create Metadata instance
             mi = Metadata(title=title, authors=authors)
@@ -2325,27 +2376,11 @@ class Perrypedia(Source):
             mi.comments = mi.comments + '<p>' + plot + '</p>'
             mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
 
-            # Check if comments from "kreis-archiv.de" should be included
-            kringel_comment = self.comments_from_kreisarchiv(self.browser, series_code, issuenumber, log, loglevel)
-            if kringel_comment is not None:
-                mi.comments = mi.comments + '<p>'
-                mi.comments = mi.comments + kringel_comment
-                mi.comments = mi.comments + '</p>'
-
-            # Rating from 'https://forum.perry-rhodan.net/'
-            if self.prefs['include_ratings'] and series_code == 'PR' and issuenumber > 2600:
-                mi.rating, votes, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
-                if mi.rating is not None:
-                    mi.comments = mi.comments + '<p>'
-                    mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}).').format(rating_link)
-                    mi.comments = mi.comments + _('based on {0} votes from {1} voters.').format(votes, int(votes / 3))
-                    mi.comments = mi.comments + '</p>'
-
-            mi.source_relevance = 0
+            self.order_number = self.order_number + 1
+            mi.source_relevance = self.order_number
             if loglevel in [self.loglevels['DEBUG']]:
                 log.info('*** Final formatted result (object mi): {0}'.format(mi))
             return mi
-
 
         # Overview for standard pages
 
@@ -2684,7 +2719,8 @@ class Perrypedia(Source):
                 mi.comments = mi.comments + _('based on {0} votes from {1} voters.').format(votes, int(votes/3))
                 mi.comments = mi.comments + '</p>'
 
-        mi.source_relevance = 0
+        self.order_number = self.order_number + 1
+        mi.source_relevance = self.order_number
 
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('*** Final formatted result (object mi): {0}'.format(mi))

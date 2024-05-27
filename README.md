@@ -1,4 +1,4 @@
-[Metadata Source Plugin] Perrypedia - 1.8.5 - 03-17-2024
+[Metadata Source Plugin] Perrypedia - 1.8.6 - 05-27-2024
 
 [English version follows]
 
@@ -34,11 +34,15 @@ Einschränkungen:
 - Wenn das Veröffentlichungsdatum nur das Jahr enthält, wird das Veröffentlichungsdatum auf den 1. Januar dieses Jahres festgelegt. Wenn nur Monat und Jahr angegeben sind, wird es auf den 1. des Monats festgelegt. Wenn ein Link auf die Seite "Veröffentlichu7ngen" (https://www.perrypedia.de/wiki/Ver%C3%B6ffentlichungen_<jahr>) gesetzt ist, wird als Erscheinungsdatum das dort angegebene letztmögliche eingesetzt. Hinweis: Das genaue Erscheinungsdatum kann optional aus der ISFDB ermittelt werden.
 - Da ein Metadaten-Plugin keine benutzerdefinierten Felder füllen kann, werden die Kandidaten für diese Felder, z. B. Unterreihen ("Zyklus"), zeilenweise im Feld "Kommentare" gespeichert.
 - Die Handlung ist der zweite Teil des Kommentarfeldes.
-- Im Moment führt die Titelsuche nur eine exakte Zeichenfolgenübereinstimmung durch.
 - Wenn ein Buch mehr als ein Titelbild enthält, wird beim Massen-Download das erste ausgewählt. In den meisten Fällen handelt es sich um das Original-Cover (bei der Suche nach einzelnen Metadaten werden jedoch alle zur Auswahl angezeigt).
 
 Versionsgeschichte:
 -------------------
+Version 1.8.6 - 05-27-2024
+- Verbesserte Suche mit Titel oder Titelbestandteil.
+- Schreibweise für die Serie "Taschenbücher Dunkelwelten" geändert.
+- Schreibweise für verschiedene Hörspiel- bzw. Hörbuch-Serien geändert.
+- Ergebnisse werden bei Titelsuche in aufsteigender alphabetischer Reihenfolge angezeigt.
 Version 1.8.5 - 03-17-2024
 - Erweiterte Behandlung von mehrdeutigen Titeln:: Wenn der Zusatz '(Roman)' in der Titelliste aufgeführt ist, ist der Titel ohne Eintrag in Klammern kein Buch und kann daher aus der Liste entfernt werden. (Thanks to MaxRink.)
 Version 1.8.4 - 01-28-2024
@@ -113,7 +117,7 @@ Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem 
 
 ---
 
-[Metadata Source Plugin] Perrypedia - Version 1.8.5 - 03-17-2024
+[Metadata Source Plugin] Perrypedia - Version 1.8.6 - 05-27-2024
 
 This plugin uses Perrypedia as metadata source. It downloads metadata and covers. 
 Perrypedia (https://www.perrypedia.de/) is a fan project for the creation of a free reference work for the Perry Rhodan SF series.
@@ -151,6 +155,11 @@ Limitations:
 
 Version History:
 ----------------
+Version 1.8.6 - 05-27-2024
+- Better search with title or title fragment.
+- Correct spelling for series name "Taschenbücher Dunkelwelten".
+- Correct spelling for various Hörspiele / Hörbücher series.
+- Display results in ascending order by title.
 Version 1.8.5 - 03-17-2024
 - Extended handling of disambiguous titles: If '(Roman)' is present in title list, the title without entry in parentheses is not a book, so discard it. (Thanks to MaxRink.)
 Version 1.8.4 - 01-28-2024
