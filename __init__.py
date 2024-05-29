@@ -14,12 +14,12 @@ from datetime import datetime, timedelta
 from dateutil import parser
 from queue import Empty, Queue
 from bs4 import BeautifulSoup
-from calibre.ebooks.metadata import authors_to_string
+from calibre.ebooks.metadata import authors_to_string, author_to_author_sort, title_sort
 from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.gui2.book_details import *
 
 __license__ = 'GPL v3'
-__copyright__ = '2020 - 2023, Michael Detambel <info@michael-detambel.de>'
+__copyright__ = '2020 - 2024, Michael Detambel <info@michael-detambel.de>'
 __docformat__ = 'restructuredtext en'
 
 _ = gettext.gettext
@@ -93,10 +93,12 @@ class Perrypedia(Source):
     author = 'Michael Detambel'
     platforms = ['windows', 'linux', 'osx']
     minimum_calibre_version = (0, 8, 5)
-    version = (1, 8, 6)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    released = ('05-27-2024')
+    version = (1, 9, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    released = ('05-29-2024')
     history = True
     # ToDo: Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
+    # Version 1.9.0 - 05-29-2024
+    # - User defined title build with template. Thanks to Crest76 for the suggestion.
     # Version 1.8.6 - 05-27-2024
     # - Better search with title or title fragment.
     # - Correct spelling for series name "Taschenbücher Dunkelwelten".
@@ -224,6 +226,17 @@ class Perrypedia(Source):
             _('Ignore SSL errors'),
             _('Make this choice if client and/or server site certificate makes trouble.'),
         ),
+        # title template
+        Option(
+            'title_template',
+            'string',
+            '{title}',
+            _('Title template'),
+            _('Allowed placeholders are: {title}, {title_sort}, {authors}, {authors_sort}, {series}, {series_code}, '
+              '{series_index}, {cycle}.\n'
+              '{series_index} can be formatted with python F-strings: p. ex. use {series_index:04d} to print out '
+              'series index with 4 digits and leading zeros, if necessary. Default value ist the pure title.')
+        ),
         # comment style
         Option(
             'comment_style',
@@ -294,7 +307,8 @@ class Perrypedia(Source):
             'choices',
             'detailed',
             _('Output mode for ratings'),
-            _('Choose "result only", if only overall rating should appear in the ratings field, choose "detailed", if also intermediate values are to displayed.'),
+            _('Choose "result only", if only overall rating should appear in the ratings field, choose "detailed", '
+              'if also intermediate values are to displayed.'),
             {'detailed': _('detailed'), 'result_only': _('result only')}
         ),
         Option(
@@ -645,6 +659,15 @@ class Perrypedia(Source):
         This method must return True to enable customization via Preferences->Plugins
         """
         return True
+
+    # get_author_tokens(authors, only_first_author=True)
+    # Take a list of authors and return a list of tokens useful for an AND search query.
+    # This function tries to return tokens in first name middle names last name order, by assuming that if a comma is
+    # in the author name, the name is in lastname, other names form.
+
+    # get_title_tokens(title, strip_joiners=True, strip_subtitle=False)[source]
+    # Take a title and return a list of tokens useful for an AND search query. Excludes connectives(optionally) and
+    # punctuation.
 
     def identify_results_keygen(self, title=None, authors=None, identifiers={}):
         # return a function that will be used while sorting the identify results based on the source_relevance field of the Metadata object
@@ -2303,7 +2326,7 @@ class Perrypedia(Source):
                 mi.rating, votes, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
                 if mi.rating is not None:
                     mi.comments = mi.comments + '<p>'
-                    mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}).').format(rating_link)
+                    mi.comments = mi.comments + _('Rating came from Perry Rhodan forum: {0}.').format(rating_link)
                     mi.comments = mi.comments + _('based on {0} votes from {1} voters.').format(votes, int(votes / 3))
                     mi.comments = mi.comments + '</p>'
 
@@ -2715,12 +2738,47 @@ class Perrypedia(Source):
             mi.rating, votes, rating_link = self.rating_from_forum_pr_net(self.browser, series_code, issuenumber, log, loglevel)
             if mi.rating is not None:
                 mi.comments = mi.comments + '<p>'
-                mi.comments = mi.comments + _('Rating came from Perry Rhodan forum ({0}), ').format(rating_link)
+                mi.comments = mi.comments + _('Rating came from Perry Rhodan forum: {0}.').format(rating_link)
                 mi.comments = mi.comments + _('based on {0} votes from {1} voters.').format(votes, int(votes/3))
                 mi.comments = mi.comments + '</p>'
 
         self.order_number = self.order_number + 1
         mi.source_relevance = self.order_number
+
+        # Applicate title template, if given
+        if self.prefs['title_template'] == '' or self.prefs['title_template'] == '{title}':
+            pass  # Vanilla title string
+        else:
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('title_template={0}'.format(self.prefs['title_template']))
+            custom_title = self.prefs['title_template']
+            custom_title = custom_title.replace('{title}', title)
+            custom_title = custom_title.replace('{title_sort}', title_sort(title, lang='deu'))
+            custom_title = custom_title.replace('{authors}', ' & '.join(authors))
+            custom_title = custom_title.replace('{authors_sort}', ' & '.join(map(author_to_author_sort, authors)))
+            custom_title = custom_title.replace('{series_code}', series_code)
+            custom_title = custom_title.replace('{series}', series_names[series_code])
+            if 'Zyklus:' in overview:
+                cycle = str(overview['Zyklus:'])
+            else:
+                cycle = ''
+            custom_title = custom_title.replace('{cycle}', cycle)
+            pattern = '(\{series_index:.*?\})'
+            if loglevel in [self.loglevels['DEBUG']]:
+                log.info('pattern={0}'.format(pattern))
+                log.info('custom_title={0}'.format(custom_title))
+            match = re.search(pattern, custom_title)
+            if match:
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('match.group()={0}'.format(match.group()))
+                f_string = match.group().replace('series_index', '')
+                series_index_str = f_string.format(issuenumber)
+                custom_title = custom_title.replace(match.group(), series_index_str)
+            else:
+                if loglevel in [self.loglevels['DEBUG']]:
+                    log.info('No match found.')
+                custom_title = custom_title.replace('{series_index}', str(issuenumber).strip())
+            mi.title = custom_title
 
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('*** Final formatted result (object mi): {0}'.format(mi))

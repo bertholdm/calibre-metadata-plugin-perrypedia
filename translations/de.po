@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Perrypedia\n"
-"POT-Creation-Date: 2024-05-27 15:36+0200\n"
-"PO-Revision-Date: 2024-05-27 15:39+0200\n"
+"POT-Creation-Date: 2024-05-29 16:35+0200\n"
+"PO-Revision-Date: 2024-05-29 16:35+0200\n"
 "Last-Translator: Michael Detambel <info@michael-detambel.de>\n"
 "Language-Team: Michael Detambel, <info@michael-detambel.de>\n"
 "Language: de_DE\n"
@@ -20,19 +20,19 @@ msgstr ""
 "Lädt Metadaten und Umschlagbilder aus der Perrypedia (perrypedia.de) "
 "herunter."
 
-#: __init__.py:205
+#: __init__.py:207
 msgid "Title / Author search mode"
 msgstr "Suche mit Titel / Autor"
 
-#: __init__.py:206
+#: __init__.py:208
 msgid "Exact match in Title / Author search mode, otherwise fuzzy search."
 msgstr "Genaue Übereinstimmung von Titel / Autor oder unscharfe Suche."
 
-#: __init__.py:214
+#: __init__.py:216
 msgid "log level"
 msgstr "Ausführlichkeit des Logs"
 
-#: __init__.py:215
+#: __init__.py:217
 msgid ""
 "Log detail level. NOTSET: no logging, only global info and error messages, "
 "DEBUG: all processing messages, INFO: essential procesing messages."
@@ -41,22 +41,41 @@ msgstr ""
 "und Fehlermeldungen, DEBUG: Alle Verarbeitungsmeldungen, INFO: Wesentliche "
 "Verarbeitungsmeldungen."
 
-#: __init__.py:224
+#: __init__.py:226
 msgid "Ignore SSL errors"
 msgstr "SSL-Fehler ignorieren"
 
-#: __init__.py:225
+#: __init__.py:227
 msgid ""
 "Make this choice if client and/or server site certificate makes trouble."
 msgstr ""
 "Auswählen, wenn die Überprüfung des Client- oder Serverzertifikates durch "
 "Python auf einen Fehler läuft."
 
-#: __init__.py:232
+#: __init__.py:234
+msgid "Title template"
+msgstr "Titelvorlage"
+
+#: __init__.py:235
+#, python-brace-format
+msgid ""
+"Allowed placeholders are: {title}, {title_sort}, {authors}, {authors_sort}, "
+"{series}, {series_code}, {series_index}, {cycle}.\n"
+"{series_index} can be formatted with python F-strings: p. ex. use "
+"{series_index:04d} to print out series index with 4 digits and leading "
+"zeros, if necessary. Default value ist the pure title."
+msgstr ""
+"Erlaubte Platzhalter sind: {title}, {title_sort}, {authors}, {authors_sort}, "
+"{series}, {series_code}, {series_index}, {cycle}.\n"
+"{series_index} kann mit Python F-Strings formatiert werden: z. B. gibt "
+"{series_index:04d} die Seriennummer mit 4 Ziffern und ggf. führenden Nullen "
+"aus. Standard ist der reine Titel."
+
+#: __init__.py:245
 msgid "Comments field style - text or html"
 msgstr "Formatierung des Kommentarfeldes - Text oder HTML"
 
-#: __init__.py:233
+#: __init__.py:246
 msgid ""
 "Choose if comments should formatted with html/css or should contain pure "
 "text with line breaks."
@@ -64,11 +83,11 @@ msgstr ""
 "Auswählen, ob Kommentare mit HTML/CSS formatiert werden sollen, oder reinen "
 "Text mit Zeilenumbrüchen enthalten sollen."
 
-#: __init__.py:241
+#: __init__.py:254
 msgid "Inklude comments from \"kreis-archiv.de\""
 msgstr "Kommentare aus dem \"kreis-archiv.de\" einbeziehen"
 
-#: __init__.py:242
+#: __init__.py:255
 msgid ""
 "Make this choice if comments from former \"kreis-archiv.de\" should be "
 "included."
@@ -76,11 +95,11 @@ msgstr ""
 "Diese anhaken, wenn Kommentare aus dem \"kreis-archiv.de\" einbezogen werden "
 "sollen."
 
-#: __init__.py:249
+#: __init__.py:262
 msgid "Inklude ratings from \"https://forum.perry-rhodan.net/\""
 msgstr "Hole Bewertungen von \"https://forum.perry-rhodan.net/\""
 
-#: __init__.py:250
+#: __init__.py:263
 msgid ""
 "Make this choice if ratings from \"https://forum.perry-rhodan.net/\" should "
 "be included."
@@ -88,11 +107,11 @@ msgstr ""
 "Diese anhaken, wenn Bewertungen aus dem Perry Rhodan Forum (https://forum."
 "perry-rhodan.net/) einbezogen werden sollen."
 
-#: __init__.py:257
+#: __init__.py:270
 msgid "Calculation method for ratings"
 msgstr "Berechnungsmethode für Bewertungen"
 
-#: __init__.py:258
+#: __init__.py:271
 msgid ""
 "Choose the calculation method for average ratings. \"arithmetic\" uses all "
 "ratings, \"modal\" only the highest ratings."
@@ -101,19 +120,19 @@ msgstr ""
 "\"Arithmetisch\" berücksichtigt alle Bewertungen, \"modal\" nur den "
 "häufigsten Wert jeder Bewertungskategorie."
 
-#: __init__.py:259
+#: __init__.py:272
 msgid "arithmetic"
 msgstr "arithmetisch"
 
-#: __init__.py:259
+#: __init__.py:272
 msgid "modal"
 msgstr "modal"
 
-#: __init__.py:265
+#: __init__.py:278
 msgid "Rating weight for the story"
 msgstr "Bewertungsgewicht für die Story des Romans"
 
-#: __init__.py:266
+#: __init__.py:279
 msgid ""
 "Set a weight number for the story rating. Default value is 1. Set to 0 if "
 "this rating facette should be ignored."
@@ -122,11 +141,11 @@ msgstr ""
 "Standardwert ist 1. Auf 0 setzen, wenn dieser Bewertungsaspekt nicht "
 "berücksichtigt werden soll."
 
-#: __init__.py:273
+#: __init__.py:286
 msgid "Rating weight for the author's writing style"
 msgstr "Bewertungsgewicht für den Schreibstil des Autors"
 
-#: __init__.py:274
+#: __init__.py:287
 msgid ""
 "Set a weight number for the author's writing style rating. Default value is "
 "1. Set to 0 if this rating facette should be ignored."
@@ -135,11 +154,11 @@ msgstr ""
 "Standardwert ist 1. Auf 0 setzen, wenn dieser Bewertungsaspekt nicht "
 "berücksichtigt werden soll."
 
-#: __init__.py:281
+#: __init__.py:294
 msgid "Rating weight for the the development of the cycle"
 msgstr "Bewertungsgewicht für die aktuelle Entwicklung des Zyklus"
 
-#: __init__.py:282
+#: __init__.py:295
 msgid ""
 "Set a weight number for the the development of the cycle rating. Default "
 "value is 1. Set to 0 if this rating facette should be ignored."
@@ -148,19 +167,19 @@ msgstr ""
 "angeben. Standardwert ist 1. Auf 0 setzen, wenn dieser Bewertungsaspekt "
 "nicht berücksichtigt werden soll."
 
-#: __init__.py:289
+#: __init__.py:302
 msgid "Rounding ratings to integer"
 msgstr "Bewertungen auf ganze Zahlen runden"
 
-#: __init__.py:290
+#: __init__.py:303
 msgid "Make this choice if ratings should be round to zero decimal values."
 msgstr "Wählen, wenn Bewertungen auf ganze Zahlen gerundet werden sollen."
 
-#: __init__.py:296
+#: __init__.py:309
 msgid "Output mode for ratings"
-msgstr "Ausgabemethode für Bewertungen."
+msgstr "Ausgabemethode für Bewertungen"
 
-#: __init__.py:297
+#: __init__.py:310
 msgid ""
 "Choose \"result only\", if only overall rating should appear in the ratings "
 "field, choose \"detailed\", if also intermediate values are to displayed."
@@ -169,19 +188,19 @@ msgstr ""
 "soll, \"detailliert\", wenn weitere statistische Daten ausgegeben werden "
 "sollen."
 
-#: __init__.py:298
+#: __init__.py:312
 msgid "detailed"
 msgstr "detailliert"
 
-#: __init__.py:298
+#: __init__.py:312
 msgid "result only"
 msgstr "nur Endergebnis"
 
-#: __init__.py:304
+#: __init__.py:318
 msgid "Fallback to publishing date from isfdb"
 msgstr "Veröffentlichungsdatum aus ISFDB"
 
-#: __init__.py:305
+#: __init__.py:319
 msgid ""
 "Use publishing date from isfdb.org, if Perrypedia ha only the publishing "
 "year."
@@ -189,11 +208,11 @@ msgstr ""
 "Verwende das Veröffentlichungsdatum von isfdb.org, wenn die Perrypedia nur "
 "das Veröffentlichungsjahr liefert."
 
-#: __init__.py:752 __init__.py:764
+#: __init__.py:775 __init__.py:787
 msgid "Unexpected structure of field pp_id:"
 msgstr "Unerwarteter Aufbau des Feldes pp_id:"
 
-#: __init__.py:789
+#: __init__.py:812
 #, python-brace-format
 msgid ""
 "Malformed PPID: {0}. Parse title and authors fields for series and "
@@ -202,46 +221,46 @@ msgstr ""
 "Korrupte PPID: {0}. Untersuche Titel und Autoren-Felder nach "
 "Serienbezeichnung und Nummer."
 
-#: __init__.py:827 __init__.py:1457
+#: __init__.py:850 __init__.py:1480
 #, python-brace-format
 msgid "Version hint: This is publication {0} in Taschenheft series."
-msgstr ""
+msgstr "Versionshinweis: Dies ist Ausgabe {0} in der Taschenheft-Serie."
 
-#: __init__.py:832
+#: __init__.py:855
 msgid ""
 "No metadata found with series code and/or issuenumber not found. Trying a "
 "book title search."
 msgstr ""
 "Keine Metadaten gefunden mit Serie und Ausgabe. Starte eine Suche nach Titel."
 
-#: __init__.py:835
+#: __init__.py:858
 msgid "Series code and/or issuenumber not found. Trying a book title search."
 msgstr "Serie und/oder Ausgabe nicht gefunden. Starte Suche nach Titel."
 
-#: __init__.py:859
+#: __init__.py:882
 msgid "Next soup, page title:"
 msgstr "Weitere Seite. Titel:"
 
-#: __init__.py:860
+#: __init__.py:883
 msgid "Next soup, url:"
 msgstr "Nächste Seite. URL:"
 
-#: __init__.py:868
+#: __init__.py:891
 msgid "Result found with title search."
 msgstr "Titelsuche erbrachte ein Ergebnis."
 
-#: __init__.py:876 __init__.py:2392
+#: __init__.py:899 __init__.py:2415
 msgid "Trying to get series code and issuenumber from result."
 msgstr "Untersuche Ergebnis nach Serienbezeichnung und Nummer."
 
-#: __init__.py:894
+#: __init__.py:917
 msgid ""
 "No book found with text provided in title and authors fields - giving up."
 msgstr ""
 "Kein Treffer mit den Daten aus den Titel- und Autoren-Feldern - Ende der "
 "Fahnenstange."
 
-#: __init__.py:895
+#: __init__.py:918
 msgid ""
 "Since metadata plugins cannot read book files for identification purposes, "
 "you must the manually put in identification data."
@@ -249,167 +268,167 @@ msgstr ""
 "Da Metadaten-Plugins keine Buchdateien zum Finden von "
 "Identifikationsmerkmalen lesen können, müssen Sie die Daten manuell eingeben."
 
-#: __init__.py:897
+#: __init__.py:920
 msgid "Error: No metadata result. Abort."
 msgstr "Fehler: Keine Metadaten gefunden. Abbruch."
 
-#: __init__.py:949
+#: __init__.py:972
 msgid "No cached cover found, running identify."
 msgstr ""
 "Keine gespeicherten Buchumschläge gefunden. Identifizierung wird gestartet."
 
-#: __init__.py:975
+#: __init__.py:998
 msgid "No luck to find cover with identify."
 msgstr "Es konnte kein Buchumschlag identifiziert werden."
 
-#: __init__.py:993
+#: __init__.py:1016
 msgid "Going to download cover from url"
 msgstr "Herunterladen eines Umschlagbildes fehlgeschlagen von"
 
-#: __init__.py:999
+#: __init__.py:1022
 msgid "Have downloaded cover from"
 msgstr "Umschlagbild heruntergeladen von"
 
-#: __init__.py:1001
+#: __init__.py:1024
 msgid "Failed to download cover from"
 msgstr "Herunterladen eines Umschlagbildes fehlgeschlagen von"
 
-#: __init__.py:1410
+#: __init__.py:1433
 #, python-brace-format
 msgid "Searching in title and authors fields: {0} / {1}"
 msgstr "Suche in Titel- und Autoren-Feldern: {0} / {1}"
 
-#: __init__.py:1419
+#: __init__.py:1442
 msgid "Match found for series code:"
 msgstr "Treffer gefunden für Wörterbuch-Schlüssel:"
 
-#: __init__.py:1460
+#: __init__.py:1483
 msgid "Series and/or issuenumber not found. Searching for subseries..."
 msgstr "Index zur Serie nicht gefunden. Starte Suche nach Titel..."
 
-#: __init__.py:1470
+#: __init__.py:1493
 msgid "Searching subseries in title and authors:"
 msgstr "Suche Zyklus ind den Titel- und Autoren-Feldern:"
 
-#: __init__.py:1478
+#: __init__.py:1501
 msgid "Match found for "
 msgstr "Treffer gefunden für Wörterbuch-Schlüssel "
 
-#: __init__.py:1501
+#: __init__.py:1524
 msgid "Subseries and/or subseries issuenumber not found."
 msgstr "Zyklus und/oder Nummer im Zyklus nicht gefunden."
 
-#: __init__.py:1590
+#: __init__.py:1613
 #, python-brace-format
 msgid "API search with: \"{0}\"..."
 msgstr "API Suche mit: \"{0}\"..."
 
-#: __init__.py:1591 __init__.py:2883
+#: __init__.py:1614 __init__.py:2941
 #, python-brace-format
 msgid "GET url: \"{0}\""
 msgstr "GET URL: \"{0}\""
 
-#: __init__.py:1596
+#: __init__.py:1619
 msgid "Response list="
 msgstr "Response list="
 
-#: __init__.py:1769
+#: __init__.py:1792
 #, python-brace-format
 msgid "{0} potential book source(s) found."
 msgstr "{0} Mögliche Buchdatenquelle(n) gefunden."
 
-#: __init__.py:1782
+#: __init__.py:1805
 msgid "Page title:"
 msgstr "Seiten-Titel:"
 
-#: __init__.py:1792
+#: __init__.py:1815
 msgid "No possible book source found with"
 msgstr "Keine Buchdatenquelle gefunden mit"
 
-#: __init__.py:1800
+#: __init__.py:1823
 msgid "Failed to download book metadata with title search. Giving up."
 msgstr ""
 "Herunterladen von Buch-Metadaten über Titel-Suche fehlgeschlagen. Abbruch."
 
-#: __init__.py:1864 __init__.py:1907 __init__.py:1951 __init__.py:1994
-#: __init__.py:2130
+#: __init__.py:1887 __init__.py:1930 __init__.py:1974 __init__.py:2017
+#: __init__.py:2153
 msgid "Found a relative cover page URL:"
 msgstr "Relative URL einer Seite mit den Umschlagbildern:"
 
-#: __init__.py:1876 __init__.py:1919 __init__.py:1963 __init__.py:2006
-#: __init__.py:2159
+#: __init__.py:1899 __init__.py:1942 __init__.py:1986 __init__.py:2029
+#: __init__.py:2182
 msgid "Relative cover url:"
 msgstr "Relative URL des Umschlagbilds:"
 
-#: __init__.py:2016
+#: __init__.py:2039
 msgid "Nested ambiguous title page - ignored."
 msgstr "Untergeordnete »Begriffsklärung«-Seite - wird ignoriert."
 
-#: __init__.py:2023
+#: __init__.py:2046
 msgid "Page type could not be identified!"
 msgstr "Der Seitentyp konnte nicht identifiziert werden!"
 
-#: __init__.py:2204 __init__.py:2261 __init__.py:2346 __init__.py:2506
+#: __init__.py:2227 __init__.py:2284 __init__.py:2369 __init__.py:2529
 msgid "Cover URLs cached with ppid:"
 msgstr "Gespeicherte URLs für Buchumschläge:"
 
-#: __init__.py:2208 __init__.py:2265 __init__.py:2350 __init__.py:2510
+#: __init__.py:2231 __init__.py:2288 __init__.py:2373 __init__.py:2533
 msgid "Cover URLs cached with title:"
 msgstr "Gespeicherte URLs für Buchumschläge:"
 
-#: __init__.py:2236 __init__.py:2306
+#: __init__.py:2259
 #, python-brace-format
 msgid "Rating came from Perry Rhodan forum ({0})."
 msgstr "Bewertungen aus dem Perry Rhodan Forum ({0})."
 
-#: __init__.py:2237 __init__.py:2307 __init__.py:2719
+#: __init__.py:2260 __init__.py:2330 __init__.py:2742
 #, python-brace-format
 msgid "based on {0} votes from {1} voters."
 msgstr "basierend auf {0} Bewertungen von {1} Personen."
 
-#: __init__.py:2289 __init__.py:2374
+#: __init__.py:2312 __init__.py:2397
 msgid "(Editor)"
 msgstr "(Herausgeber)"
 
-#: __init__.py:2318
+#: __init__.py:2329 __init__.py:2741
+#, python-brace-format
+msgid "Rating came from Perry Rhodan forum: {0}."
+msgstr "Bewertungen aus dem Perry Rhodan Forum: ({0})."
+
+#: __init__.py:2341
 msgid "Werkstattband found."
 msgstr "Werkstattband gefunden."
 
-#: __init__.py:2454
+#: __init__.py:2477
 msgid "Key error while building authors field!"
 msgstr "Schlüsselfehler in Autorenfeld!"
 
-#: __init__.py:2460
+#: __init__.py:2483
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: __init__.py:2718
-#, python-brace-format
-msgid "Rating came from Perry Rhodan forum ({0}), "
-msgstr "Bewertungen aus dem Perry Rhodan Forum ({0}),"
-
-#: __init__.py:2760
+#: __init__.py:2818
 msgid "Found the relative cover page URL:"
 msgstr "Relative URL der Seite mit den Umschlagbildern:"
 
-#: __init__.py:2763 __init__.py:2795
+#: __init__.py:2821 __init__.py:2853
 msgid "Effective URL:"
 msgstr "Endgültige URL:"
 
-#: __init__.py:2777
+#: __init__.py:2835
 msgid "Cover page not found."
 msgstr "Seite mit den Umschlagbildern nicht gefunden."
 
-#: __init__.py:2791
+#: __init__.py:2849
 msgid "Found the relative cover URL:"
 msgstr "Relative URL eines oder des Umschlagbildes:"
 
-#: __init__.py:2874
+#: __init__.py:2932
 #, python-brace-format
 msgid "Error while encoding {0}: {1}."
 msgstr "Fehler beim Encodieren {0}: {1}."
 
-#: __init__.py:2878
+#: __init__.py:2936
 #, python-brace-format
 msgid ""
 "Truncate the search string at the error position and search with the "
@@ -417,15 +436,24 @@ msgid ""
 msgstr ""
 "Suchstring an der Fehlerposition abgeschnitten und Suche mit Reststring: {0}."
 
-#: __init__.py:2882
+#: __init__.py:2940
 #, python-brace-format
 msgid "Title search with: \"{0}\"..."
 msgstr "Titelsuche mit: \"{0}\"..."
 
-#: __init__.py:2948
+#: __init__.py:3006
 #, python-format
 msgid "Cover test failed. Expected: '%s' found: "
 msgstr "Test für Umschlagbild fehlgeschlagen. Erwartet: '%s', gefunden: "
+
+#, fuzzy, python-brace-format
+#~| msgid "Rating came from Perry Rhodan forum: {0}."
+#~ msgid "Rating came from Perry Rhodan forum: {0}"
+#~ msgstr "Bewertungen aus dem Perry Rhodan Forum: ({0})."
+
+#, python-brace-format
+#~ msgid "Rating came from Perry Rhodan forum ({0}), "
+#~ msgstr "Bewertungen aus dem Perry Rhodan Forum ({0})."
 
 #~ msgid "title has book_variant in parentheses."
 #~ msgstr "Titel hat Buchvariante in Klammern."

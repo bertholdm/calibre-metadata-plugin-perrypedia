@@ -1,4 +1,4 @@
-[Metadata Source Plugin] Perrypedia - 1.8.6 - 05-27-2024
+[Metadata Source Plugin] Perrypedia - 1.9.0 - 05-29-2024
 
 [English version follows]
 
@@ -23,6 +23,8 @@ Die Suche nach Perrypedia-Ressourcen erfolgt in drei Schritten:
 2. Wenn keine PPID angegeben ist, sucht das Plugin im Titelfeld nach Token (Serien, Unterreihen, Ausgabenummer), um die PPID zu erstellen (mit regulären Ausdrücken und Tabellen, daher ist dies wartungsintensiv im Falle neuer Produkte - die Konfiguration durch den Benutzer ist geplant ).
 3. Wenn der PPID-Build fehlschlägt, verwendet das Plugin die Wikimedia API, um nach dem Titel zu suchen.
 
+Der Titel kann über ein Template (siehe Optionen) formatiert werden. Beispiel: Das Template "{series_code} {series_index:04d} | {cycle} - {title} - {authors_sort}" erzeugt "PR 0200 | Die Meister der Insel - Die Straße nach Andromeda - Scheer, K. H.".
+
 Geplante Funktionen:
 --------------------
 - Suchen nach Identifikationsdaten in (physischen) Büchern, wenn Identifikatoren oder Titel nicht ausreichen (da Metadatenplugins nicht auf Buchdateien zugreifen können, ist ein separates GUI-Plugin namens "PerrypediaTools" geplant).
@@ -38,6 +40,8 @@ Einschränkungen:
 
 Versionsgeschichte:
 -------------------
+Version 1.9.0 - 05-29-2024
+- User defined title build with template. Thanks to Crest76 for the suggestion.
 Version 1.8.6 - 05-27-2024
 - Verbesserte Suche mit Titel oder Titelbestandteil.
 - Schreibweise für die Serie "Taschenbücher Dunkelwelten" geändert.
@@ -117,7 +121,7 @@ Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem 
 
 ---
 
-[Metadata Source Plugin] Perrypedia - Version 1.8.6 - 05-27-2024
+[Metadata Source Plugin] Perrypedia - Version 1.9.0 - 05-29-2024
 
 This plugin uses Perrypedia as metadata source. It downloads metadata and covers. 
 Perrypedia (https://www.perrypedia.de/) is a fan project for the creation of a free reference work for the Perry Rhodan SF series.
@@ -140,6 +144,8 @@ The search for Perrypedia resources is a three step:
 2. If no PPID is given, the plugin looks for tokens (series, subseries, issue number) in the title field to create the PPID (with regular expressions and tables, so this is a matter of maintenance - configuration by the user is planned). 
 3. If the PPID build fails, the plugin will use the Wikimedia search API for a title search.
 
+The title can be formatted using a template (see options). Example: The template "{series_code} {series_index:04d} | {cycle} - {title} - {authors_sort}" produces "PR 0200 | Die Meister der Insel - Die Straße nach Andromeda - Scheer, K. H.".
+
 Planned Features:
 -----------------
 - Search for identification data in (physical) books if identifiers or title are not sufficient (since metadataplugins cannot access book files, a seperate GUI plugin named "PerrypediaTools" is planned)
@@ -155,6 +161,8 @@ Limitations:
 
 Version History:
 ----------------
+Version 1.9.0 - 05-29-2024
+- User defined title build with template. Thanks to Crest76 for the suggestion.
 Version 1.8.6 - 05-27-2024
 - Better search with title or title fragment.
 - Correct spelling for series name "Taschenbücher Dunkelwelten".
