@@ -93,12 +93,14 @@ class Perrypedia(Source):
     author = 'Michael Detambel'
     platforms = ['windows', 'linux', 'osx']
     minimum_calibre_version = (0, 8, 5)
-    version = (1, 9, 2)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    released = ('12-06-2024')
+    version = (1, 9, 3)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    released = ('06-09-2025')
     history = True
     # ToDo:
     # - Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
     # - Statistik aus Exil-Forum
+    # Version 1.9.3 - 06-09-2025
+    # - Improved processing for partial publication date.
     # Version 1.9.2 - 12-06-2024
     # - Suchausdruck hinzugefügt (Leseproben ab PR3300).
     # Version 1.9.1 - 07-03-2024
