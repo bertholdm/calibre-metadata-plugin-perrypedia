@@ -93,10 +93,16 @@ class Perrypedia(Source):
     author = 'Michael Detambel'
     platforms = ['windows', 'linux', 'osx']
     minimum_calibre_version = (0, 8, 5)
-    version = (1, 9, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    released = ('05-29-2024')
+    version = (1, 9, 2)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    released = ('12-06-2024')
     history = True
-    # ToDo: Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
+    # ToDo:
+    # - Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
+    # - Statistik aus Exil-Forum
+    # Version 1.9.2 - 12-06-2024
+    # - Suchausdruck hinzugefügt (Leseproben ab PR3300).
+    # Version 1.9.1 - 07-03-2024
+    # - Error fixed due to closure of the publisher's forum (forum.perry-rhodan.net).
     # Version 1.9.0 - 05-29-2024
     # - User defined title build with template. Thanks to Crest76 for the suggestion.
     # Version 1.8.6 - 05-27-2024
@@ -430,7 +436,8 @@ class Perrypedia(Source):
         'PR': r'(perry-rhodan-heft)[^0-9]{0,5}(\d{1,})|(perry%20rhodan)[^0-9]{0,5}(\d{1,})'
               r'|(\d{1,4})[^0-9]{0,3}(perry.{0,3}rhodan)|(\d{1,4})[^0-9]{0,3}(pr)'
               r'|(perry.{0,3}rhodan)[^0-9]{0,5}(\d{1,})|(perry rhodan)[^0-9]{0,5}(\d{1,})'
-              r'|(pr)[^0-9]{0,5}(\d{1,})|(pr) (\d{1,})|(perry-rhodan)-(\d{4,4})',
+              r'|(pr)[^0-9]{0,5}(\d{1,})|(pr) (\d{1,})|(perry-rhodan)-(\d{4,4})'
+              r'|.* leseprobe (pr) .*band (\d{4,4}) .*',  # 12024017 leseprobe pr yband 3300 web 0
     }
 
     # Zyklen
@@ -553,6 +560,7 @@ class Perrypedia(Source):
         'PRA': 'Perry Rhodan-Action',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Action
         'PRAB': 'Perry Rhodan-Autorenbibliothek',
         'PRAH': 'Perry Rhodan-Andromeda Hörbücher',
+        'PRAND': 'Perry Rhodan-Androiden',  # https://www.perrypedia.de/wiki/Androiden_(Serie)
         'PRAR': 'Perry Rhodan-Arkon',  # https://www.perrypedia.de/wiki/Perry_Rhodan-Miniserien
         'PRATB': 'Perry Rhodan-Action Taschenbücher',
         'PRATL': 'Perry Rhodan-Atlantis', # https://www.perrypedia.de/wiki/Atlantis_(Serie)
@@ -615,6 +623,7 @@ class Perrypedia(Source):
         'SE': 'Silber Edition',  # https://www.perrypedia.de/wiki/Silber_Edition
         'SOL': 'SOL-Magazin',
         'STEBP': 'Stellaris E-Book Pakete',  # https://www.perrypedia.de/wiki/Stellaris_E-Book_Pakete
+        'Stellaris': 'Stellaris',  # https://www.perrypedia.de/wiki/Stellaris_(Serie)
     }
     # https://www.perrypedia.de/wiki/Perry_Rhodan-Gold-Edition
     # https://www.perrypedia.de/wiki/Titelbildgalerie_Gold-Edition_1_-_99_(in_der_Reihenfolge_der_Heftnummern)
@@ -668,6 +677,16 @@ class Perrypedia(Source):
     # get_title_tokens(title, strip_joiners=True, strip_subtitle=False)[source]
     # Take a title and return a list of tokens useful for an AND search query. Excludes connectives(optionally) and
     # punctuation.
+
+    def initialize(self):
+        '''
+        Called once when calibre plugins are initialized. Plugins are re-initialized every time a new plugin is added. 
+        Also note that if the plugin is run in a worker process, such as for adding books, then the plugin will be 
+        initialized for every new worker process.
+        Perform any plugin specific initialization here, such as extracting resources from the plugin ZIP file. 
+        The path to the ZIP file is available as self.plugin_path.
+        '''
+        print('Perrypedia successful initialized.')
 
     def identify_results_keygen(self, title=None, authors=None, identifiers={}):
         # return a function that will be used while sorting the identify results based on the source_relevance field of the Metadata object
@@ -1094,6 +1113,10 @@ class Perrypedia(Source):
             return None
 
     def rating_from_forum_pr_net(self, browser, series_code, issuenumber, log, loglevel):
+
+        log.info('forum.perry-rhodan.net closed by 2024-06-30')
+        return None, 0, ''
+
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('Enter rating_from_forum_pr_net()')
             log.info('series_code=', series_code)
@@ -1105,9 +1128,9 @@ class Perrypedia(Source):
             if loglevel == self.loglevels['DEBUG']:
                 log.info("Checking spoiler archive on https://forum.perry-rhodan.net/viewforum.php?f=110")
             url = 'https://forum.perry-rhodan.net/viewforum.php?f=110'
-            old_cycles_page = browser.open_novisit(url, timeout=30).read().strip()
-            if old_cycles_page:
-                soup = BeautifulSoup(old_cycles_page, 'html.parser')
+            response = browser.open_novisit(url, timeout=30).read().strip()
+            if response:
+                soup = BeautifulSoup(response, 'html.parser')
                 if soup:
                     # #page-body > div.forabg > div > ul.topiclist.forums > li:nth-child(1)
                     cycle_forums = soup.select('html > body#phpbb > div#wrap > div#inner-grunge > div#inner-wrap > '
@@ -1164,9 +1187,9 @@ class Perrypedia(Source):
                 cycle_spoiler_link = 'https://forum.perry-rhodan.net/viewforum.php?f=4'
             if loglevel == self.loglevels['DEBUG']:
                 log.info("cycle_spoiler_link={0}".format(cycle_spoiler_link))
-            cycle_spoiler_page = browser.open_novisit(cycle_spoiler_link, timeout=30).read().strip()
-            if cycle_spoiler_page:
-                soup = BeautifulSoup(cycle_spoiler_page, 'html.parser')
+            response = browser.open_novisit(cycle_spoiler_link, timeout=30).read().strip()
+            if response:
+                soup = BeautifulSoup(response, 'html.parser')
                 if soup:
                     # Has the topic page a pagination? (more than 25 topics)?
                     # <div class="pagination">47 Themen</div> or:
@@ -1216,9 +1239,9 @@ class Perrypedia(Source):
                             cycle_spoiler_link = cycle_spoiler_link + '&start=' + str(topic_page * 25)
                             if loglevel == self.loglevels['DEBUG']:
                                 log.info("cycle_spoiler_link={0}".format(cycle_spoiler_link))
-                            cycle_spoiler_page = browser.open_novisit(cycle_spoiler_link, timeout=30).read().strip()
-                            if cycle_spoiler_page:
-                                soup = BeautifulSoup(cycle_spoiler_page, 'html.parser')
+                            response = browser.open_novisit(cycle_spoiler_link, timeout=30).read().strip()
+                            if response:
+                                soup = BeautifulSoup(response, 'html.parser')
                                 if soup:
                                     spoiler_titles = soup.find_all('a', {'class':'topictitle'})
                                     if loglevel == self.loglevels['DEBUG']:
@@ -1256,9 +1279,9 @@ class Perrypedia(Source):
                         if loglevel == self.loglevels['DEBUG']:
                             log.info("spoiler_link={0}".format(spoiler_link))
                         # Open the issue spoiler page
-                        spoiler_page = browser.open_novisit(spoiler_link, timeout=30).read().strip()
-                        if spoiler_page:
-                            soup = BeautifulSoup(spoiler_page, 'html.parser')
+                        response = browser.open_novisit(spoiler_link, timeout=30).read().strip()
+                        if response:
+                            soup = BeautifulSoup(response, 'html.parser')
                             if soup:
                                 spoiler_title = soup.find('h2', {'class':'topic-title'}).text
                                 if loglevel == self.loglevels['DEBUG']:
@@ -1372,7 +1395,7 @@ class Perrypedia(Source):
                                         else:
                                             pass
                                         return rating, total_votes, spoiler_link
-        log.info("No ratings found!")
+        log.info('No ratings found!')
         return None, 0, ''
 
         # # From calibre\utils\formatter_functions.py
@@ -2295,17 +2318,19 @@ class Perrypedia(Source):
             # Illustrationen: Manfred Schneider
             # Erstveröffentlichung: Juli 1975[1]
             # <li>Erstveröffentlichung:  Juli 1975
-            search_result = re.search(r'<li>Erstveröffentlichung:(.{1,10}\d\d\d\d)', plot)
+            search_result = re.search(r'(?:<li>Erstveröffentlichung\:|<li>Erstmals erschienen\:)(.{1,10}\d\d\d\d)', plot)
             if search_result:
                 search_result = re.sub('<.*?>', '', search_result.group(0)).strip()  # Get rid of html tags
                 search_result = search_result.replace('Erstveröffentlichung:', '').strip()
+                search_result = search_result.replace('Erstmals erschienen:', '').strip()
                 try:
                     mi.pubdate = parser.parse(search_result, default=datetime(int(issuenumber), 1, 1, 2, 0, 0),
                                               parserinfo=GermanParserInfo())
-                except:
-                    pass
+                except Exception as e:
+                    log.info('Unable to parse publication date: "{0}"'.format(search_result))  # pass
             else:
-                    mi.pubdate = datetime(int(issuenumber), 1, 1, 2, 0, 0)
+                log.info('No publication date found.')
+                mi.pubdate = None  # datetime(int(issuenumber), 1, 1, 2, 0, 0)
             # <li>Herausgeber: <a href="/wiki/William_Voltz" title="William Voltz">William Voltz</a></li>
             search_result = re.search(r'<li>Herausgeber: (.*)</li>', plot)
             if search_result:

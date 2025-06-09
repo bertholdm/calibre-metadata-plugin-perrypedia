@@ -1,0 +1,2 @@
+calibre-debug -g
+pause

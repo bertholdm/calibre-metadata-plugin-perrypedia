@@ -1,4 +1,4 @@
-[Metadata Source Plugin] Perrypedia - 1.9.0 - 05-29-2024
+[Metadata Source Plugin] Perrypedia - 1.9.3 - 06-09-2025
 
 [English version follows]
 
@@ -40,8 +40,12 @@ Einschränkungen:
 
 Versionsgeschichte:
 -------------------
+Version 1.9.3 - 06-09-2025
+- Improved processing for partial publication date.
+Version 1.9.1 - 07-03-2024
+- Fehler durch Schließung des Verlagsforums (forum.perry-rhodan.net) behoben.
 Version 1.9.0 - 05-29-2024
-- User defined title build with template. Thanks to Crest76 for the suggestion.
+- Benutzerdefinierte Titelerzeugung mit Vorlage. Danke an Crest76 für den Vorschlag.
 Version 1.8.6 - 05-27-2024
 - Verbesserte Suche mit Titel oder Titelbestandteil.
 - Schreibweise für die Serie "Taschenbücher Dunkelwelten" geändert.
@@ -121,7 +125,7 @@ Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem 
 
 ---
 
-[Metadata Source Plugin] Perrypedia - Version 1.9.0 - 05-29-2024
+[Metadata Source Plugin] Perrypedia - Version 1.9.3 - 06-09-2025
 
 This plugin uses Perrypedia as metadata source. It downloads metadata and covers. 
 Perrypedia (https://www.perrypedia.de/) is a fan project for the creation of a free reference work for the Perry Rhodan SF series.
@@ -161,6 +165,10 @@ Limitations:
 
 Version History:
 ----------------
+Version 1.9.3 - 06-09-2025
+- Improved processing for partial publication date.
+Version 1.9.1 - 07-03-2024
+- Error fixed due to closure of the publisher's forum (forum.perry-rhodan.net).
 Version 1.9.0 - 05-29-2024
 - User defined title build with template. Thanks to Crest76 for the suggestion.
 Version 1.8.6 - 05-27-2024
