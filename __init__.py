@@ -3064,9 +3064,11 @@ class Perrypedia(Source):
                 translator = ''
                 cover_artist = ''
                 foreign_publisher = ''
-                pub_years = ''
+                foreign_pubdate_str = ''
+                foreign_pubdate = None
                 action_period = ''
                 url = ''
+                double_issue = False
                 issues_page_found = False
                 issue_found = False
 
@@ -3089,19 +3091,19 @@ class Perrypedia(Source):
                             soup = BeautifulSoup(page, 'html.parser')
                             selector = 'html body #mw-content-text div.mw-parser-output table.perrypedia_std_table tbody'
                             table_body = soup.select_one(selector)
-                            if loglevel in [self.loglevels['DEBUG']]:
-                                log.info('table_body={0}'.format(table_body))
+                            # if loglevel in [self.loglevels['DEBUG']]:
+                            #     log.info('table_body={0}'.format(table_body))
 
                             # Loop through the table rows until the appropriate cycle is found:
                             rows = table_body.find_all('tr')  # find_all returns a list
                             if loglevel in [self.loglevels['DEBUG']]:
                                 log.info('{0} rows found.'.format(len(rows)))
                             for row in rows:
-                                if loglevel in [self.loglevels['DEBUG']]:
-                                    log.info('row={0}'.format(row))
+                                # if loglevel in [self.loglevels['DEBUG']]:
+                                #     log.info('row={0}'.format(row))
                                 cols = row.find_all('td')  # find_all returns a list
-                                if loglevel in [self.loglevels['DEBUG']]:
-                                    log.info('cols={0}'.format(cols))
+                                # if loglevel in [self.loglevels['DEBUG']]:
+                                #     log.info('cols={0}'.format(cols))
                                 if cols:
                                     issue_range = cols[2].text.strip()
                                     issue_range_list = issue_range.split('–')
@@ -3113,7 +3115,8 @@ class Perrypedia(Source):
                                         if issuenumber in range(issue_from, issue_to):
                                             foreign_cycle = cols[0].text.strip()
                                             foreign_title = cols[1].text.strip()
-                                            pub_years = cols[4].text.strip()
+                                            foreign_pubdate_str = cols[4].text.strip()
+                                            # 2 cases: '1982', '1967–1971'
                                             action_period = cols[5].text.strip()
                                             url = self.base_url + cols[2].find("a").get("href")
                                             # url=/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1#Cyclus_2:_Atlan_en_Arkon
@@ -3156,16 +3159,36 @@ class Perrypedia(Source):
                                             if loglevel in [self.loglevels['DEBUG']]:
                                                 log.info('{0} cols found.'.format(len(cols)))
                                             if len(cols) == 7:  # ignore intermeidate headers
-                                                issue = int(cols[0].text.strip())
+                                                # ab Nr.2005/2006 in Form von Doppelbänden
+                                                if '/' in cols[0].text.strip():
+                                                    double_issue = True
+                                                    issue = int(cols[0].text.strip().split('/')[0].strip())
+                                                else:
+                                                    issue = int(cols[0].text.strip())
                                                 if loglevel in [self.loglevels['DEBUG']]:
                                                     log.info('issue={0}, issuenumber={1}.'.format(issue, issuenumber))
                                                 if issue == issuenumber:
                                                     issue_found = True
                                                     if loglevel in [self.loglevels['DEBUG']]:
                                                         log.info('Issue found. Now gathering infos.')
-                                                    foreign_title = cols[1].text.strip()
+                                                    if double_issue:
+                                                        foreign_titles = cols[1].find_all(string=True)
+                                                        if loglevel in [self.loglevels['DEBUG']]:
+                                                            log.info('foreign_titles={0}.'.format(foreign_titles))
+                                                        foreign_title = (foreign_titles[0].strip() + ' / ' +
+                                                                         foreign_titles[1].strip())
+                                                    else:
+                                                        foreign_title = cols[1].text.strip()
+                                                    if loglevel in [self.loglevels['DEBUG']]:
+                                                        log.info('foreign_title={0}.'.format(foreign_title))
                                                     if cols[2].text.strip():
-                                                        translator = cols[2].text.strip()
+                                                        if double_issue:
+                                                            translators = cols[2].find_all(string=True)
+                                                            translator = (translators[0].strip() + ' / ' +
+                                                                          translators[1].strip())
+                                                        else:
+                                                            translator = cols[2].text.strip()
+                                                    foreign_pubdate_str = cols[4].text.strip()
                                                     cover_artist = cols[5].text.strip()
                                                     foreign_publisher = self.get_foreign_publisher(
                                                         country_code, series_code, issue, log, loglevel)
@@ -3186,10 +3209,37 @@ class Perrypedia(Source):
 
                                                     # Get the exact pub date from ISFDB
                                                     authors_str = ''.join(mi.authors[0]).strip()
-                                                    original_pubdate = mi.pubdate
-                                                    mi.pubdate = self.get_pubdate_from_isfdb(foreign_title, authors_str,
-                                                                                             self.browser, 30,
-                                                                                             log, loglevel)
+                                                    # Check foreign pubdate.
+                                                    # 4 cases: '1966', '1967 / 1968', '2009, KW 45', '6. November 2009'
+                                                    original_pubdate = mi.pubdate  # save original date
+                                                    date_format = "%d. %B %Y"
+                                                    try:
+                                                        foreign_pubdate = datetime.strptime(foreign_pubdate_str, date_format)
+                                                    except:
+                                                        pass
+                                                    if not foreign_pubdate:
+                                                        date_format = "%Y, %W-%w"
+                                                        try:
+                                                            foreign_pubdate = (
+                                                                datetime.strptime(foreign_pubdate_str + '-1', date_format))
+                                                        except:
+                                                            pass
+                                                    if not foreign_pubdate:
+                                                        date_format = "%Y"
+                                                        try:
+                                                            foreign_pubdate = (
+                                                                datetime.strptime(foreign_pubdate_str[:4], date_format))
+                                                        except:
+                                                            pass
+                                                        if not foreign_pubdate:
+                                                            if double_issue:
+                                                                isfdb_title = foreign_title.split(' / ')[0].strip()
+                                                            else:
+                                                                isfbd_title = foreign_title
+                                                            pubdate = self.get_pubdate_from_isfdb(
+                                                                isfdb_title, authors_str, self.browser, 30,
+                                                                log, loglevel)
+                                                    mi.pubdate = foreign_pubdate  # is possible None (unknown)
                                                     mi.series = foreign_series_name
                                                     mi.publisher = foreign_publisher
                                                     mi.language = language_code
@@ -3202,19 +3252,23 @@ class Perrypedia(Source):
                                                     foreign_comments = foreign_comments + _(
                                                         'Action Period: ') + action_period + '<br />'
                                                     foreign_comments = foreign_comments + _(
-                                                        'Foreign Publication Years: ') + pub_years + '<br />'
+                                                        'Foreign Publication Years: ') + foreign_pubdate_str + '<br />'
                                                     foreign_comments = foreign_comments + _(
                                                         'Foreign Publisher: ') + foreign_publisher + '<br />'
                                                     foreign_comments = foreign_comments + _(
                                                         'Foreign Title: ') + foreign_title + '<br />'
-                                                    foreign_comments = foreign_comments + _(
-                                                        'Foreign Publication Date: ') + mi.pubdate.strftime('%d.%m.%Y') + '<br />'
+                                                    if mi.pubdate:
+                                                        foreign_comments = foreign_comments + _(
+                                                            'Foreign Publication Date: ') + mi.pubdate.strftime('%d.%m.%Y') + '<br />'
                                                     foreign_comments = foreign_comments + _(
                                                         'Original Publication Date: ') + original_pubdate.strftime('%d.%m.%Y') + '<br />'
                                                     foreign_comments = foreign_comments + _(
                                                         'Translator: ') + translator + '<br />'
                                                     foreign_comments = foreign_comments + _(
                                                         'Cover Artist: ') + cover_artist + '<br />'
+                                                    if double_issue:
+                                                        foreign_comments = (foreign_comments + '<b>' +
+                                                                            _('This is a double issue!') + '/b>')
                                                     # if loglevel in [self.loglevels['DEBUG'], 20]:
                                                     #     log.info('*** foreign_comments={0}'.format(foreign_comments))
                                                     if mi.comments:
@@ -3244,8 +3298,10 @@ class Perrypedia(Source):
                     log.info(_('Fetching information about foreign issues for Country={0} not yet implemented.').
                              format(self.prefs['countries']))
             except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
                 log.info(_('Fetching information about foreign issues for Country={0} failed with error: {1}').
                              format(self.prefs['countries'], e))
+                log.info('exc_type={0}, exc_tb.tb_lineno={1}').format(exc_type, exc_tb.tb_lineno)
 
         # Applicate title template
         if loglevel in [self.loglevels['DEBUG']]:
@@ -3326,8 +3382,8 @@ class Perrypedia(Source):
                     if loglevel in [self.loglevels['DEBUG']]:
                         log.info('{0} rows found.'.format(len(rows)))
                     for row in rows:
-                        if loglevel in [self.loglevels['DEBUG']]:
-                            log.info('row={0}'.format(row))
+                        # if loglevel in [self.loglevels['DEBUG']]:
+                        #     log.info('row={0}'.format(row))
                         cols = row.find_all('td')  # find_all returns a list
                         if loglevel in [self.loglevels['DEBUG']]:
                             log.info('{0} cols found.'.format(len(cols)))
@@ -3359,8 +3415,8 @@ class Perrypedia(Source):
                                     if loglevel in [self.loglevels['DEBUG']]:
                                         log.info('{0} rows found.'.format(len(rows)))
                                     for row in rows:
-                                        if loglevel in [self.loglevels['DEBUG']]:
-                                            log.info('row={0}'.format(row))
+                                        # if loglevel in [self.loglevels['DEBUG']]:
+                                        #     log.info('row={0}'.format(row))
                                         cols = row.find_all('td')  # find_all returns a list
                                         if loglevel in [self.loglevels['DEBUG']]:
                                             log.info('{0} cols found.'.format(len(cols)))
@@ -3583,8 +3639,8 @@ class Perrypedia(Source):
             cols = row.find_all('td')
             if cols:
                 if loglevel in [self.loglevels['DEBUG']]:
-                    log.info(('cols[3]={0}').format(cols[3]))
-                    log.info(('cols[3].text={0}').format(cols[3].text))
+                    log.info('cols[3]={0}'.format(cols[3]))
+                    log.info('cols[3].text={0}'.format(cols[3].text))
                     # Der Smiler und die Attentäter?Der Smiler und die Attentaeter
                 # Get rid of tooltips
                 # <td dir="ltr">
