@@ -1,0 +1,112 @@
+
+LOCALE_LANGUAGE_CODE, LOCALE_ENCODING = locale.getlocale()  # ('en_GB', 'cp1252')
+if LOCALE_LANGUAGE_CODE is None:
+    LOCALE_LANGUAGE_CODE = 'en_US'
+LOCALE_COUNTRY = LOCALE_LANGUAGE_CODE[-2:]
+if LOCALE_ENCODING is None:
+    LOCALE_ENCODING = 'utf-8'
+
+
+
+
+
+def get_language_name(search_code):
+    # for language_name, language_code in myglobals.LANGUAGES.items():
+    for language_name, language_code in LANGUAGES.items():
+        if language_code == search_code:
+            return language_name
+
+
+
+        if len(mi.languages) == 0:
+            self.languages = ''
+        else:
+            if len(mi.languages) == 1:
+                self.languages = ''.join(mi.languages)
+            else:
+                self.languages = '+'.join(mi.languages)
+
+
+        if 'fra' in languages:  # French
+            # Submitted by Roger1
+            # Supprime les sauts de lignes internes aux paragraphes
+            # (base : toujours une ligne blanche entre 2 §) – pourrait se faire en 1 instruction, 
+            # mais coupé pour lisibilité
+            text = '\n'.join(lines)
+        elif 'frk' in languages:  # German Fraktur
+            # ToDo
+            text = ''.join(lines)
+        else:
+            text = ''.join(lines)
+
+
+
+        # Build custom title, if template is given
+        if self.prefs['title_template'] == '' or self.prefs['title_template'] == '{title}':
+            pass  # Vanilla title string
+        else:
+            custom_title = self.prefs['title_template']
+            custom_title = custom_title.replace('{title}', mi.title)
+            custom_title = custom_title.replace('{title_sort}', title_sort(mi.title, lang='deu'))
+            custom_title = custom_title.replace('{authors}', ' & '.join(mi.authors))
+            custom_title = custom_title.replace('{authors_sort}', ' & '.join(map(author_to_author_sort, mi.authors)))
+            custom_title = custom_title.replace('{series}', mi.series)
+            if mi.series_index is None:
+                custom_title = custom_title.replace('{series_index}', '')
+            else:
+                pattern = '(\{series_index:.*?\})'
+                match = re.search(pattern, custom_title)
+                if match:
+                    f_string = match.group().replace('series_index', '')
+                    series_index_str = f_string.format(mi.series_index)
+                    custom_title = custom_title.replace(match.group(), series_index_str)
+                else:
+                    custom_title = custom_title.replace('{series_index}', str(mi.series_index).strip())
+            mi.title = custom_title
+
+
+
+
+# Choose the appropriate link depending on user language
+                                catalog_link_full = catalog_link
+                                catalog_link = ['']
+                                country_no = catalog_countries.index(LOCALE_COUNTRY)
+                                if prefs['log_level'] in 'DEBUG':
+                                    log.debug('LOCALE_COUNTRY={0}, country_no={1}'.format(LOCALE_COUNTRY, country_no))
+                                try:
+                                    catalog_link = [catalog_link_full[country_no]]
+                                except ValueError:
+                                    try:
+                                        country_no = catalog_countries.index('US')
+                                        catalog_link = [catalog_link_full[country_no]]
+                                    except ValueError:
+                                        catalog_link = [catalog_link_full[0]]  # Take the first one
+                            else:
+                                catalog_number = external_id_node.xpath('./a/text()')
+                                catalog_link = ['']
+                                log.debug(_('Unknown catalog with more than one link.'))
+
+
+
+
+                elif section == 'Language':
+                    properties["language"] = detail_node[0].tail.strip()
+                    # For calibre, the strings must be in the language of the current locale
+                    # Both Calibre and ISFDB use ISO 639-2 language codes,
+                    # but in the ISFDB web page only the language names are shown
+                    try:
+                        # properties["language"] = myglobals.LANGUAGES[properties["language"]]
+                        properties["language"] = LANGUAGES[properties["language"]]
+                    except KeyError:
+                        pass
+
+
+
+
+
+                if row.xpath('td[3]')[0].text_content() not in ('English', get_language_name(prefs['languages'])):
+                    if prefs['log_level'] in 'DEBUG':
+                        log.debug('Language ignored.')
+                    continue  # ignore language
+
+

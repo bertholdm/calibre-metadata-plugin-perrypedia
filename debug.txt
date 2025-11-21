@@ -1,0 +1,742 @@
+Running identify query with parameters: 
+{'title': 'Perry Rhodan - Cyclus 1 - De stralende koepel', 'authors': ['K. H. Scheer'], 'identifiers': {'ppid': 'PR3'}, 'timeout': 30} 
+Using plugins: Perrypedia (1, 10, 0) 
+The log from individual plugins is below 
+
+****************************** Perrypedia (1, 10, 0) ****************************** 
+Found 1 results 
+Downloading from Perrypedia took 6.2985498905181885 
+
+
+--- 
+Title               : Perry Rhodan - Cyclus 1 - De stralende koepel
+Author(s)           : K. H. Scheer
+Publisher           : Assen : N.V. Uitgeversmaatschappij
+Tags                : Die Dritte Macht, Terra, Perry Rhodan, Reginald Bull genannt „Bully“, Dr. Eric Manoli, Dr. Frank M. Haggard, Crest, Thora, Klein, Li-Tschai-Tung, Peter Kosnow, Allan D. Mercant
+Series              : Perry Rhodan #3
+Languages           : nld
+Published           : 1967-01-01T01:00:00+00:00
+Identifiers         : ppid:PR3
+Comments            : <p>Überblick:<br />Serie:&nbsp;Perry Rhodan-Heftserie (Band 3)<br />Verlag:&nbsp;© Heinrich Bauer Verlag KG<br />Zyklus:&nbsp;Die Dritte Macht<br />Titel:&nbsp;Die strahlende Kuppel<br />Untertitel:&nbsp;Die Kuppel aus reiner Energie trotzt selbst dem schwersten Beschuß – doch die Militärs geben nicht auf ...<br />Autor:&nbsp;K. H. Scheer<br />Titelbildzeichner:&nbsp;Johnny Bruck<br />Innenillustrator:&nbsp;Johnny Bruck (5 x)<br />Erstmals erschienen:&nbsp;Freitag, 22. September 1961<br />Hauptpersonen:&nbsp;Perry Rhodan, Reginald Bull genannt „Bully“, Dr. Eric Manoli, Dr. Frank M. Haggard, Crest, Thora, Klein, Li-Tschai-Tung, Peter Kosnow, Allan D. Mercant<br />Handlungszeitraum:&nbsp;Juli–August 1971<br />Handlungsort:&nbsp;Terra<br />Zusätzliche Formate:&nbsp;E-Book, | Druckauflagen PR-Heft 3,  | Hörspiel zum Heft,  | enthalten in Silberband 1, | enthalten in Leihbuch 2<br /></p><p>Handlung:<br />Die AF lässt ihre Elitetruppen in Dashoba aufmarschieren, östlich der STARDUST. Sämtliches Gerät wird in den Boden einbetoniert. Die Soldaten selbst benutzen Anschnallgurte, um der Wirkung des Antigravs entgegenzuwirken.
+<br />Die Ärzte Eric Manoli und Frank M. Haggard beginnen mit der Therapie für den leukämiekranken Crest, der allerdings mit schweren Nebenwirkungen auf das Anti-Leukämie-Serum reagiert.
+<br />Die asiatischen Militärs starten einen Trommelfeuer-Beschuss auf die Energiekuppel der STARDUST. Auch wenn der Schutzschirm nicht durchbrochen werden kann, so dient der Beschuss doch dazu, Perry Rhodan und seine Leute psychisch zu attackieren. Sie können sich jedoch mit den Ohrenschützern der STARDUST vorübergehend helfen.
+<br />Rhodan ahnt, dass die Menschheit nicht mehr lange brauchen wird, um den Anti-Neutronenschirm zu umgehen. An der kalten Fusion wird bereits seit einiger Zeit gearbeitet. Er nimmt Kontakt mit Thora auf, um sie zu warnen.
+<br />Währenddessen findet im Grönland-Hauptquartier der IIA auf Einladung von Allan D. Mercant eine Konferenz zwischen den Abwehrchefs der einzelnen Machtblöcke statt. Neben Mercant selbst nehmen General Lesly Pounder, Marschall Gregor Petronskij, Iwan Martinowitsch Kosselow, Lao Lin-To, Mao-Tsen und Albrecht Klein an der Konferenz teil. Iwan Martinowitsch Kosselow informiert die Anwesenden von einem Flug des Mondraumers des Ostblocks drei Monate vor der STARDUST, der jedoch über der Mondoberfläche abstürzte. Er erinnert die Teilnehmer auch daran, dass allein Rhodan die Vernichtung der Erde verhindert hat. Die Frage, die sich stellt, ist: Welche Rolle spielt Rhodan mit seiner Macht? Sorgt er für den Weltfrieden, oder wird er zum alles beherrschenden Diktator? Die Machtblöcke würden Rhodan akzeptieren, wenn seine bisherigen Angaben stimmen würden, aber ein Großcomputer ermittelt aus den bisherigen Ereignissen eine 99prozentige Wahrscheinlichkeit, dass Rhodan ein an Leukämie erkranktes nichtirdisches Lebewesen auf die Erde gebracht hat, in dessen Händen die eigentliche Macht liegt. Damit gibt es für die Abwehrdienste ein neues Ziel: den vermeintlichen außerirdischen Stützpunkt auf dem Mond. Dafür wird ein Abkommen unterzeichnet, das den gemeinsamen Angriff festlegt. Auf die Frage, wie das Problem mit den fehlenden Neutronen behoben werden soll, präsentiert Mercant den Anwesenden die Katalyse-Bombe. Nach Ende der Konferenz bittet Albrecht Klein Mercant, dass er als Sonderbeobachter und Verbindungsoffizier nach China geschickt wird. Mercant stimmt dem Wunsch zu, obwohl er weiß, dass Klein Rhodan vor dem geplanten Angriff warnen will.
+<br />Am 26. August 1971 um 2:00 Uhr beginnt ein weiterer Angriff, mit dem die Militärs der AF unter westlicher und russischer Beobachtung versuchen, die Energiekuppel zu durchdringen. Doch auch dem Beschuss durch 1500 Batterien mit nahezu 6000 Rohren auf ein minimales Ziel (50 m × 50 m) hält der Schirm stand. Auch konventionelle Waffen werden wieder eingesetzt, da es keine Aufhebung der Schwerkraft mehr gibt. Unter den Beobachtern sind der zum Captain beförderte Klein, Leutnant Peter Kosnow und Leutnant Li-Tschai-Tung.
+<br />Die drei Agenten werden beauftragt, Rhodan und die anderen unter der Kuppel mit einem bakteriellen Kampfstoff aus westlicher Produktion zu infizieren. Sie selbst werden geimpft. Es existiert ein Gegenmittel, Rhodan soll lediglich zur Aufgabe gezwungen werden. Tatsächlich stammt die Idee von Klein selbst, der so hoffte, wieder Kontakt mit Rhodan aufnehmen zu können. Gemeinsam machen sie sich mit Rotor-Fluggeräten auf den Weg zur STARDUST.
+<br />Crest ist mittlerweile in ein tiefes Koma gefallen, die Symptome der Leukämie sind aber vollständig verschwunden. Der Dauerbeschuss zeigt seine Wirkung: nervliche Überbelastung, die Energiereserve der Energiekuppel geht an ihre Grenze, einzelnes Material ist durch die starken Bodenerschütterungen unbrauchbar geworden (unter anderem auch das arkonidische Funkgerät). Somit ist es Rhodan unmöglich, Thora um Hilfe zu bitten oder sich zum verabredeten Zeitpunkt zu melden, was Thora als die Vernichtung des Stützpunktes in der Wüste Gobi und somit Crests Tod interpretieren könnte. Es besteht die Gefahr, dass sie sich dann veranlasst sieht, die Erde anzugreifen.
+<br />16 Stunden vor Beginn des Trommelbeschusses, am 25. August 1971 um 10:00 Uhr, startet die STARDUST II, ein Schwesterschiff der STARDUST, unter dem Kommando von Oberstleutnant Michael Freyt zum Mond, um den dort vermuteten außerirdischen Stützpunkt mithilfe der neuen Katalysebombe, die von Rod Nyssen bedient wird, zu vernichten. Kurze Zeit später starten auch die Raketen des Ostblocks und der AF.
+<br />Allan D. Mercant selbst fliegt wenige Stunden später mit einer Pluto-D-Rakete zur FREEDOM I, um den entscheidenden Angriff von der Raumstation aus zu beobachten.
+<br />Albrecht Klein gelingt es, Kontakt mit Rhodan aufzunehmen, der ihn und die beiden anderen Agenten unter der Energiekuppel empfängt. Klein unterrichtet die Dritte Macht von dem drohenden Angriff auf dem Mond, während Rhodan ihn bittet, alles für eine Waffenruhe zu tun. Notfalls will Rhodan kapitulieren, sollte es nicht gelingen, bis 8:00 Uhr Kontakt mit Thora aufzunehmen.
+<br />Als die drei Agenten wieder zurückkehren, beginnen die Ärzte Manoli und Haggard damit, Crest aus dem Koma zu wecken.
+<br />Mithilfe des wirkungsvollsten Psycho-Stimulans der Menschheit gelingt es den Ärzten schließlich, Crest aufzuwecken. Dieser erklärt Rhodan, dass das Funkgerät eine automatische Reparaturschaltung besitzt, sodass sämtliche Schäden unmittelbar und problemlos behoben werden können. Gerade noch rechtzeitig ist das Gerät wieder einsatzbereit. Crest bringt Thora dazu, mit einem Beiboot des arkonidischen Forschungsschiffes einzugreifen und den drohenden Zusammenbruch der Energiekuppel zu verhindern. Der Angriff auf die STARDUST wird von Thora innerhalb weniger Sekunden zurückgeschlagen. Crest unterschätzt aber die Gefahr durch die drei irdischen Raumschiffe und verschweigt deren Anflug vor Thora. In seinen Augen genügt der automatische Schutz durch den Bordcomputer des Arkonidenraumers.
+<br />Nach der Landung des Beibootes informiert Rhodan Thora von dem drohenden Angriff auf ihr Forschungsschiff. Zusammen mit Reginald Bull machen sie sich sofort auf den Weg zurück zum Mond. Doch sie kommen zu spät: Die drei Bomben zünden direkt über dem Arkonidenraumer und bilden einen neuen Krater auf dem lunaren Südpol. Die Bordautomatik sah aufgrund einer falschen Einstellung die anfliegenden Schiffe nicht als Bedrohung an.
+<br />Thora findet sich rasch mit der neuen Situation ab. Sie und Crest sind nun endgültig auf einem »primitiven« Planeten gestrandete Arkoniden.
+<br />
+<br />
+<br /></p><p>Quelle:&nbsp;<a href="https://www.perrypedia.de/mediawiki/index.php?title=Quelle:PR3&redirect=yes">https://www.perrypedia.de/mediawiki/index.php?title=Quelle:PR3&redirect=yes</a></p><br /><b>Info from foreign issue page for Netherlands:</b><br />Cycle: Cyclus 1<br />Action Period: 1971–1984<br />Foreign Publication Years: 1967–1971<br />Foreign Publisher: Assen : N.V. Uitgeversmaatschappij<br />Foreign Title: De stralende koepel<br />Foreign Publication Date: 01.01.1967<br />Original Publication Date: 22.09.1961<br />Translator: G. W. Roos<br />Cover Artist: Th. Postma<br /> 
+loglevel=DEBUG
+Enter identify()
+identifiers= {'ppid': 'PR3'}
+authors= ['K. H. Scheer']
+title= Perry Rhodan - Cyclus 1 - De stralende koepel
+ppid= PR3
+series_code= PR
+issuenumber= 3
+Enter get_raw_metadata_from_series_and_issuenumber()
+series_code= PR
+issuenumber= 3
+url= https://www.perrypedia.de/mediawiki/index.php?title=Quelle:PR3&redirect=yes
+Enter parse_pp_book_page()
+overview_data= [['Überblick'], ['Serie:', 'Perry Rhodan-Heftserie (Band 3)', '© Heinrich Bauer Verlag KGInnenillustrationen'], ['Zyklus:', 'Die Dritte Macht'], ['Titel:', 'Die strahlende Kuppel'], ['Untertitel:', 'Die Kuppel aus reiner Energie trotzt selbst dem schwersten Beschuß – doch die Militärs geben nicht auf ...'], ['Autor:', 'K. H. Scheer'], ['Titelbildzeichner:', 'Johnny Bruck'], ['Innenillustrator:', 'Johnny Bruck (5 x)'], ['Erstmals erschienen:', 'Freitag, 22. September 1961'], ['Hauptpersonen:', 'Perry Rhodan, Reginald Bull genannt „Bully“, Dr. Eric Manoli, Dr. Frank M. Haggard, Crest, Thora, Klein, Li-Tschai-Tung, Peter Kosnow, Allan D. Mercant'], ['Handlungszeitraum:', 'Juli–August 1971'], ['Handlungsort:', 'Terra'], ['Zusätzliche Formate:', 'E-Book, | Druckauflagen PR-Heft 3,  | Hörspiel zum Heft,  | enthalten in Silberband 1, | enthalten in Leihbuch 2']]
+row= ['Überblick']
+row= ['Serie:', 'Perry Rhodan-Heftserie (Band 3)', '© Heinrich Bauer Verlag KGInnenillustrationen']
+row= ['Zyklus:', 'Die Dritte Macht']
+row= ['Titel:', 'Die strahlende Kuppel']
+row= ['Untertitel:', 'Die Kuppel aus reiner Energie trotzt selbst dem schwersten Beschuß – doch die Militärs geben nicht auf ...']
+row= ['Autor:', 'K. H. Scheer']
+row= ['Titelbildzeichner:', 'Johnny Bruck']
+row= ['Innenillustrator:', 'Johnny Bruck (5 x)']
+row= ['Erstmals erschienen:', 'Freitag, 22. September 1961']
+row= ['Hauptpersonen:', 'Perry Rhodan, Reginald Bull genannt „Bully“, Dr. Eric Manoli, Dr. Frank M. Haggard, Crest, Thora, Klein, Li-Tschai-Tung, Peter Kosnow, Allan D. Mercant']
+row= ['Handlungszeitraum:', 'Juli–August 1971']
+row= ['Handlungsort:', 'Terra']
+row= ['Zusätzliche Formate:', 'E-Book, | Druckauflagen PR-Heft 3,  | Hörspiel zum Heft,  | enthalten in Silberband 1, | enthalten in Leihbuch 2']
+overview= {'Serie:': 'Perry Rhodan-Heftserie (Band 3)', 'Verlag:': '© Heinrich Bauer Verlag KG', 'Zyklus:': 'Die Dritte Macht', 'Titel:': 'Die strahlende Kuppel', 'Untertitel:': 'Die Kuppel aus reiner Energie trotzt selbst dem schwersten Beschuß – doch die Militärs geben nicht auf ...', 'Autor:': 'K. H. Scheer', 'Titelbildzeichner:': 'Johnny Bruck', 'Innenillustrator:': 'Johnny Bruck (5 x)', 'Erstmals erschienen:': 'Freitag, 22. September 1961', 'Hauptpersonen:': 'Perry Rhodan, Reginald Bull genannt „Bully“, Dr. Eric Manoli, Dr. Frank M. Haggard, Crest, Thora, Klein, Li-Tschai-Tung, Peter Kosnow, Allan D. Mercant', 'Handlungszeitraum:': 'Juli–August 1971', 'Handlungsort:': 'Terra', 'Zusätzliche Formate:': 'E-Book, | Druckauflagen PR-Heft 3,  | Hörspiel zum Heft,  | enthalten in Silberband 1, | enthalten in Leihbuch 2'}
+plot_header= <span class="mw-headline" id="Handlung">Handlung</span>
+plot (abbr.)= Die AF lässt ihre Elitetruppen in Dashoba aufmarschieren, östlich der STARDUST. Sämtliches Gerät wird in den Boden einbetoniert. Die Soldaten selbst benutzen Anschnallgurte, um der Wirkung des Antigra
+Relative URL einer Seite mit den Umschlagbildern: /wiki/Datei:PR0003.jpg
+Relative URL des Umschlagbilds: /mediawiki/images/0/02/PR0003.jpg
+cover_urls= ['https://www.perrypedia.de/mediawiki/images/0/02/PR0003.jpg']
+raw_metadata=({'Serie:': 'Perry Rhodan-Heftserie (Band 3)', 'Verlag:': '© Heinrich Bauer Verlag KG', 'Zyklus:': 'Die Dritte Macht', 'Titel:': 'Die strahlende Kuppel', 'Untertitel:': 'Die Kuppel aus reiner Energie trotzt selbst dem schwersten Beschuß – doch die Militärs geben nicht auf ...', 'Autor:': 'K. H. Scheer', 'Titelbildzeichner:': 'Johnny Bruck', 'Innenillustrator:': 'Johnny Bruck (5 x)', 'Erstmals erschienen:': 'Freitag, 22. September 1961', 'Hauptpersonen:': 'Perry Rhodan, Reginald Bull genannt „Bully“, Dr. Eric Manoli, Dr. Frank M. Haggard, Crest, Thora, Klein, Li-Tschai-Tung, Peter Kosnow, Allan D. Mercant', 'Handlungszeitraum:': 'Juli–August 1971', 'Handlungsort:': 'Terra', 'Zusätzliche Formate:': 'E-Book, | Druckauflagen PR-Heft 3,  | Hörspiel zum Heft,  | enthalten in Silberband 1, | enthalten in Leihbuch 2'}, 'Die AF lässt ihre Elitetruppen in Dashoba aufmarschieren, östlich der STARDUST. Sämtliches Gerät wird in den Boden einbetoniert. Die Soldaten selbst benutzen Anschnallgurte, um der Wirkung des Antigravs entgegenzuwirken.\n<br />Die Ärzte Eric Manoli und Frank M.\xa0Haggard beginnen mit der Therapie für den leukämiekranken Crest, der allerdings mit schweren Nebenwirkungen auf das Anti-Leukämie-Serum reagiert.\n<br />Die asiatischen Militärs starten einen Trommelfeuer-Beschuss auf die Energiekuppel der STARDUST. Auch wenn der Schutzschirm nicht durchbrochen werden kann, so dient der Beschuss doch dazu, Perry Rhodan und seine Leute psychisch zu attackieren. Sie können sich jedoch mit den Ohrenschützern der STARDUST vorübergehend helfen.\n<br />Rhodan ahnt, dass die Menschheit nicht mehr lange brauchen wird, um den Anti-Neutronenschirm zu umgehen. An der kalten Fusion wird bereits seit einiger Zeit gearbeitet. Er nimmt Kontakt mit Thora auf, um sie zu warnen.\n<br />Währenddessen findet im Grönland-Hauptquartier der IIA auf Einladung von Allan D.\xa0Mercant eine Konferenz zwischen den Abwehrchefs der einzelnen Machtblöcke statt. Neben Mercant selbst nehmen General Lesly Pounder, Marschall Gregor Petronskij, Iwan Martinowitsch Kosselow, Lao Lin-To, Mao-Tsen und Albrecht Klein an der Konferenz teil. Iwan Martinowitsch Kosselow informiert die Anwesenden von einem Flug des Mondraumers des Ostblocks drei Monate vor der STARDUST, der jedoch über der Mondoberfläche abstürzte. Er erinnert die Teilnehmer auch daran, dass allein Rhodan die Vernichtung der Erde verhindert hat. Die Frage, die sich stellt, ist: Welche Rolle spielt Rhodan mit seiner Macht? Sorgt er für den Weltfrieden, oder wird er zum alles beherrschenden Diktator? Die Machtblöcke würden Rhodan akzeptieren, wenn seine bisherigen Angaben stimmen würden, aber ein Großcomputer ermittelt aus den bisherigen Ereignissen eine 99prozentige Wahrscheinlichkeit, dass Rhodan ein an Leukämie erkranktes nichtirdisches Lebewesen auf die Erde gebracht hat, in dessen Händen die eigentliche Macht liegt. Damit gibt es für die Abwehrdienste ein neues Ziel: den vermeintlichen außerirdischen Stützpunkt auf dem Mond. Dafür wird ein Abkommen unterzeichnet, das den gemeinsamen Angriff festlegt. Auf die Frage, wie das Problem mit den fehlenden Neutronen behoben werden soll, präsentiert Mercant den Anwesenden die Katalyse-Bombe. Nach Ende der Konferenz bittet Albrecht Klein Mercant, dass er als Sonderbeobachter und Verbindungsoffizier nach China geschickt wird. Mercant stimmt dem Wunsch zu, obwohl er weiß, dass Klein Rhodan vor dem geplanten Angriff warnen will.\n<br />Am 26.\xa0August 1971 um 2:00\xa0Uhr beginnt ein weiterer Angriff, mit dem die Militärs der AF unter westlicher und russischer Beobachtung versuchen, die Energiekuppel zu durchdringen. Doch auch dem Beschuss durch 1500 Batterien mit nahezu 6000 Rohren auf ein minimales Ziel (50\xa0m × 50\xa0m) hält der Schirm stand. Auch konventionelle Waffen werden wieder eingesetzt, da es keine Aufhebung der Schwerkraft mehr gibt. Unter den Beobachtern sind der zum Captain beförderte Klein, Leutnant Peter Kosnow und Leutnant Li-Tschai-Tung.\n<br />Die drei Agenten werden beauftragt, Rhodan und die anderen unter der Kuppel mit einem bakteriellen Kampfstoff aus westlicher Produktion zu infizieren. Sie selbst werden geimpft. Es existiert ein Gegenmittel, Rhodan soll lediglich zur Aufgabe gezwungen werden. Tatsächlich stammt die Idee von Klein selbst, der so hoffte, wieder Kontakt mit Rhodan aufnehmen zu können. Gemeinsam machen sie sich mit Rotor-Fluggeräten auf den Weg zur STARDUST.\n<br />Crest ist mittlerweile in ein tiefes Koma gefallen, die Symptome der Leukämie sind aber vollständig verschwunden. Der Dauerbeschuss zeigt seine Wirkung: nervliche Überbelastung, die Energiereserve der Energiekuppel geht an ihre Grenze, einzelnes Material ist durch die starken Bodenerschütterungen unbrauchbar geworden (unter anderem auch das arkonidische Funkgerät). Somit ist es Rhodan unmöglich, Thora um Hilfe zu bitten oder sich zum verabredeten Zeitpunkt zu melden, was Thora als die Vernichtung des Stützpunktes in der Wüste Gobi und somit Crests Tod interpretieren könnte. Es besteht die Gefahr, dass sie sich dann veranlasst sieht, die Erde anzugreifen.\n<br />16 Stunden vor Beginn des Trommelbeschusses, am 25.\xa0August 1971 um 10:00\xa0Uhr, startet die STARDUST\xa0II, ein Schwesterschiff der STARDUST, unter dem Kommando von Oberstleutnant Michael Freyt zum Mond, um den dort vermuteten außerirdischen Stützpunkt mithilfe der neuen Katalysebombe, die von Rod Nyssen bedient wird, zu vernichten. Kurze Zeit später starten auch die Raketen des Ostblocks und der AF.\n<br />Allan D.\xa0Mercant selbst fliegt wenige Stunden später mit einer Pluto-D-Rakete zur FREEDOM\xa0I, um den entscheidenden Angriff von der Raumstation aus zu beobachten.\n<br />Albrecht Klein gelingt es, Kontakt mit Rhodan aufzunehmen, der ihn und die beiden anderen Agenten unter der Energiekuppel empfängt. Klein unterrichtet die Dritte Macht von dem drohenden Angriff auf dem Mond, während Rhodan ihn bittet, alles für eine Waffenruhe zu tun. Notfalls will Rhodan kapitulieren, sollte es nicht gelingen, bis 8:00\xa0Uhr Kontakt mit Thora aufzunehmen.\n<br />Als die drei Agenten wieder zurückkehren, beginnen die Ärzte Manoli und Haggard damit, Crest aus dem Koma zu wecken.\n<br />Mithilfe des wirkungsvollsten Psycho-Stimulans der Menschheit gelingt es den Ärzten schließlich, Crest aufzuwecken. Dieser erklärt Rhodan, dass das Funkgerät eine automatische Reparaturschaltung besitzt, sodass sämtliche Schäden unmittelbar und problemlos behoben werden können. Gerade noch rechtzeitig ist das Gerät wieder einsatzbereit. Crest bringt Thora dazu, mit einem Beiboot des arkonidischen Forschungsschiffes einzugreifen und den drohenden Zusammenbruch der Energiekuppel zu verhindern. Der Angriff auf die STARDUST wird von Thora innerhalb weniger Sekunden zurückgeschlagen. Crest unterschätzt aber die Gefahr durch die drei irdischen Raumschiffe und verschweigt deren Anflug vor Thora. In seinen Augen genügt der automatische Schutz durch den Bordcomputer des Arkonidenraumers.\n<br />Nach der Landung des Beibootes informiert Rhodan Thora von dem drohenden Angriff auf ihr Forschungsschiff. Zusammen mit Reginald Bull machen sie sich sofort auf den Weg zurück zum Mond. Doch sie kommen zu spät: Die drei Bomben zünden direkt über dem Arkonidenraumer und bilden einen neuen Krater auf dem lunaren Südpol. Die Bordautomatik sah aufgrund einer falschen Einstellung die anfliegenden Schiffe nicht als Bedrohung an.\n<br />Thora findet sich rasch mit der neuen Situation ab. Sie und Crest sind nun endgültig auf einem »primitiven« Planeten gestrandete Arkoniden.\n<br />\n<br />\n<br />', ['https://www.perrypedia.de/mediawiki/images/0/02/PR0003.jpg'], 'https://www.perrypedia.de/mediawiki/index.php?title=Quelle:PR3&redirect=yes')
+Enter parse_raw_metadata()
+series_names={'---': '(ohne Serie))', 'A': 'Atlan-Heftserie', 'AHC': 'Atlan-Blaubände', 'AHCT': 'Traversan Hardcover-Ausgabe', 'AM': 'Atlan-Miniserien', 'AO': 'Atlan-Miniserien', 'AT': 'Atlan-Miniserien', 'ATB': 'Atlan-Taschenbuchserien', 'ATH': 'Atlan - Das absolute Abenteuer', 'AE': 'Atlan-Extra', 'AGB': 'Atlan-Grünbände (Edition Perry Rhodan) - ab Nr. 35', 'AHCO': 'Atlan-Hardcover (Omega)-Centauri', 'EAM': 'Eins-A-Medien-Hörspiele', 'FTOR': 'Fischer - TOR', 'FTORH': 'Fischer - TOR Hörbuch', 'HAZ': 'Hörbuch Atlan Zeitabenteuer', 'HEE': 'Europa-Hörspiele (1970er)', 'HES': 'Europa-Hörspiele (1980er)', 'HMG': 'Die Abenteuer von Mausbiber Gucky', 'HSO': 'Sternenozean-Hörspiele', 'HSR': 'Universal-Hörspiele', 'HSP': 'Plejaden', 'LB': 'Leihbücher', 'MF': 'Moewig Fantastic', 'PERRYHC': 'Perry Comics Hardcover (Alligator-Farm)', 'PR': 'Perry Rhodan-Heftserie', 'PR-Die_Chronik_': 'Perry Rhodan - Die Chronik', 'PR-Jahrbuch_': 'PR-Jahrbuch', 'PRA': 'Perry Rhodan-Action', 'PRAB': 'Perry Rhodan-Autorenbibliothek', 'PRAH': 'Perry Rhodan-Andromeda Hörbücher', 'PRAND': 'Perry Rhodan-Androiden', 'PRAR': 'Perry Rhodan-Arkon', 'PRATB': 'Perry Rhodan-Action Taschenbücher', 'PRATL': 'Perry Rhodan-Atlantis', 'PRCCC': 'Perry Rhodan Cross Cult-Comics', 'PRCCCA': 'Perry Rhodan Cross Cult-Comics HC-Alben', 'PRCL': 'Perry Rhodan-Classics', 'PRDC': "Perry Rhodan Der Comic od. Di'akir Comic", 'PRE': 'Perry Rhodan-Extra', 'PRET': 'Perry Rhodan-Edition Terrania', 'PRFD': 'Perry Rhodan Fan-Serie DORGON', 'PRHC': 'Silberbände', 'PRHJB': 'Perry Rhodan-HJB-Edition', 'PRIB': 'Perry Rhodan im Bild', 'PRJUP': 'Perry Rhodan-Jupiter', 'PRJ': 'Perry Rhodan-Journal', 'PRJU': 'Perry Rhodan-Jubiläumsbände', 'PRKC': 'Perry Rhodan-Kosmos-Chroniken', 'PRKO': 'Perry Rhodan-Kompakt', 'PRLEX': 'Perry-Rhodan-Lexikon (in den Heftromanen)', 'PRLH': 'Perry Rhodan-Lemuria Hörbücher', 'PRM': 'Perry Rhodan-Magazin (1979–1981)', 'PRN': 'Perry Rhodan NEO', 'PRNPE': 'Perry Rhodan Neo - Platin Edition', 'PRNS': 'Perry Rhodan Neo-Story (E-Book-Ausgabe)', 'PRR': 'Perry Rhodan-Report', 'PRSBW': 'Perry Rhodan-Planetenroman Sammelband Weltbild-Verlag', 'PRST': 'Perry Rhodan Space Thriller', 'PRSTO': 'Perry Rhodan-Storys', 'PRMS2_': 'Perry Rhodan-Mission SOL 2', 'PRMS': 'Perry Rhodan-Mission SOL', 'PROL': 'Perry Rhodan-Olymp', 'PRS': 'Perry Rhodan-Stardust', 'PRSB': 'PR-Sonderbände', 'PRTB': 'Perry Rhodan-Planetenromane', 'PRTBA': 'Taschenbücher Andromeda', 'PRTBAT': 'Taschenbücher Ara-Toxin', 'PRTBBL': 'Perry Rhodan-Taschenbuch Bastei-Lübbe', 'PRTBDW': 'Taschenbücher Dunkelwelten', 'PRTBJ': 'Perry Rhodan-Jupiter-Taschenbuch', 'PRTBL': 'Taschenbücher Lemuria', 'PRTBO': 'Taschenbücher Odyssee', 'PRTBP': 'Taschenbücher PAN-THAU-RA', 'PRTBPK': 'Taschenbücher Der Posbi-Krieg', 'PRTBRI': 'Taschenbücher Das Rote Imperium', 'PRTBT': 'Taschenbücher Die Tefroder', 'PRTBZ': 'Perry Rhodan-Planetenromane Zaubermond Verlag (Doppelbände)', 'PRTO': 'Perry Rhodan-Thoregon-Ausgabe', 'PRTRI': 'Perry Rhodan-Trivid', 'PRTER': 'Perry Rhodan-Terminus', 'PRTH': 'Taschenheft', 'PRW': 'Perry Rhodan-Wega', 'PRWA': 'Weltraumatlas', 'Werkstattband': 'Werkstattband', 'PUMIA': 'Perry - Unser Mann im All', 'RISSZEICHNUNGSBÄNDE': 'Risszeichnungsbände', 'SE': 'Silber Edition', 'SOL': 'SOL-Magazin', 'STEBP': 'Stellaris E-Book Pakete', 'Stellaris': 'Stellaris'}
+overview= {'Serie:': 'Perry Rhodan-Heftserie (Band 3)', 'Verlag:': '© Heinrich Bauer Verlag KG', 'Zyklus:': 'Die Dritte Macht', 'Titel:': 'Die strahlende Kuppel', 'Untertitel:': 'Die Kuppel aus reiner Energie trotzt selbst dem schwersten Beschuß – doch die Militärs geben nicht auf ...', 'Autor:': 'K. H. Scheer', 'Titelbildzeichner:': 'Johnny Bruck', 'Innenillustrator:': 'Johnny Bruck (5 x)', 'Erstmals erschienen:': 'Freitag, 22. September 1961', 'Hauptpersonen:': 'Perry Rhodan, Reginald Bull genannt „Bully“, Dr. Eric Manoli, Dr. Frank M. Haggard, Crest, Thora, Klein, Li-Tschai-Tung, Peter Kosnow, Allan D. Mercant', 'Handlungszeitraum:': 'Juli–August 1971', 'Handlungsort:': 'Terra', 'Zusätzliche Formate:': 'E-Book, | Druckauflagen PR-Heft 3,  | Hörspiel zum Heft,  | enthalten in Silberband 1, | enthalten in Leihbuch 2'}
+plot (abbr.)= Die AF lässt ihre Elitetruppen in Dashoba aufmarschieren, östlich der STARDUST. Sämtliches Gerät wird in den Boden einbetoniert. Die Soldaten selbst benutzen Anschnallgurte, um der Wirkung des Antigravs entgegenzuwirken.
+<br />Die Ärzte Eric Manoli und Frank M. Haggard beginnen mit der Therapie für den leukämiekranken Crest, der allerdings mit schweren Nebenwirkungen auf das Anti-Leukämie-Serum reagiert.
+<br />Die asiatischen Militärs starten einen Trommelfeuer-Beschuss auf die Energiekuppel der STARDUST. Auch wenn der Schutzschirm nicht durchbrochen werden kann, so dient der Beschuss doch dazu, Perry Rhodan und seine Leute psychisch zu attackieren. Sie können sich jedoch mit den Ohrenschützern der STARDUST vorübergehend helfen.
+<br />Rhodan ahnt, dass die Menschheit nicht mehr lange brauchen wird, um den Anti-Neutronenschirm zu umgehen. An der kalten Fusion wird bereits seit einiger Zeit gearbeitet. Er nimmt Kontakt mit Thora auf, um sie zu warnen.
+<br />Währenddessen findet im Grönla
+cover_urls= ['https://www.perrypedia.de/mediawiki/images/0/02/PR0003.jpg']
+url= https://www.perrypedia.de/mediawiki/index.php?title=Quelle:PR3&redirect=yes
+Untersuche Ergebnis nach Serienbezeichnung und Nummer.
+series_code= PR
+issuenumber= 3
+title= Die strahlende Kuppel
+Autor= K. H. Scheer
+title= Die strahlende Kuppel
+authors= ['K. H. Scheer']
+authors_to_string()= K. H. Scheer
+mi.identifiers= {'ppid': 'PR3'}
+mi.series= Perry Rhodan-Heftserie
+mi.series_index= 3
+cover_urls= ['https://www.perrypedia.de/mediawiki/images/0/02/PR0003.jpg']
+#subtitle= Die Kuppel aus reiner Energie trotzt selbst dem schwersten Beschuß – doch die Militärs geben nicht auf ...
+#subseries= Die Dritte Macht
+#period= Juli–August 1971
+#scene= Terra
+Verlag= © Heinrich Bauer Verlag KG
+mi.publisher= Heinrich Bauer Verlag KG
+pubdate= Freitag, 22. September 1961
+mi.pubdate= 1961-09-22 02:00:00
+main_characters= ['Perry Rhodan', ' Reginald Bull genannt „Bully“', ' Dr. Eric Manoli', ' Dr. Frank M. Haggard', ' Crest', ' Thora', ' Klein', ' Li-Tschai-Tung', ' Peter Kosnow', ' Allan D. Mercant']
+mi.tags= ['Die Dritte Macht', 'Terra', 'Perry Rhodan', 'Reginald Bull genannt „Bully“', 'Dr. Eric Manoli', 'Dr. Frank M. Haggard', 'Crest', 'Thora', 'Klein', 'Li-Tschai-Tung', 'Peter Kosnow', 'Allan D. Mercant']
+Enter comments_from_kreisarchiv()
+series_code= PR
+issuenumber= 3
+Trying to fetch informations about foreign issues. Country=nl
+Cycles page found.
+table_body=<tbody><tr>
+<th align="center">Nr.
+</th>
+<th align="center"><a href="/wiki/Zyklen" title="Zyklen">Zyklus</a>
+</th>
+<th align="center"><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1" title="Perry Rhodan niederländisch ab Band 1">Bände</a></center>
+</th>
+<th align="center"><center>Anzahl</center>
+</th>
+<th align="center"><center>Erschienen</center>
+</th>
+<th align="center"><center>Handlungszeitraum</center>
+</th></tr>
+<tr>
+<td>Cyclus 1
+</td>
+<td><a href="/wiki/Die_Dritte_Macht_(Zyklus)" title="Die Dritte Macht (Zyklus)">De Derde Macht</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1#Cyclus_1:_De_derde_macht" title="Perry Rhodan niederländisch ab Band 1"> 1 – 49</a></center>
+</td>
+<td><center>49</center>
+</td>
+<td><center>1967–1971</center>
+</td>
+<td><center><a href="/wiki/1971" title="1971">1971</a>–<a href="/wiki/1984" title="1984">1984</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 2
+</td>
+<td><a href="/wiki/Atlan_und_Arkon_(Zyklus)" title="Atlan und Arkon (Zyklus)">Atlan en Arkon</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1#Cyclus_2:_Atlan_en_Arkon" title="Perry Rhodan niederländisch ab Band 1">50 – 99</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>1971–1973</center>
+</td>
+<td><center><a href="/wiki/2040" title="2040">2040</a>–<a href="/wiki/2045" title="2045">2045</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 3
+</td>
+<td><a href="/wiki/Die_Posbis_(Zyklus)" title="Die Posbis (Zyklus)">De Posbi's</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1#Cyclus_3:_De_Posbi's" title="Perry Rhodan niederländisch ab Band 1">100 – 149</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>1973–1974</center>
+</td>
+<td><center><a href="/wiki/2102" title="2102">2102</a>–<a href="/wiki/2114" title="2114">2114</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 4
+</td>
+<td><a href="/wiki/Das_Zweite_Imperium_(Zyklus)" title="Das Zweite Imperium (Zyklus)">Het Tweede Imperium</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1#Cyclus_4:_Het_tweede_imperium" title="Perry Rhodan niederländisch ab Band 1">150 – 199</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>1974–1975</center>
+</td>
+<td><center><a href="/wiki/2326" title="2326">2326</a>–<a href="/wiki/2329" title="2329">2329</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 5
+</td>
+<td><a href="/wiki/Die_Meister_der_Insel_(Zyklus)" title="Die Meister der Insel (Zyklus)">De Meesters van de Eilanden</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1#Cyclus_5:_De_meesters_van_de_eilanden" title="Perry Rhodan niederländisch ab Band 1">200 – 299</a> </center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>1975–1977</center>
+</td>
+<td><center><a href="/wiki/2400" title="2400">2400</a>–<a href="/wiki/2406" title="2406">2406</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 6
+</td>
+<td><a href="/wiki/M_87_(Zyklus)" title="M 87 (Zyklus)">M 87</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1#Cyclus_6:_M-87" title="Perry Rhodan niederländisch ab Band 1">300 – 399</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>1977–1979</center>
+</td>
+<td><center><a href="/wiki/2435" title="2435">2435</a>–<a href="/wiki/2437" title="2437">2437</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 7
+</td>
+<td><a href="/wiki/Die_Cappins_(Zyklus)" title="Die Cappins (Zyklus)">De Cappins</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_400#Cyclus_7:_De_Cappins" title="Perry Rhodan niederländisch ab Band 400">400 – 499</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>1979–1980</center>
+</td>
+<td><center><a href="/wiki/3430" title="3430">3430</a>–<a href="/wiki/3438" title="3438">3438</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 8
+</td>
+<td><a href="/wiki/Der_Schwarm_(Zyklus)" title="Der Schwarm (Zyklus)">De Zwerm</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_400#Cyclus_8:_De_Zwerm" title="Perry Rhodan niederländisch ab Band 400">500 – 569</a></center>
+</td>
+<td><center>70</center>
+</td>
+<td><center>1981–1982</center>
+</td>
+<td><center><a href="/wiki/3441" title="3441">3441</a>–<a href="/wiki/3442" title="3442">3442</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 9
+</td>
+<td><a href="/wiki/Die_Altmutanten_(Zyklus)" title="Die Altmutanten (Zyklus)">De spookmutanten</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_400#Cyclus_9:_De_spookmutanten" title="Perry Rhodan niederländisch ab Band 400">570 – 599</a></center>
+</td>
+<td><center>30</center>
+</td>
+<td><center>1982</center>
+</td>
+<td><center><a href="/wiki/3444" title="3444">3444</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 10
+</td>
+<td><a href="/wiki/Das_Kosmische_Schachspiel_(Zyklus)" title="Das Kosmische Schachspiel (Zyklus)">'Het'</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_400#Cyclus_10:_'Het'" title="Perry Rhodan niederländisch ab Band 400">600 – 649</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>1982–1983</center>
+</td>
+<td><center><a href="/wiki/3456" title="3456">3456</a>–<a href="/wiki/3458" title="3458">3458</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 11
+</td>
+<td><a href="/wiki/Das_Konzil_(Zyklus)" title="Das Konzil (Zyklus)">Het concilie</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_400#Cyclus_11:_Het_concilie" title="Perry Rhodan niederländisch ab Band 400">650 – 699</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>1983–1984</center>
+</td>
+<td><center><a href="/wiki/3459" title="3459">3459</a>–<a href="/wiki/3460" title="3460">3460</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 12
+</td>
+<td><a href="/wiki/Aphilie_(Zyklus)" title="Aphilie (Zyklus)">De Afilie</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_400#Cyclus_12:_De_Afilie" title="Perry Rhodan niederländisch ab Band 400">700 – 749</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>1984–1985</center>
+</td>
+<td><center><a href="/wiki/3580" title="3580">3580</a>–<a href="/wiki/3581" title="3581">3581</a></center>
+</td></tr>
+<tr>
+<td><i>Cyclus 12a</i>
+</td>
+<td><i><a href="/wiki/Aphilie_(Zyklus)" title="Aphilie (Zyklus)">De Keizerin van Therm</a></i>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_400#Cyclus_12a:_De_Keizerin_van_Therm" title="Perry Rhodan niederländisch ab Band 400">750 – 799</a> </center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>1985–1986</center>
+</td>
+<td><center><a href="/wiki/3581" title="3581">3581</a>–<a href="/wiki/3583" title="3583">3583</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 13
+</td>
+<td><a href="/wiki/Bardioc_(Zyklus)" title="Bardioc (Zyklus)">Bardioc</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_800#Cyclus_13:_Bardioc" title="Perry Rhodan niederländisch ab Band 800">800 – 867</a></center>
+</td>
+<td><center>68</center>
+</td>
+<td><center>1986–1988</center>
+</td>
+<td><center><a href="/wiki/3583" title="3583">3583</a>–<a href="/wiki/3586" title="3586">3586</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 14
+</td>
+<td><a href="/wiki/PAN-THAU-RA_(Zyklus)" title="PAN-THAU-RA (Zyklus)">De PAN-THAU-RA</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_800#Cyclus_14:_De_PAN-THAU-RA" title="Perry Rhodan niederländisch ab Band 800">868 – 899</a></center>
+</td>
+<td><center>32</center>
+</td>
+<td><center>1988</center>
+</td>
+<td><center><a href="/wiki/3586" title="3586">3586</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 15
+</td>
+<td><a href="/wiki/Die_Kosmischen_Burgen_(Zyklus)" title="Die Kosmischen Burgen (Zyklus)">'Laire'</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_800#Cyclus_15:_'Laire'" title="Perry Rhodan niederländisch ab Band 800">900 – 999</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>1988–1990</center>
+</td>
+<td><center><a href="/wiki/3586" title="3586">3586</a>–<a href="/wiki/3587" title="3587">3587</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 16
+</td>
+<td><a href="/wiki/Die_Kosmische_Hanse_(Zyklus)" title="Die Kosmische Hanse (Zyklus)">De Kosmische Hanze</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_800#Cyclus_16:_De_kosmische_hanze" title="Perry Rhodan niederländisch ab Band 800">1000 – 1099</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>1990–1992</center>
+</td>
+<td><center><a href="/wiki/424_NGZ" title="424 NGZ">424 NGZ</a> – <a href="/wiki/426_NGZ" title="426 NGZ">426 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 17
+</td>
+<td><a href="/wiki/Die_Endlose_Armada_(Zyklus)" title="Die Endlose Armada (Zyklus)">De eindeloze armada</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_800#Cyclus_17:_De_eindeloze_armada" title="Perry Rhodan niederländisch ab Band 800">1100 – 1199</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>1992–1994</center>
+</td>
+<td><center><a href="/wiki/426_NGZ" title="426 NGZ">426 NGZ</a> – <a href="/wiki/427_NGZ" title="427 NGZ">427 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 18
+</td>
+<td><a href="/wiki/Chronofossilien_(Zyklus)" title="Chronofossilien (Zyklus)">De chronofossielen</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1200#Cyclus_18:_De_chronofossielen" title="Perry Rhodan niederländisch ab Band 1200">1200 – 1299</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>1994–1996</center>
+</td>
+<td><center><a href="/wiki/427_NGZ" title="427 NGZ">427 NGZ</a> – <a href="/wiki/430_NGZ" title="430 NGZ">430 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 19
+</td>
+<td><a href="/wiki/Die_G%C3%A4nger_des_Netzes_(Zyklus)" title="Die Gänger des Netzes (Zyklus)">De netlopers</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1200#Cyclus_19:_De_netlopers" title="Perry Rhodan niederländisch ab Band 1200">1300 – 1349</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>1996–1997</center>
+</td>
+<td><center><a href="/wiki/445_NGZ" title="445 NGZ">445 NGZ</a> – <a href="/wiki/447_NGZ" title="447 NGZ">447 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 20
+</td>
+<td><a href="/wiki/Tarkan_(Zyklus)" title="Tarkan (Zyklus)">Tarkan</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1200#Cyclus_20:_Tarkan" title="Perry Rhodan niederländisch ab Band 1200">1350 – 1399</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>1997–1998</center>
+</td>
+<td><center><a href="/wiki/447_NGZ" title="447 NGZ">447 NGZ</a> – <a href="/wiki/448_NGZ" title="448 NGZ">448 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 21
+</td>
+<td><a href="/wiki/Die_Cantaro_(Zyklus)" title="Die Cantaro (Zyklus)">De Cantaros</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1200#Cyclus_21:_De_Cantaros" title="Perry Rhodan niederländisch ab Band 1200">1400 – 1499</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>1998–2000</center>
+</td>
+<td><center><a href="/wiki/1143_NGZ" title="1143 NGZ">1143 NGZ</a> – <a href="/wiki/1147_NGZ" title="1147 NGZ">1147 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 22
+</td>
+<td><a href="/wiki/Die_Linguiden_(Zyklus)" title="Die Linguiden (Zyklus)">De Linguiden</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1200#Cyclus_22:_De_Linguiden" title="Perry Rhodan niederländisch ab Band 1200">1500 – 1599</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>2000–2002</center>
+</td>
+<td><center><a href="/wiki/1169_NGZ" title="1169 NGZ">1169 NGZ</a> – <a href="/wiki/1174_NGZ" title="1174 NGZ">1174 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 23
+</td>
+<td><a href="/wiki/Die_Ennox_(Zyklus)" title="Die Ennox (Zyklus)">De Ennox</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1600#Cyclus_23:_De_Ennox" title="Perry Rhodan niederländisch ab Band 1600">1600 – 1649</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>2002–2003</center>
+</td>
+<td><center><a href="/wiki/1200_NGZ" title="1200 NGZ">1200 NGZ</a> – <a href="/wiki/1202_NGZ" title="1202 NGZ">1202 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 24
+</td>
+<td><a href="/wiki/Die_Gro%C3%9Fe_Leere_(Zyklus)" title="Die Große Leere (Zyklus)">De Grote Leegte</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1600#Cyclus_24:_De_Grote_Leegte" title="Perry Rhodan niederländisch ab Band 1600">1650 – 1699</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>2003–2004</center>
+</td>
+<td><center><a href="/wiki/1202_NGZ" title="1202 NGZ">1202 NGZ</a> – <a href="/wiki/1216_NGZ" title="1216 NGZ">1216 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 25
+</td>
+<td><a href="/wiki/Die_Ayindi_(Zyklus)" title="Die Ayindi (Zyklus)">De Ayindi</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1600#Cyclus_25:_De_Ayindi" title="Perry Rhodan niederländisch ab Band 1600">1700 – 1749</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>2004</center>
+</td>
+<td><center><a href="/wiki/1216_NGZ" title="1216 NGZ">1216 NGZ</a> – <a href="/wiki/1218_NGZ" title="1218 NGZ">1218 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 26
+</td>
+<td><a href="/wiki/Die_Hamamesch_(Zyklus)" title="Die Hamamesch (Zyklus)">De Hamamesch</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1600#Cyclus_26:_De_Hamamesch" title="Perry Rhodan niederländisch ab Band 1600">1750 – 1799</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>2004–2005</center>
+</td>
+<td><center><a href="/wiki/1218_NGZ" title="1218 NGZ">1218 NGZ</a> – <a href="/wiki/1220_NGZ" title="1220 NGZ">1220 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 27
+</td>
+<td><a href="/wiki/Die_Tolkander_(Zyklus)" title="Die Tolkander (Zyklus)">De Tolkander</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1600#Cyclus_27:_De_Tolkander" title="Perry Rhodan niederländisch ab Band 1600">1800 – 1875</a></center>
+</td>
+<td><center>76</center>
+</td>
+<td><center>2005–2007</center>
+</td>
+<td><center><a href="/wiki/1288_NGZ" title="1288 NGZ">1288 NGZ</a> – <a href="/wiki/1289_NGZ" title="1289 NGZ">1289 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 28
+</td>
+<td><a href="/wiki/Die_Heliotischen_Bollwerke_(Zyklus)" title="Die Heliotischen Bollwerke (Zyklus)">Het Heliotische Bolwerk</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1600#Cyclus_28:_Het_Heliotische_Bolwerk" title="Perry Rhodan niederländisch ab Band 1600">1876 – 1899</a></center>
+</td>
+<td><center>24</center>
+</td>
+<td><center>2007</center>
+</td>
+<td><center><a href="/wiki/1289_NGZ" title="1289 NGZ">1289 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 29
+</td>
+<td><a href="/wiki/Der_Sechste_Bote_(Zyklus)" title="Der Sechste Bote (Zyklus)">De zesde bode</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1600#Cyclus_29:_De_zesde_bode" title="Perry Rhodan niederländisch ab Band 1600">1900 – 1949</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>2007–2008</center>
+</td>
+<td><center><a href="/wiki/1289_NGZ" title="1289 NGZ">1289 NGZ</a> – <a href="/wiki/1290_NGZ" title="1290 NGZ">1290 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 30
+</td>
+<td><a href="/wiki/MATERIA_(Zyklus)" title="MATERIA (Zyklus)">MATERIA</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1600#Cyclus_30:_MATERIA" title="Perry Rhodan niederländisch ab Band 1600">1950 – 1999</a></center>
+</td>
+<td><center>50</center>
+</td>
+<td><center>2008–2009</center>
+</td>
+<td><center><a href="/wiki/1290_NGZ" title="1290 NGZ">1290 NGZ</a> – <a href="/wiki/1291_NGZ" title="1291 NGZ">1291 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 31
+</td>
+<td><a href="/wiki/Die_Solare_Residenz_(Zyklus)" title="Die Solare Residenz (Zyklus)">De Solaire Resident</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_2000#Cyclus_31:_De_Solaire_Resident" title="Perry Rhodan niederländisch ab Band 2000">2000 – 2099</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>2009–2011</center>
+</td>
+<td><center><a href="/wiki/1303_NGZ" title="1303 NGZ">1303 NGZ</a> – <a href="/wiki/1304_NGZ" title="1304 NGZ">1304 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 32
+</td>
+<td><a href="/wiki/Das_Reich_Tradom_(Zyklus)" title="Das Reich Tradom (Zyklus)">Het Rijk Tradom</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_2000#Cyclus_32:_Het_Rijk_Tradom" title="Perry Rhodan niederländisch ab Band 2000">2100 – 2199</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>2011–2013</center>
+</td>
+<td><center><a href="/wiki/1311_NGZ" title="1311 NGZ">1311 NGZ</a> – <a href="/wiki/1312_NGZ" title="1312 NGZ">1312 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 33
+</td>
+<td><a href="/wiki/Der_Sternenozean_(Zyklus)" title="Der Sternenozean (Zyklus)">De Sterrenoceaan</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_2000#Cyclus_33:_De_Sterrenoceaan" title="Perry Rhodan niederländisch ab Band 2000">2200 – 2299</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>2013–2015</center>
+</td>
+<td><center><a href="/wiki/1331_NGZ" title="1331 NGZ">1331 NGZ</a> – <a href="/wiki/1333_NGZ" title="1333 NGZ">1333 NGZ</a></center>
+</td></tr>
+<tr>
+<td>Cyclus 34
+</td>
+<td><a href="/wiki/TERRANOVA_(Zyklus)" title="TERRANOVA (Zyklus)">TERRANOVA</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_2000#Cyclus_34:_TERRANOVA" title="Perry Rhodan niederländisch ab Band 2000">2300 – 2399</a></center>
+</td>
+<td><center>100</center>
+</td>
+<td><center>2015–2017</center>
+</td>
+<td><center><a href="/wiki/1344_NGZ" title="1344 NGZ">1344 NGZ</a> – <a href="/wiki/1346_NGZ" title="1346 NGZ">1346 NGZ</a></center>
+</td></tr></tbody>
+36 rows found.
+row=<tr>
+<th align="center">Nr.
+</th>
+<th align="center"><a href="/wiki/Zyklen" title="Zyklen">Zyklus</a>
+</th>
+<th align="center"><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1" title="Perry Rhodan niederländisch ab Band 1">Bände</a></center>
+</th>
+<th align="center"><center>Anzahl</center>
+</th>
+<th align="center"><center>Erschienen</center>
+</th>
+<th align="center"><center>Handlungszeitraum</center>
+</th></tr>
+cols=[]
+row=<tr>
+<td>Cyclus 1
+</td>
+<td><a href="/wiki/Die_Dritte_Macht_(Zyklus)" title="Die Dritte Macht (Zyklus)">De Derde Macht</a>
+</td>
+<td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1#Cyclus_1:_De_derde_macht" title="Perry Rhodan niederländisch ab Band 1"> 1 – 49</a></center>
+</td>
+<td><center>49</center>
+</td>
+<td><center>1967–1971</center>
+</td>
+<td><center><a href="/wiki/1971" title="1971">1971</a>–<a href="/wiki/1984" title="1984">1984</a></center>
+</td></tr>
+cols=[<td>Cyclus 1
+</td>, <td><a href="/wiki/Die_Dritte_Macht_(Zyklus)" title="Die Dritte Macht (Zyklus)">De Derde Macht</a>
+</td>, <td><center><a href="/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1#Cyclus_1:_De_derde_macht" title="Perry Rhodan niederländisch ab Band 1"> 1 – 49</a></center>
+</td>, <td><center>49</center>
+</td>, <td><center>1967–1971</center>
+</td>, <td><center><a href="/wiki/1971" title="1971">1971</a>–<a href="/wiki/1984" title="1984">1984</a></center>
+</td>]
+issue_from=1, issue_to=49
+Url for issues page found, url=https://www.perrypedia.de/wiki/Perry_Rhodan_niederl%C3%A4ndisch_ab_Band_1
+page found with url
+6 tables found
+53 rows found.
+row=<tr>
+<th width="5%">Nr.
+</th>
+<th width="28%"><center>Titel</center>
+</th>
+<th width="15%"><center><a href="/wiki/%C3%9Cbersetzer#Niederlande" title="Übersetzer">Übersetzer</a></center>
+</th>
+<th width="10%"><center>Originaltext</center>
+</th>
+<th width="16%"><center>veröffentlicht</center>
+</th>
+<th width="22%"><a href="/wiki/Team" title="Team">Titelbildzeichner</a>
+</th>
+<th width="4%">TiBi
+</th></tr>
+0 cols found.
+row=<tr>
+<td colspan="7"><b> <i>Perry Rhodan-Reeks</i> </b>
+</td></tr>
+1 cols found.
+row=<tr>
+<td>1
+</td>
+<td>Operatie Stardust
+</td>
+<td><a class="new" href="/mediawiki/index.php?title=G._W._Roos&amp;action=edit&amp;redlink=1" title="G. W. Roos (Seite nicht vorhanden)">G. W. Roos</a>
+</td>
+<td><a class="mw-redirect" href="/wiki/Quelle:PR1" title="Quelle:PR1">PR 1</a>
+</td>
+<td>1967<sup class="reference" id="cite_ref-1"><a href="#cite_note-1">[1]</a></sup>
+</td>
+<td><a href="/wiki/Thijs_Postma" title="Thijs Postma">Th. Postma</a>
+</td>
+<td><a class="external text" href="http://www.deboekenplank.nl/naslag/aut/p/perry_rhodan/perry0001.jpg" rel="nofollow"> </a>
+</td></tr>
+7 cols found.
+issue=1, issuenumber=3.
+row=<tr>
+<td>2
+</td>
+<td>De derde macht
+</td>
+<td><a class="new" href="/mediawiki/index.php?title=G._W._Roos&amp;action=edit&amp;redlink=1" title="G. W. Roos (Seite nicht vorhanden)">G. W. Roos</a>
+</td>
+<td><a class="mw-redirect" href="/wiki/Quelle:PR2" title="Quelle:PR2">PR 2</a>
+</td>
+<td>1967
+</td>
+<td><a href="/wiki/Thijs_Postma" title="Thijs Postma">Th. Postma</a>
+</td>
+<td><a class="external text" href="http://www.deboekenplank.nl/naslag/aut/p/perry_rhodan/perry0002.jpg" rel="nofollow"> </a>
+</td></tr>
+7 cols found.
+issue=2, issuenumber=3.
+row=<tr>
+<td>3
+</td>
+<td>De stralende koepel
+</td>
+<td><a class="new" href="/mediawiki/index.php?title=G._W._Roos&amp;action=edit&amp;redlink=1" title="G. W. Roos (Seite nicht vorhanden)">G. W. Roos</a>
+</td>
+<td><a class="mw-redirect" href="/wiki/Quelle:PR3" title="Quelle:PR3">PR 3</a>
+</td>
+<td>1967
+</td>
+<td><a href="/wiki/Thijs_Postma" title="Thijs Postma">Th. Postma</a>
+</td>
+<td><a class="external text" href="http://www.deboekenplank.nl/naslag/aut/p/perry_rhodan/perry0003.jpg" rel="nofollow"> </a>
+</td></tr>
+7 cols found.
+issue=3, issuenumber=3.
+Issue found. Now gathering infos.
+Cover URLs cached with ppid: ['http://www.deboekenplank.nl/naslag/aut/p/perry_rhodan/perry0003.jpg']
+Enter get_pubdate_from_isfdb()
+title="De stralende koepel"
+Titelsuche mit: "De stralende koepel"...
+GET URL: "https://www.isfdb.org/cgi-bin/se.cgi?arg=De+stralende+koepel&type=All+Titles"
+Page title: ISFDB Title search
+cols[3]=<td dir="ltr"><a dir="ltr" href="https://www.isfdb.org/cgi-bin/title.cgi?1580847">De stralende koepel</a></td>
+cols[3].text=De stralende koepel
+cols[3]=<td dir="ltr"><a dir="ltr" href="https://www.isfdb.org/cgi-bin/title.cgi?1580847">De stralende koepel</a></td>
+cols[3].text=De stralende koepel
+cols[3]=<td dir="ltr"><a dir="ltr" href="https://www.isfdb.org/cgi-bin/title.cgi?1580848">De stralende koepel</a></td>
+cols[3].text=De stralende koepel
+cols[3]=<td dir="ltr"><a dir="ltr" href="https://www.isfdb.org/cgi-bin/title.cgi?1580848">De stralende koepel</a></td>
+cols[3].text=De stralende koepel
+cols[3]=<td dir="ltr"><a dir="ltr" href="https://www.isfdb.org/cgi-bin/title.cgi?1973494">De stralende koepel</a></td>
+cols[3].text=De stralende koepel
+cols[3]=<td dir="ltr"><a dir="ltr" href="https://www.isfdb.org/cgi-bin/title.cgi?1973494">De stralende koepel</a></td>
+cols[3].text=De stralende koepel
+pubdate=1967-01-01 02:00:00
+title_template={series} - {cycle} - {title}
+pattern=(\{series_index:.*?\})
+custom_title=Perry Rhodan - Cyclus 1 - De stralende koepel
+*** Final formatted result (object mi): Title               : Perry Rhodan - Cyclus 1 - De stralende koepel
+Author(s)           : K. H. Scheer
+Publisher           : Assen : N.V. Uitgeversmaatschappij
+Tags                : Die Dritte Macht, Terra, Perry Rhodan, Reginald Bull genannt „Bully“, Dr. Eric Manoli, Dr. Frank M. Haggard, Crest, Thora, Klein, Li-Tschai-Tung, Peter Kosnow, Allan D. Mercant
+Series              : Perry Rhodan #3
+Languages           : nld
+Published           : 1967-01-01T01:00:00+00:00
+Identifiers         : ppid:PR3
+Comments            : <p>Überblick:<br />Serie:&nbsp;Perry Rhodan-Heftserie (Band 3)<br />Verlag:&nbsp;© Heinrich Bauer Verlag KG<br />Zyklus:&nbsp;Die Dritte Macht<br />Titel:&nbsp;Die strahlende Kuppel<br />Untertitel:&nbsp;Die Kuppel aus reiner Energie trotzt selbst dem schwersten Beschuß – doch die Militärs geben nicht auf ...<br />Autor:&nbsp;K. H. Scheer<br />Titelbildzeichner:&nbsp;Johnny Bruck<br />Innenillustrator:&nbsp;Johnny Bruck (5 x)<br />Erstmals erschienen:&nbsp;Freitag, 22. September 1961<br />Hauptpersonen:&nbsp;Perry Rhodan, Reginald Bull genannt „Bully“, Dr. Eric Manoli, Dr. Frank M. Haggard, Crest, Thora, Klein, Li-Tschai-Tung, Peter Kosnow, Allan D. Mercant<br />Handlungszeitraum:&nbsp;Juli–August 1971<br />Handlungsort:&nbsp;Terra<br />Zusätzliche Formate:&nbsp;E-Book, | Druckauflagen PR-Heft 3,  | Hörspiel zum Heft,  | enthalten in Silberband 1, | enthalten in Leihbuch 2<br /></p><p>Handlung:<br />Die AF lässt ihre Elitetruppen in Dashoba aufmarschieren, östlich der STARDUST. Sämtliches Gerät wird in den Boden einbetoniert. Die Soldaten selbst benutzen Anschnallgurte, um der Wirkung des Antigravs entgegenzuwirken.
+<br />Die Ärzte Eric Manoli und Frank M. Haggard beginnen mit der Therapie für den leukämiekranken Crest, der allerdings mit schweren Nebenwirkungen auf das Anti-Leukämie-Serum reagiert.
+<br />Die asiatischen Militärs starten einen Trommelfeuer-Beschuss auf die Energiekuppel der STARDUST. Auch wenn der Schutzschirm nicht durchbrochen werden kann, so dient der Beschuss doch dazu, Perry Rhodan und seine Leute psychisch zu attackieren. Sie können sich jedoch mit den Ohrenschützern der STARDUST vorübergehend helfen.
+<br />Rhodan ahnt, dass die Menschheit nicht mehr lange brauchen wird, um den Anti-Neutronenschirm zu umgehen. An der kalten Fusion wird bereits seit einiger Zeit gearbeitet. Er nimmt Kontakt mit Thora auf, um sie zu warnen.
+<br />Währenddessen findet im Grönland-Hauptquartier der IIA auf Einladung von Allan D. Mercant eine Konferenz zwischen den Abwehrchefs der einzelnen Machtblöcke statt. Neben Mercant selbst nehmen General Lesly Pounder, Marschall Gregor Petronskij, Iwan Martinowitsch Kosselow, Lao Lin-To, Mao-Tsen und Albrecht Klein an der Konferenz teil. Iwan Martinowitsch Kosselow informiert die Anwesenden von einem Flug des Mondraumers des Ostblocks drei Monate vor der STARDUST, der jedoch über der Mondoberfläche abstürzte. Er erinnert die Teilnehmer auch daran, dass allein Rhodan die Vernichtung der Erde verhindert hat. Die Frage, die sich stellt, ist: Welche Rolle spielt Rhodan mit seiner Macht? Sorgt er für den Weltfrieden, oder wird er zum alles beherrschenden Diktator? Die Machtblöcke würden Rhodan akzeptieren, wenn seine bisherigen Angaben stimmen würden, aber ein Großcomputer ermittelt aus den bisherigen Ereignissen eine 99prozentige Wahrscheinlichkeit, dass Rhodan ein an Leukämie erkranktes nichtirdisches Lebewesen auf die Erde gebracht hat, in dessen Händen die eigentliche Macht liegt. Damit gibt es für die Abwehrdienste ein neues Ziel: den vermeintlichen außerirdischen Stützpunkt auf dem Mond. Dafür wird ein Abkommen unterzeichnet, das den gemeinsamen Angriff festlegt. Auf die Frage, wie das Problem mit den fehlenden Neutronen behoben werden soll, präsentiert Mercant den Anwesenden die Katalyse-Bombe. Nach Ende der Konferenz bittet Albrecht Klein Mercant, dass er als Sonderbeobachter und Verbindungsoffizier nach China geschickt wird. Mercant stimmt dem Wunsch zu, obwohl er weiß, dass Klein Rhodan vor dem geplanten Angriff warnen will.
+<br />Am 26. August 1971 um 2:00 Uhr beginnt ein weiterer Angriff, mit dem die Militärs der AF unter westlicher und russischer Beobachtung versuchen, die Energiekuppel zu durchdringen. Doch auch dem Beschuss durch 1500 Batterien mit nahezu 6000 Rohren auf ein minimales Ziel (50 m × 50 m) hält der Schirm stand. Auch konventionelle Waffen werden wieder eingesetzt, da es keine Aufhebung der Schwerkraft mehr gibt. Unter den Beobachtern sind der zum Captain beförderte Klein, Leutnant Peter Kosnow und Leutnant Li-Tschai-Tung.
+<br />Die drei Agenten werden beauftragt, Rhodan und die anderen unter der Kuppel mit einem bakteriellen Kampfstoff aus westlicher Produktion zu infizieren. Sie selbst werden geimpft. Es existiert ein Gegenmittel, Rhodan soll lediglich zur Aufgabe gezwungen werden. Tatsächlich stammt die Idee von Klein selbst, der so hoffte, wieder Kontakt mit Rhodan aufnehmen zu können. Gemeinsam machen sie sich mit Rotor-Fluggeräten auf den Weg zur STARDUST.
+<br />Crest ist mittlerweile in ein tiefes Koma gefallen, die Symptome der Leukämie sind aber vollständig verschwunden. Der Dauerbeschuss zeigt seine Wirkung: nervliche Überbelastung, die Energiereserve der Energiekuppel geht an ihre Grenze, einzelnes Material ist durch die starken Bodenerschütterungen unbrauchbar geworden (unter anderem auch das arkonidische Funkgerät). Somit ist es Rhodan unmöglich, Thora um Hilfe zu bitten oder sich zum verabredeten Zeitpunkt zu melden, was Thora als die Vernichtung des Stützpunktes in der Wüste Gobi und somit Crests Tod interpretieren könnte. Es besteht die Gefahr, dass sie sich dann veranlasst sieht, die Erde anzugreifen.
+<br />16 Stunden vor Beginn des Trommelbeschusses, am 25. August 1971 um 10:00 Uhr, startet die STARDUST II, ein Schwesterschiff der STARDUST, unter dem Kommando von Oberstleutnant Michael Freyt zum Mond, um den dort vermuteten außerirdischen Stützpunkt mithilfe der neuen Katalysebombe, die von Rod Nyssen bedient wird, zu vernichten. Kurze Zeit später starten auch die Raketen des Ostblocks und der AF.
+<br />Allan D. Mercant selbst fliegt wenige Stunden später mit einer Pluto-D-Rakete zur FREEDOM I, um den entscheidenden Angriff von der Raumstation aus zu beobachten.
+<br />Albrecht Klein gelingt es, Kontakt mit Rhodan aufzunehmen, der ihn und die beiden anderen Agenten unter der Energiekuppel empfängt. Klein unterrichtet die Dritte Macht von dem drohenden Angriff auf dem Mond, während Rhodan ihn bittet, alles für eine Waffenruhe zu tun. Notfalls will Rhodan kapitulieren, sollte es nicht gelingen, bis 8:00 Uhr Kontakt mit Thora aufzunehmen.
+<br />Als die drei Agenten wieder zurückkehren, beginnen die Ärzte Manoli und Haggard damit, Crest aus dem Koma zu wecken.
+<br />Mithilfe des wirkungsvollsten Psycho-Stimulans der Menschheit gelingt es den Ärzten schließlich, Crest aufzuwecken. Dieser erklärt Rhodan, dass das Funkgerät eine automatische Reparaturschaltung besitzt, sodass sämtliche Schäden unmittelbar und problemlos behoben werden können. Gerade noch rechtzeitig ist das Gerät wieder einsatzbereit. Crest bringt Thora dazu, mit einem Beiboot des arkonidischen Forschungsschiffes einzugreifen und den drohenden Zusammenbruch der Energiekuppel zu verhindern. Der Angriff auf die STARDUST wird von Thora innerhalb weniger Sekunden zurückgeschlagen. Crest unterschätzt aber die Gefahr durch die drei irdischen Raumschiffe und verschweigt deren Anflug vor Thora. In seinen Augen genügt der automatische Schutz durch den Bordcomputer des Arkonidenraumers.
+<br />Nach der Landung des Beibootes informiert Rhodan Thora von dem drohenden Angriff auf ihr Forschungsschiff. Zusammen mit Reginald Bull machen sie sich sofort auf den Weg zurück zum Mond. Doch sie kommen zu spät: Die drei Bomben zünden direkt über dem Arkonidenraumer und bilden einen neuen Krater auf dem lunaren Südpol. Die Bordautomatik sah aufgrund einer falschen Einstellung die anfliegenden Schiffe nicht als Bedrohung an.
+<br />Thora findet sich rasch mit der neuen Situation ab. Sie und Crest sind nun endgültig auf einem »primitiven« Planeten gestrandete Arkoniden.
+<br />
+<br />
+<br /></p><p>Quelle:&nbsp;<a href="https://www.perrypedia.de/mediawiki/index.php?title=Quelle:PR3&redirect=yes">https://www.perrypedia.de/mediawiki/index.php?title=Quelle:PR3&redirect=yes</a></p><br /><b>Info from foreign issue page for Netherlands:</b><br />Cycle: Cyclus 1<br />Action Period: 1971–1984<br />Foreign Publication Years: 1967–1971<br />Foreign Publisher: Assen : N.V. Uitgeversmaatschappij<br />Foreign Title: De stralende koepel<br />Foreign Publication Date: 01.01.1967<br />Original Publication Date: 22.09.1961<br />Translator: G. W. Roos<br />Cover Artist: Th. Postma<br /> 
+
+******************************************************************************** 
+The identify phase took 6.47 seconds 
+The longest time (6.298550) was taken by: Perrypedia 
+Merging results from different sources 
+We have 1 merged results, merging took: 0.00 seconds 
