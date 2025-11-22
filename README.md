@@ -1,4 +1,4 @@
-[Metadata Source Plugin] Perrypedia - 1.9.3 - 06-09-2025
+[Metadata Source Plugin] Perrypedia - 1.10.0 - 11-22-2025
 
 [English version follows]
 
@@ -40,8 +40,15 @@ Einschränkungen:
 
 Versionsgeschichte:
 -------------------
+Version 1.10.0 - 11-22-2025
+- Metadaten und Cover für ausländische Ausgaben abrufen.
+  Derzeit nur für niederländische Ausgaben (Vielen Dank an Dick Pluim für die Unterstützung).
+  Hinweis: Mit dem Plugin ISFDB3 besteht die Möglichkeit, eine ausländische Ausgabe in der ISFDB zu finden. Perrypedia
+  bietet jedoch detailliertere Informationen und eine Zusammenfassung auf der deutschen Buchseite. Möglicherweise werden die beiden Quellen zukünftig zusammengeführt.
+Version 1.9.4 - 11-08-2025
+- Titelsuche mit dem Titelansatz der "Thalia Leseprobe".
 Version 1.9.3 - 06-09-2025
-- Improved processing for partial publication date.
+- Verbesserte Verarbeitung bei unvollständigem Veröffentlichungsdatum.
 Version 1.9.1 - 07-03-2024
 - Fehler durch Schließung des Verlagsforums (forum.perry-rhodan.net) behoben.
 Version 1.9.0 - 05-29-2024
@@ -165,6 +172,13 @@ Limitations:
 
 Version History:
 ----------------
+Version 1.10.0 - 11-22-2025
+- Grab metadata and covers for foreign issues.
+  At the moment only for dutch (Thanks for supporting to Dick Pluim).
+  Note: There is a chance to find an foreign issue in the ISFDB with the plugin ISFDB3, although the Perrypedia
+  has more detailed information and a summary in the german book page. Perhaps the two sources may be combined in the future.
+Version 1.9.4 - 11-08-2025
+- Title search with "Thalia Leseprobe" title string.
 Version 1.9.3 - 06-09-2025
 - Improved processing for partial publication date.
 Version 1.9.1 - 07-03-2024

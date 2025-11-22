@@ -225,16 +225,16 @@ class Perrypedia(Source):
     platforms = ['windows', 'linux', 'osx']
     minimum_calibre_version = (0, 8, 5)
     version = (1, 10, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    released = ('11-15-2025')
+    released = ('11-22-2025')
     history = True
     # ToDo:
     # - Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
     # - Statistik aus Exil-Forum
-    # Version 1.10.0 - 11-15-2025
-    # - Grab metadata and covers for non-german issues (from both Perrypedia and ISFDB).
-    #   At the moment only for dutch (Thanks for support to Dick Pluim).
-    #   Note: There is a chance to find an foreign issue in the ISFDB with the plugin isfdb3, although the Perrypedia
-    #   has more detailed information and a summary in the german book page.
+    # Version 1.10.0 - 11-22-2025
+    # - Grab metadata and covers for foreign issues.
+    #   At the moment only for dutch (Thanks for supporting to Dick Pluim).
+    #   Note: There is a chance to find an foreign issue in the ISFDB with the plugin ISFDB3, although the Perrypedia
+    #   has more detailed information and a summary in the german book page. Perhaps the two sources may be combined in the future.
     # Version 1.9.4 - 11-08-2025
     # - Title search with "Thalia Leseprobe" title string.
     # Version 1.9.3 - 06-09-2025
@@ -1896,7 +1896,7 @@ class Perrypedia(Source):
             response_text = response.read().strip()
             response_list = json.loads(response_text)
             if loglevel in [self.loglevels['DEBUG']]:
-                log.info(_('Response list='), response_list)
+                log.info('response_list=', response_list)
             # Search response for book pages.
             # ['Ordoban',
             #     ['Ordoban', 'Ordoban (Begriffsklärung)', 'Ordoban (Hörbuch)', 'Ordoban (Roman)', 'Ordoban (Silberband)'],
@@ -3064,6 +3064,7 @@ class Perrypedia(Source):
                 translator = ''
                 cover_artist = ''
                 foreign_publisher = ''
+                foreign_publishing_period = ''
                 foreign_pubdate_str = ''
                 foreign_pubdate = None
                 action_period = ''
@@ -3115,7 +3116,7 @@ class Perrypedia(Source):
                                         if issuenumber in range(issue_from, issue_to):
                                             foreign_cycle = cols[0].text.strip()
                                             foreign_title = cols[1].text.strip()
-                                            foreign_pubdate_str = cols[4].text.strip()
+                                            foreign_publishing_period = cols[4].text.strip()
                                             # 2 cases: '1982', '1967–1971'
                                             action_period = cols[5].text.strip()
                                             url = self.base_url + cols[2].find("a").get("href")
@@ -3235,7 +3236,7 @@ class Perrypedia(Source):
                                                             if double_issue:
                                                                 isfdb_title = foreign_title.split(' / ')[0].strip()
                                                             else:
-                                                                isfbd_title = foreign_title
+                                                                isfdb_title = foreign_title
                                                             pubdate = self.get_pubdate_from_isfdb(
                                                                 isfdb_title, authors_str, self.browser, 30,
                                                                 log, loglevel)
@@ -3249,14 +3250,15 @@ class Perrypedia(Source):
                                                                         format(country_name))
                                                     foreign_comments = foreign_comments + _(
                                                         'Cycle: ') + foreign_cycle + '<br />'
+                                                    foreign_comments = (foreign_comments + _(
+                                                        'Foreign Title: ') + str(issue) + '/' +  str(issue + 1) + ' - ' +
+                                                                        foreign_title + '<br />')
                                                     foreign_comments = foreign_comments + _(
                                                         'Action Period: ') + action_period + '<br />'
                                                     foreign_comments = foreign_comments + _(
-                                                        'Foreign Publication Years: ') + foreign_pubdate_str + '<br />'
+                                                        'Foreign Publication Years: ') + foreign_publishing_period + '<br />'
                                                     foreign_comments = foreign_comments + _(
                                                         'Foreign Publisher: ') + foreign_publisher + '<br />'
-                                                    foreign_comments = foreign_comments + _(
-                                                        'Foreign Title: ') + foreign_title + '<br />'
                                                     if mi.pubdate:
                                                         foreign_comments = foreign_comments + _(
                                                             'Foreign Publication Date: ') + mi.pubdate.strftime('%d.%m.%Y') + '<br />'
@@ -3268,7 +3270,9 @@ class Perrypedia(Source):
                                                         'Cover Artist: ') + cover_artist + '<br />'
                                                     if double_issue:
                                                         foreign_comments = (foreign_comments + '<b>' +
-                                                                            _('This is a double issue!') + '/b>')
+                                                                            _('This is a double issue! '
+                                                                              'Not all information for the second '
+                                                                              'title is yet given.') + '</b>')
                                                     # if loglevel in [self.loglevels['DEBUG'], 20]:
                                                     #     log.info('*** foreign_comments={0}'.format(foreign_comments))
                                                     if mi.comments:

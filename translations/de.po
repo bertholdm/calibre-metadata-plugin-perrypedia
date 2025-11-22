@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Perrypedia\n"
-"POT-Creation-Date: 2025-11-21 13:51+0100\n"
-"PO-Revision-Date: 2025-11-21 14:16+0100\n"
+"POT-Creation-Date: 2025-11-22 13:49+0100\n"
+"PO-Revision-Date: 2025-11-22 13:51+0100\n"
 "Last-Translator: Michael Detambel <info@michael-detambel.de>\n"
 "Language-Team: Michael Detambel, <info@michael-detambel.de>\n"
 "Language: de_DE\n"
@@ -433,14 +433,10 @@ msgstr "Abrufen von Inhalten von URL fehlgeschlagen. Grund={0}."
 msgid "API search with: \"{0}\"..."
 msgstr "API Suche mit: \"{0}\"..."
 
-#: __init__.py:1894 __init__.py:3573
+#: __init__.py:1894 __init__.py:3633
 #, python-brace-format
 msgid "GET url: \"{0}\""
 msgstr "GET URL: \"{0}\""
-
-#: __init__.py:1899
-msgid "Response list="
-msgstr "Response list="
 
 #: __init__.py:2073
 #, python-brace-format
@@ -517,48 +513,56 @@ msgstr "Schlüsselfehler in Autorenfeld!"
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: __init__.py:3198
+#: __init__.py:3249
 #, python-brace-format
 msgid "<b>Info from foreign issue page for {0}:</b><br />"
 msgstr "<b>Informationen über internationale Ausgaben für {0}:</b><br />"
 
-#: __init__.py:3201
+#: __init__.py:3252
 msgid "Cycle: "
 msgstr "Zyklus: "
 
-#: __init__.py:3203
-msgid "Action Period: "
-msgstr "Handlungszeitraum: "
-
-#: __init__.py:3205
-msgid "Foreign Publication Years: "
-msgstr "Ausländischer Veröffentlichungszeitraum: "
-
-#: __init__.py:3207
-msgid "Foreign Publisher: "
-msgstr "Ausländischer Verleger: "
-
-#: __init__.py:3209
+#: __init__.py:3254
 msgid "Foreign Title: "
 msgstr "Ausländischer Titel: "
 
-#: __init__.py:3211
+#: __init__.py:3257
+msgid "Action Period: "
+msgstr "Handlungszeitraum: "
+
+#: __init__.py:3259
+msgid "Foreign Publication Years: "
+msgstr "Ausländischer Veröffentlichungszeitraum: "
+
+#: __init__.py:3261
+msgid "Foreign Publisher: "
+msgstr "Ausländischer Verleger: "
+
+#: __init__.py:3264
 msgid "Foreign Publication Date: "
 msgstr "Ausländisches Veröffentlichungsdatum: "
 
-#: __init__.py:3213
+#: __init__.py:3266
 msgid "Original Publication Date: "
 msgstr "Ursprüngliches Erscheinungsdatum: "
 
-#: __init__.py:3215
+#: __init__.py:3268
 msgid "Translator: "
 msgstr "Übersetzer: "
 
-#: __init__.py:3217
+#: __init__.py:3270
 msgid "Cover Artist: "
 msgstr "Titelbild-Illustrator: "
 
-#: __init__.py:3244
+#: __init__.py:3273
+msgid ""
+"This is a double issue! Not all information for the second title is yet "
+"given."
+msgstr ""
+"Dies ist eine Doppelband! Noch nicht alle Informationen für den zweiten Band "
+"berücksichtigt."
+
+#: __init__.py:3302
 #, python-brace-format
 msgid ""
 "Fetching information about foreign issues for Country={0} not yet "
@@ -567,7 +571,7 @@ msgstr ""
 "Abrufen von Informationen über ausländische Ausgaben für Land={0} ist noch "
 "nicht implementiert."
 
-#: __init__.py:3247
+#: __init__.py:3306
 #, python-brace-format
 msgid ""
 "Fetching information about foreign issues for Country={0} failed with error: "
@@ -576,7 +580,7 @@ msgstr ""
 "Abrufen von Informationen über ausländische Publikationen für Land={0} "
 "fehlgeschlagen mit Fehlercode: {1}"
 
-#: __init__.py:3401
+#: __init__.py:3461
 #, python-brace-format
 msgid ""
 "Fetching informations about foreign issues for Country={0} not yet "
@@ -585,28 +589,28 @@ msgstr ""
 "Fetching informations about foreign issues for Country={0} not yet "
 "implemented."
 
-#: __init__.py:3450
+#: __init__.py:3510
 msgid "Found the relative cover page URL:"
 msgstr "Relative URL der Seite mit den Umschlagbildern:"
 
-#: __init__.py:3453 __init__.py:3485
+#: __init__.py:3513 __init__.py:3545
 msgid "Effective URL:"
 msgstr "Endgültige URL:"
 
-#: __init__.py:3467
+#: __init__.py:3527
 msgid "Cover page not found."
 msgstr "Seite mit den Umschlagbildern nicht gefunden."
 
-#: __init__.py:3481
+#: __init__.py:3541
 msgid "Found the relative cover URL:"
 msgstr "Relative URL eines oder des Umschlagbildes:"
 
-#: __init__.py:3564
+#: __init__.py:3624
 #, python-brace-format
 msgid "Error while encoding {0}: {1}."
 msgstr "Fehler beim Encodieren {0}: {1}."
 
-#: __init__.py:3568
+#: __init__.py:3628
 #, python-brace-format
 msgid ""
 "Truncate the search string at the error position and search with the "
@@ -614,15 +618,18 @@ msgid ""
 msgstr ""
 "Suchstring an der Fehlerposition abgeschnitten und Suche mit Reststring: {0}."
 
-#: __init__.py:3572
+#: __init__.py:3632
 #, python-brace-format
 msgid "Title search with: \"{0}\"..."
 msgstr "Titelsuche mit: \"{0}\"..."
 
-#: __init__.py:3639
+#: __init__.py:3699
 #, python-format
 msgid "Cover test failed. Expected: '%s' found: "
 msgstr "Test für Umschlagbild fehlgeschlagen. Erwartet: '%s', gefunden: "
+
+#~ msgid "Response list="
+#~ msgstr "Response list="
 
 #, fuzzy
 #~| msgid "Cover page not found."
