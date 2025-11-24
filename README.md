@@ -1,4 +1,4 @@
-[Metadata Source Plugin] Perrypedia - 1.10.0 - 11-22-2025
+[Metadata Source Plugin] Perrypedia - 1.10.1 - 11-24-2025
 
 [English version follows]
 
@@ -40,6 +40,8 @@ Einschränkungen:
 
 Versionsgeschichte:
 -------------------
+Version 1.10.1 - 11-24-2025
+- Verbesserter Regex-String für PR Jupiter Serie.
 Version 1.10.0 - 11-22-2025
 - Metadaten und Cover für ausländische Ausgaben abrufen.
   Derzeit nur für niederländische Ausgaben (Vielen Dank an Dick Pluim für die Unterstützung).
@@ -132,7 +134,7 @@ Wenn Sie Fehler finden oder Vorschläge haben, melden Sie diese bitte in diesem 
 
 ---
 
-[Metadata Source Plugin] Perrypedia - Version 1.9.3 - 06-09-2025
+[Metadata Source Plugin] Perrypedia - Version 1.10.1 - 11-24-2025
 
 This plugin uses Perrypedia as metadata source. It downloads metadata and covers. 
 Perrypedia (https://www.perrypedia.de/) is a fan project for the creation of a free reference work for the Perry Rhodan SF series.
@@ -172,6 +174,8 @@ Limitations:
 
 Version History:
 ----------------
+Version 1.10.1 - 11-24-2025
+- Enhanced Regex for PR Jupiter series.
 Version 1.10.0 - 11-22-2025
 - Grab metadata and covers for foreign issues.
   At the moment only for dutch (Thanks for supporting to Dick Pluim).

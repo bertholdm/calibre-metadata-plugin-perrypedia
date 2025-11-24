@@ -224,12 +224,14 @@ class Perrypedia(Source):
     author = 'Michael Detambel'
     platforms = ['windows', 'linux', 'osx']
     minimum_calibre_version = (0, 8, 5)
-    version = (1, 10, 0)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    released = ('11-22-2025')
+    version = (1, 10, 1)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    released = ('11-24-2025')
     history = True
     # ToDo:
     # - Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
     # - Statistik aus Exil-Forum
+    # Version 1.10.1 - 11-24-2025
+    # - Enhanced Regex for PR Jupiter series.
     # Version 1.10.0 - 11-22-2025
     # - Grab metadata and covers for foreign issues.
     #   At the moment only for dutch (Thanks for supporting to Dick Pluim).
@@ -538,7 +540,7 @@ class Perrypedia(Source):
         'PRHC': r'(silberband)[^0-9]{1,5}(\d{1,4})|(silberbände)[^0-9]{1,5}(\d{1,4})'
                 r'|(sb)[^0-9]{1,5}(\d{1,4})|(prhc)[^0-9]{0,3}(\d{1,4})',
         'PRIB': r'(perry rhodan im bild)[^0-9]{0,5}(\d{1,2})',  # Perry Rhodan im Bild 05 - Atom-Alarm
-        'PRJUP': r'(perry.{0,3}rhodan.{0,3}jupiter)[^0-9]{1,5}(\d{1,2})',
+        'PRJUP': r'(PRJUP) (\d\d) - .*|(perry.{0,3}rhodan.{0,3}jupiter)[^0-9]{1,5}(\d{1,2})',
         'PRMS': r'(perry.{0,3}rhodan.{0,3}mission.{0,3}sol)[^0-9]{1,5}(\d{1,2})'
                 r'|(pr.{0,3}mission.{0,3}sol)[^0-9]{1,5}(\d{1,2})|(mission.{0,3}sol)[^0-9]{1,5}(\d{1,2})',
         'PRMS2_': r'(perry.{0,3}rhodan.{0,3}mission.{0,3}sol[^0-9]{0,3}[2-9]{1})[^0-9]{1,5}(\d{1,2})'
