@@ -3328,7 +3328,10 @@ class Perrypedia(Source):
         if foreign_series_name:
             custom_title = custom_title.replace('{series}',  foreign_series_name)  # perhaps there is already a foreign cycle name
         else:
-            custom_title = custom_title.replace('{series}', series_names[series_code])
+            if series_code is None:
+                custom_title = custom_title.replace('{series}', '')
+            else:
+                custom_title = custom_title.replace('{series}', series_names[series_code])
         if 'Zyklus:' in overview:
             cycle = str(overview['Zyklus:'])
         else:
