@@ -230,6 +230,8 @@ class Perrypedia(Source):
     # ToDo:
     # - Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
     # - Statistik aus Exil-Forum
+    # Version 1.10.2 - 11-26-2025
+    # - Fix for template replacement if no series code is given.
     # Version 1.10.1 - 11-24-2025
     # - Enhanced Regex for PR Jupiter series.
     # Version 1.10.0 - 11-22-2025
@@ -3319,7 +3321,10 @@ class Perrypedia(Source):
         custom_title = custom_title.replace('{title_sort}', title_sort(title, lang=language_code))
         custom_title = custom_title.replace('{authors}', ' & '.join(authors))
         custom_title = custom_title.replace('{authors_sort}', ' & '.join(map(author_to_author_sort, authors)))
-        custom_title = custom_title.replace('{series_code}', series_code)
+        if series_code is None:
+            custom_title = custom_title.replace('{series_code}', '')
+        else:
+            custom_title = custom_title.replace('{series_code}', series_code)
         if foreign_series_name:
             custom_title = custom_title.replace('{series}',  foreign_series_name)  # perhaps there is already a foreign cycle name
         else:
