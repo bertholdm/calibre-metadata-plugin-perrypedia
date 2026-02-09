@@ -224,12 +224,14 @@ class Perrypedia(Source):
     author = 'Michael Detambel'
     platforms = ['windows', 'linux', 'osx']
     minimum_calibre_version = (0, 8, 5)
-    version = (1, 10, 1)  # MAJOR.MINOR.PATCH (https://semver.org/)
-    released = ('11-24-2025')
+    version = (1, 10, 3)  # MAJOR.MINOR.PATCH (https://semver.org/)
+    released = ('12-14-2025')
     history = True
     # ToDo:
     # - Using feed, e. g. https://forum.perry-rhodan.net/feed?f=152?
     # - Statistik aus Exil-Forum
+    # Version 1.10.3 - 12-14-2025
+    # - Cover downloading failed because submitted url was accidentally in list.
     # Version 1.10.2 - 11-26-2025
     # - Fix for template replacement if no series code is given.
     # Version 1.10.1 - 11-24-2025
@@ -1177,7 +1179,7 @@ class Perrypedia(Source):
         else:
             return result_queue
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30,
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30,
                        get_best_cover=True):
         """
         Download a cover and put it into result_queue. The parameters all have the same meaning as for :meth:`identify`.
@@ -1189,99 +1191,136 @@ class Perrypedia(Source):
         """
 
         loglevel = self.prefs["loglevel"]
-        # log.info('loglevel={0}'.format(loglevel))
 
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('*** Enter download_cover()')
-
-        if loglevel in [self.loglevels['DEBUG']]:
             log.info('identifiers=', identifiers)
-            log.info('identifiers["ppid"]=', identifiers['ppid'])
 
         caches = self.dump_caches()
         if loglevel in [self.loglevels['DEBUG']]:
-            log.info('Caches=', self.dump_caches())
+            log.info('Caches=', caches)
 
-        identifier_to_cover = caches['identifier_to_cover']
-        try:
-            cover_urls = identifier_to_cover['ppid:' + str(identifiers['ppid'])]
-            if loglevel in [self.loglevels['DEBUG']]:
-                log.info('cover_url(s) from caches=', cover_urls)
-                if get_best_cover:
-                    cover_urls = cover_urls[:1]
-                    if loglevel in [self.loglevels['DEBUG']]:
-                        log.info('Best cover_url=', cover_urls)
-        except KeyError:
-            cover_urls = None
-
-        # Return cached cover URL for the book identified by the identifiers dict or None if no such URL exists.
-        # Note that this method must only return validated URLs, i.e. not URLS that could result in a generic
-        # cover image or a not found error.
-        # cover_url = self.get_cached_cover_url(identifiers=identifiers['ppid'])
-
-        # cover_url = 'https://www.perrypedia.de/mediawiki/images/a/a9/PR0777.jpg'
-
-        if cover_urls is None:
-            if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-                log.info(_('No cached cover found, running identify.'))
+        cached_url = self.get_cached_cover_url(identifiers)
+        if cached_url is None:
+            log.info(_('No cached cover found, running identify'))
             rq = Queue()
-            self.identify(log, rq, abort, title=title, authors=authors, identifiers=identifiers)
+            self.identify(log, rq, abort, title=title,
+                          authors=authors, identifiers=identifiers)
             if abort.is_set():
-                return
+                return None
+
             results = []
             while True:
                 try:
                     results.append(rq.get_nowait())
                 except Empty:
                     break
-            results.sort(key=self.identify_results_keygen(title=title, authors=authors, identifiers=identifiers))
+            results.sort(key=self.identify_results_keygen(
+                title=title, authors=authors, identifiers=identifiers))
             for mi in results:
-                cover_urls = self.get_cached_cover_url(mi.identifiers)
-
-                # why comes no cached cover url?
-
-                if loglevel in [self.loglevels['DEBUG']]:
-                    log.info('mi.identifiers=', mi.identifiers)
-                    log.info('mi.cover_data=', mi.cover_data)
-                    log.info('Got cached_cover_url(s) from identify=', cover_urls)
-                if cover_urls is not None:
+                cached_url = self.get_cached_cover_url(mi.identifiers)
+                if cached_url is not None:
                     break
 
-        if cover_urls is None:
-            if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-                log.info(_('No luck to find cover with identify.'))
-            return
+        if not cached_url:
+            log.info(_('Also no cover found with identify'))
+            return None
+
         if abort.is_set():
-            return
+            return None
 
-        # cover_url = 'https://www.perrypedia.de/mediawiki/images/d/d1/PR2038.jpg'  # Test
+        br = self.browser
+        url = cached_url[0]
+        if loglevel in [self.loglevels['DEBUG']]:
+            log.info('Downloading cover from:', url)
+        try:
+            cdata = br.open_novisit(url, timeout=timeout).read()
+            result_queue.put((self, cdata))
+        except Exception as e:
+            log.info(_("Could not download Cover, ERROR {0}").format(e))
 
-        # Bei Bulk-Download wird nur ein Titelbild geladen. In der PP wird üblicherweise das Original-Titelbild
-        # zuerst aufgeführt. Durch Setzen von get_best_cover = True in den Parametern der Download-Methode wird dies
-        # dann ausgewählt, wie ein Blick in die Methode download_multiple_covers() zeigt:
-        # def download_multiple_covers(self, title, authors, urls, get_best_cover, timeout, result_queue, abort, log,
-        # prefs_name='max_covers'):
-        #         if get_best_cover:
-        #             urls = urls[:1]
-
-        for cover_url in cover_urls:
-            try:
-                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-                    log.info(_('Going to download cover from url'), cover_url)
-                cdata = self.browser.open_novisit(cover_url, timeout=timeout).read()
-                if loglevel in [self.loglevels['DEBUG']]:
-                    log.info('cdata=', str(cdata)[:80])
-                result_queue.put((self, cdata))
-                if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
-                    log.info(_('Have downloaded cover from'), cover_url)
-            except Exception:
-                log.exception(_('Failed to download cover from'), cover_url)
+    # Too complicated...
+    #
+    # identifier_to_cover = caches['identifier_to_cover']
+    #     try:
+    #         cover_urls = identifier_to_cover['ppid:' + str(identifiers['ppid'])]
+    #         if loglevel in [self.loglevels['DEBUG']]:
+    #             log.info('cover_url(s) from caches=', cover_urls)
+    #             if get_best_cover:
+    #                 cover_urls = cover_urls[:1]
+    #                 if loglevel in [self.loglevels['DEBUG']]:
+    #                     log.info('Best cover_url=', cover_urls)
+    #     except KeyError:
+    #         cover_urls = None
+    #
+    #     # Return cached cover URL for the book identified by the identifiers dict or None if no such URL exists.
+    #     # Note that this method must only return validated URLs, i.e. not URLS that could result in a generic
+    #     # cover image or a not found error.
+    #     # cover_url = 'https://www.perrypedia.de/mediawiki/images/a/a9/PR0777.jpg'
+    #     # cover_url = self.get_cached_cover_url(identifiers=identifiers['ppid'])
+    #
+    #     if cover_urls is None:
+    #         if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+    #             log.info(_('No cached cover found, running identify.'))
+    #         rq = Queue()
+    #         self.identify(log, rq, abort, title=title, authors=authors, identifiers=identifiers)
+    #         if abort.is_set():
+    #             return
+    #         results = []
+    #         while True:
+    #             try:
+    #                 results.append(rq.get_nowait())
+    #             except Empty:
+    #                 break
+    #         results.sort(key=self.identify_results_keygen(title=title, authors=authors, identifiers=identifiers))
+    #         for mi in results:
+    #             cover_urls = self.get_cached_cover_url(mi.identifiers)
+    #
+    #             # why comes no cached cover url?
+    #
+    #             if loglevel in [self.loglevels['DEBUG']]:
+    #                 log.info('mi.identifiers=', mi.identifiers)
+    #                 log.info('mi.cover_data=', mi.cover_data)
+    #                 log.info('Got cached_cover_url(s) from identify=', cover_urls)
+    #             if cover_urls is not None:
+    #                 break
+    #
+    #     if cover_urls is None:
+    #         if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+    #             log.info(_('No luck to find cover with identify.'))
+    #         return
+    #     if abort.is_set():
+    #         return
+    #
+    #     # cover_url = 'https://www.perrypedia.de/mediawiki/images/d/d1/PR2038.jpg'  # Test
+    #
+    #     # Bei Bulk-Download wird nur ein Titelbild geladen. In der PP wird üblicherweise das Original-Titelbild
+    #     # zuerst aufgeführt. Durch Setzen von get_best_cover = True in den Parametern der Download-Methode wird dies
+    #     # dann ausgewählt, wie ein Blick in die Methode download_multiple_covers() zeigt:
+    #     # def download_multiple_covers(self, title, authors, urls, get_best_cover, timeout, result_queue, abort, log,
+    #     # prefs_name='max_covers'):
+    #     #         if get_best_cover:
+    #     #             urls = urls[:1]
+    #
+    #     for cover_url in cover_urls:
+    #         try:
+    #             if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+    #                 log.info(_('Going to download cover from url'), cover_url)
+    #             cdata = self.browser.open_novisit(cover_url, timeout=timeout).read()
+    #             # if self.browser.
+    #             if loglevel in [self.loglevels['DEBUG']]:
+    #                 log.info('cdata=', str(cdata)[:80])
+    #             result_queue.put((self, cdata))
+    #             if loglevel in [self.loglevels['DEBUG'], self.loglevels['INFO']]:
+    #                 log.info(_('Have downloaded cover from'), cover_url)
+    #         except Exception:
+    #             log.exception(_('Failed to download cover from'), cover_url)
 
     def get_book_url(self, identifiers):
         pp_id = identifiers.get('ppid', None)
         if pp_id:
             url = 'https://www.perrypedia.de/wiki/Quelle:' + pp_id
-            return ('ppid', pp_id, url)
+            return 'ppid', pp_id, url
 
     def create_query(self, log, title=None, authors=None, identifiers={}):
         pp_id = identifiers.get('ppid', None)
@@ -1300,18 +1339,6 @@ class Perrypedia(Source):
         if len(tokens) == 0:
             return None
         return self.api_url + 'action=opensearch&namespace=0&search=' + join(tokens) + '&limit=10&format=json'
-
-    def get_details(self, browser, url, timeout):  # {{{
-        try:
-            raw = browser.open_novisit(url, timeout=timeout).read()
-        except Exception as e:
-            gc = getattr(e, 'getcode', lambda: -1)
-            if gc() != 403:
-                raise
-            # wait a little
-            time.sleep(2)
-            raw = browser.open_novisit(url, timeout=timeout).read()
-        return raw
 
     # Perrypedia specific identification methods
 
@@ -2566,7 +2593,7 @@ class Perrypedia(Source):
             mi.set_identifier('ppid', series_code + str(issuenumber).strip())
             mi.series = series_names[series_code]
             mi.series_index = issuenumber
-            if cover_urls is not []:
+            if cover_urls:
                 mi.has_cover = True
                 try:
                     self.cache_identifier_to_cover_url('ppid:' + series_code + str(issuenumber).strip(), cover_urls)
@@ -2640,7 +2667,7 @@ class Perrypedia(Source):
             series_code = 'Werkstattband'
             if loglevel in [self.loglevels['DEBUG']]:
                 log.info('series_code={0}'.format(series_code))
-            match = re.search('<h1 id="firstHeading" class="firstHeading" lang="de">(.* Werkstattband)</h1>',
+            match = re.search(r'<h1 id="firstHeading" class="firstHeading" lang="de">(.* Werkstattband)</h1>',
                               raw_metadata[3])  # , re.MULTILINE
             if match:
                 title = match.group(0).strip()
@@ -2656,7 +2683,7 @@ class Perrypedia(Source):
             mi = Metadata(title=title, authors=authors)
             mi.set_identifier('ppid', series_code + str(mi.series_index).strip())
             mi.series = series_names[series_code]
-            if not cover_urls:
+            if cover_urls:
                 mi.has_cover = True
                 try:
                     self.cache_identifier_to_cover_url('ppid:' + series_code + str(mi.series_index).strip(), cover_urls)
@@ -2679,7 +2706,7 @@ class Perrypedia(Source):
             # <li>Erstveröffentlichung:  Juli 1975
             search_result = re.search(r'<li>Erstveröffentlichung:(.{1,10}\d\d\d\d)', plot)
             if search_result:
-                search_result = re.sub('<.*?>', '', search_result.group(0)).strip()  # Get rid of html tags
+                search_result = re.sub(r'<.*?>', '', search_result.group(0)).strip()  # Get rid of html tags
                 search_result = search_result.replace('Erstveröffentlichung:', '').strip()
                 try:
                     mi.pubdate = parser.parse(search_result, default=datetime(int(mi.series_index), 1, 1, 2, 0, 0),
@@ -2691,7 +2718,7 @@ class Perrypedia(Source):
             # <li>Herausgeber: <a href="/wiki/William_Voltz" title="William Voltz">William Voltz</a></li>
             search_result = re.search(r'<li>Herausgeber: (.*)</li>', plot)
             if search_result:
-                mi.authors = [re.sub('<[^<]+?>', '', search_result).group(0).strip() + ' ' + _('(Editor)')]
+                mi.authors = [re.sub(r'<[^<]+?>', '', search_result).group(0).strip() + ' ' + _('(Editor)')]
             mi.comments = ''
             mi.comments = mi.comments + '<p>' + plot + '</p>'
             mi.comments = mi.comments + '<p>Quelle:' + '&nbsp;' + '<a href="' + url + '">' + url + '</a></p>'
@@ -2818,7 +2845,7 @@ class Perrypedia(Source):
         # caching API for this.
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('cover_urls=', cover_urls)
-        if not cover_urls:
+        if cover_urls:
             mi.has_cover = True
             try:
                 self.cache_identifier_to_cover_url('ppid:' + series_code + str(issuenumber).strip(), cover_urls)
@@ -2828,6 +2855,8 @@ class Perrypedia(Source):
                 self.cache_identifier_to_cover_url('ppid:' + title, cover_urls)
                 if loglevel in [self.loglevels['DEBUG'], 20]:
                     log.info(_('Cover URLs cached with title:'), cover_urls)
+            if loglevel in [self.loglevels['DEBUG'], 20]:
+                log.info(_('Now cover URLs cached:'), self.get_cached_cover_url(mi.identifiers))
 
         try:
             if loglevel in [self.loglevels['DEBUG']]:
@@ -3339,7 +3368,7 @@ class Perrypedia(Source):
         if foreign_cycle:
             cycle = foreign_cycle
         custom_title = custom_title.replace('{cycle}', cycle)
-        pattern = '(\{series_index:.*?\})'
+        pattern = r'(\{series_index:.*?\})'
         if loglevel in [self.loglevels['DEBUG']]:
             log.info('pattern={0}'.format(pattern))
             log.info('custom_title={0}'.format(custom_title))
@@ -3560,17 +3589,6 @@ class Perrypedia(Source):
         with self.cache_lock:
             self._identifier_to_cover_url_cache[id_] = url
 
-    # def get_cached_cover_url(self, identifiers):
-    #     url = None
-    #     pp_id = identifiers.get('ppid', None)
-    #     # if pp_id is None:
-    #     #     isbn = identifiers.get('isbn', None)
-    #     #     if isbn is not None:
-    #     #         pp_id = self.cached_isbn_to_identifier(isbn)
-    #     if pp_id is not None:
-    #         url = self.cached_identifier_to_cover_url(pp_id)
-    #     return url
-
     def get_cached_cover_url(self, identifiers):
         """
         Return cached cover URL for the book identified by the identifiers dict or None if no such URL exists.
@@ -3578,13 +3596,11 @@ class Perrypedia(Source):
         or a not found error.
         """
         url = None
-
         # pp_id = identifiers.get('ppid', None)
         try:
             pp_id = identifiers['ppid']
         except KeyError:
             pp_id = None
-
         if pp_id is not None:
             url = self.cached_identifier_to_cover_url('ppid:' + pp_id)
         return url

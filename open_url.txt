@@ -1,0 +1,29 @@
+def open_url(self, url, browser, timeout):
+
+try:
+            log('Trying to open url: {0}'.format(url))
+            page = self.browser.open_novisit(url, timeout=timeout).read().strip
+            return page
+        except Exception as e:
+            self.log.exception('Failed to open url: %r'%url)
+            if callable(getattr(e, 'getcode', None))
+		if e.getcode() == 404:
+                self.log.error('URL malformed: %r'%self.url)
+                return
+	elif:
+gc = getattr(e, 'getcode', lambda: -1)
+        if gc() != 403:
+            raise
+# 403 Forbidden: That's because the server is blocking you as a bot.
+
+issuenumber= 3431
+url= https://www.perrypedia.de/mediawiki/index.php?title=Quelle:pr3431
+Abrufen von Inhalten von URL fehlgeschlagen. Grund=404.
+Traceback (most recent call last):
+  File "calibre_plugins.perrypedia.__init__", line 1857, in get_raw_metadata_from_series_and_issuenumber
+  File "mechanize\_mechanize.py", line 241, in open_novisit
+  File "mechanize\_mechanize.py", line 313, in _mech_open
+mechanize._response.get_seek_wrapper_class.<locals>.httperror_seek_wrapper: HTTP Error 404: Not Found
+
+
+# ToDo: Make cover_url global and fetch cover direct
